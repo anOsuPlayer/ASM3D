@@ -38,6 +38,21 @@ PERSPECTIVE:    .quad   0
 
 .section .text
 
+.global update
+update:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $32, %rsp
+
+    call update_direction
+    call update_view
+    call update_ratio
+    call update_perspective
+
+    addq $32, %rsp
+    popq %rbp
+    ret
+
 .global set_camera
 set_camera:
     pushq %rbp
@@ -59,8 +74,7 @@ set_camera:
     movq %rax, PERSPECTIVE(%rip)
 
     call center
-    call update_direction
-    call update_ratio
+    call update
 
     addq $32, %rsp
     popq %rbp
@@ -92,9 +106,6 @@ center:
 
     movss deffov(%rip), %xmm0
     movss %xmm0, fov(%rip)
-
-    call update_view
-    call update_perspective
 
     addq $32, %rsp
     popq %rbp
@@ -150,18 +161,12 @@ update_direction:
     call vcross
 
     movq cright(%rip), %rcx
-    movq cright(%rip), %rdx
-    call vnorm
-
-    movq cright(%rip), %rcx
     movq cdir(%rip), %rdx
     movq cup(%rip), %r8
     call vcross
 
     movq -24(%rbp), %rcx
     call free_vec
-
-    call update_view
 
     addq $92, %rsp
     popq %rbp
@@ -178,13 +183,16 @@ update_view:
     call make_vec
     movq %rax, -8(%rbp)
 
-    vmovups cright(%rip), %xmm0
+    movq cright(%rip), %rcx
+    vmovups (%rcx), %xmm0
     vmovups %xmm0, (%r15)
 
-    vmovups cup(%rip), %xmm0
+    movq cup(%rip), %rcx
+    vmovups (%rcx), %xmm0
     vmovups %xmm0, 16(%r15)
 
-    vmovups cdir(%rip), %xmm0
+    movq cdir(%rip), %rcx
+    vmovups (%rcx), %xmm0
     vmovups %xmm0, 32(%r15)
 
     movq -8(%rbp), %rax
@@ -244,11 +252,11 @@ update_ratio:
 
     movss %xmm0, ratio(%rip)
 
-    call update_perspective
-
     addq $32, %rsp
     popq %rbp
     ret
+
+d:  .string "%lf"
 
 .global update_perspective
 update_perspective:
@@ -259,12 +267,18 @@ update_perspective:
     movq PERSPECTIVE(%rip), %r15
 
     movss fov(%rip), %xmm0
-    movq $2, %rax
-    cvtsi2ss %rax, %xmm1
-    divss %xmm1, %xmm0
     movss %xmm0, -4(%rbp)
 
+    movq $360, %rcx
+    cvtsi2ss %rcx, %xmm0
+    movss %xmm0, -8(%rbp)
+
     flds -4(%rbp)
+    fldpi
+    fmul %st(1)
+    fstp %st(1)
+    flds -8(%rbp)
+    fdivr %st(1)
     fptan
     fstps -4(%rbp)
     fstps -4(%rbp)
@@ -286,21 +300,21 @@ update_perspective:
     movss far(%rip), %xmm1
     mulss %xmm1, %xmm0
 
-    movss %xmm1, 40(%r15)
+    movss %xmm0, 40(%r15)
 
     flds near(%rip)
     fchs
     fstps -4(%rbp)
 
     movss -4(%rbp), %xmm2
-    mulss %xmm1, %xmm2
+    mulss %xmm0, %xmm2
 
-    movss %xmm1, 56(%r15)
+    movss %xmm2, 44(%r15)
 
     movq $1, %rax
     cvtsi2ss %rax, %xmm0
 
-    movss %xmm0, 44(%r15)
+    movss %xmm0, 56(%r15)
 
     addq $48, %rsp
     popq %rbp

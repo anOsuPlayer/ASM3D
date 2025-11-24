@@ -118,8 +118,6 @@ input:
             movss ayz(%rip), %xmm0
             addss dl(%rip), %xmm0
             movss %xmm0, ayz(%rip)
-
-            call update_direction
             jmp inputend
         input8:
         cmpb look_down(%rip), %al
@@ -127,8 +125,6 @@ input:
             movss ayz(%rip), %xmm0
             subss dl(%rip), %xmm0
             movss %xmm0, ayz(%rip)
-
-            call update_direction
             jmp inputend
         input9:
         cmpb look_left(%rip), %al
@@ -136,8 +132,6 @@ input:
             movss axy(%rip), %xmm0
             addss dl(%rip), %xmm0
             movss %xmm0, axy(%rip)
-
-            call update_direction
             jmp inputend
         inputA:
         cmpb look_right(%rip), %al
@@ -145,15 +139,12 @@ input:
             movss axy(%rip), %xmm0
             subss dl(%rip), %xmm0
             movss %xmm0, axy(%rip)
-
-            call update_direction
             jmp inputend
         inputB:
 
         cmpb reset(%rip), %al
         jne inputC
             call center
-            call update_direction
             jmp inputend
         inputC:
 
@@ -167,8 +158,6 @@ input:
             movss fov(%rip), %xmm0
             addss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
-
-            call update_perspective
             jmp inputend
         inputD:
         cmpb fov_down(%rip), %al
@@ -181,11 +170,9 @@ input:
             movss fov(%rip), %xmm0
             subss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
-
-            call update_perspective
             jmp inputend
         inputE:
-    
+
     inputend:
     jmp input0
 

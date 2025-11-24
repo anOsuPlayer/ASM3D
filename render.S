@@ -280,7 +280,7 @@ buffer_frame:
         call make_frame
         call style_frame
 
-        call update_ratio
+        call update
 
         call render_assets
 

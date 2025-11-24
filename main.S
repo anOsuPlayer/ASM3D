@@ -9,6 +9,8 @@ main:
     movq %rsp, %rbp
     subq $48, %rsp
 
+    call get_screen_size
+
     call start_input
     call set_camera
     call make_assets

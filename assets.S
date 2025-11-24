@@ -129,8 +129,13 @@ make_point:
     subq $8, %rax
     movq %rax, -16(%rbp)
 
+    movq $1, %rax
+    cvtsi2ss %rax, %xmm6
+
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %rcx
+    
     movq -16(%rbp), %rax
     movq %rcx, (%rax)
 
@@ -169,9 +174,14 @@ make_line:
     subq $16, %rax
     movq %rax, -12(%rbp)
 
+    movq $1, %rax
+    cvtsi2ss %rax, %xmm6
+
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %rcx
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %rdx
 
     movq -12(%rbp), %rax
@@ -211,11 +221,17 @@ make_surface:
     subq $24, %rax
     movq %rax, -12(%rbp)
     
+    movq $1, %rax
+    cvtsi2ss %rax, %xmm6
+
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %rcx
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %rdx
     call make_vec
+    movss %xmm6, 12(%rax)
     movq %rax, %r8
 
     movq -12(%rbp), %rax

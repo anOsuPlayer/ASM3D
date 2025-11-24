@@ -20,7 +20,7 @@ render_assets:
 project:
     pushq %rbp
     movq %rsp, %rbp
-    subq $48, %rsp
+    subq $64, %rsp
 
     movq %rcx, -8(%rbp)
     movq %rdx, -16(%rbp)
@@ -33,27 +33,24 @@ project:
     movq -16(%rbp), %r8
     call mult_matrix_vec
 
-    // movq PERSPECTIVE(%rip), %rcx
-    // movq -16(%rbp), %rdx
-    // movq -24(%rbp), %r8
-    // call mult_matrix_vec
+    movq PERSPECTIVE(%rip), %rcx
+    movq -16(%rbp), %rdx
+    movq -24(%rbp), %r8
+    call mult_matrix_vec
 
-    // movq -24(%rbp), %rcx
-    // call vndc
-
-    // vmovups -24(%rbp), %xmm0
+    vmovups (%r8), %xmm0
+    vbroadcastss 12(%r8), %xmm1
+    vdivps %xmm1, %xmm0, %xmm0
 
     movq -24(%rbp), %rcx
     call free_vec
 
     movq -16(%rbp), %rax
-    // vmovups %xmm0, (%rax)
+    vmovups %xmm0, (%rax)
 
-    addq $48, %rsp
+    addq $64, %rsp
     popq %rbp
     ret
-
-dbg:    .string "%lf %lf %lf\n"
 
 .global render_points
 render_points:
