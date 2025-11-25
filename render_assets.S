@@ -101,24 +101,41 @@ draw_point:
     mulss %xmm1, %xmm0
     cvttss2si %xmm0, %rax
 
+    cmpq $0, %rax
+    jl draw_point1
+    cmpq buflen(%rip), %rax
+    jg draw_point1
+
     leaq depthbuf(%rip), %r8
     movzxb (%r8, %rax, 1), %r8
 
-    movl $0, %ebx
-    addl -4(%rbp), %ebx
-    movl %ebx, -12(%rbp)
+    draw_point0:
+
+    cmpl $0, -4(%rbp)
+    jl draw_point1
+    cmpl $0, -8(%rbp)
+    jl draw_point1
 
     movl screen_w(%rip), %eax
+    cmpl -4(%rbp), %eax
+    jl draw_point1
+    movl screen_h(%rip), %eax
+    cmpl -8(%rbp), %eax
+    jl draw_point1
+
+    movl screen_w(%rip), %eax
+    incl %eax
     movl -8(%rbp), %ebx
     xorq %rdx, %rdx
-    imull %ebx
+    mull %ebx
 
-    addl %eax, -12(%rbp)
+    addl -4(%rbp), %eax
 
     movq frame(%rip), %rcx
-    movl -12(%rbp), %ebx
-    addq %rbx, %rcx
-    movb $97, (%rcx)
+    addq %rax, %rcx
+    movb %r8b, (%rcx)
+
+    draw_point1:
 
     addq $32, %rsp
     popq %rbp
@@ -148,8 +165,10 @@ render_points:
 
             call project
             movq %rax, %rcx
+
             call draw_point
 
+            render_points2:
             addq $8, %r15
 
         decl -4(%rbp)

@@ -13,9 +13,6 @@ make_matrix:
     movq $64, %rcx
     call malloc
 
-    vpxorq %zmm1, %zmm1, %zmm1
-    vmovups %zmm1, (%rax)
-
     addq $32, %rsp
     popq %rbp
     ret
