@@ -97,6 +97,7 @@ vdot:
     vmovups (%rcx), %xmm0
     vmovups (%rdx), %xmm1
     vmulps %xmm0, %xmm1, %xmm0
+    pxor %xmm2, %xmm2
     vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
 

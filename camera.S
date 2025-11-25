@@ -203,7 +203,7 @@ update_view:
     movq %rax, %rcx
     movq cpos(%rip), %rdx
     call vdot
-    movl %eax, 48(%r15)
+    movl %eax, 12(%r15)
 
     movq -8(%rbp), %rax
 
@@ -213,7 +213,7 @@ update_view:
     movq %rax, %rcx
     movq cpos(%rip), %rdx
     call vdot
-    movl %eax, 52(%r15)
+    movl %eax, 28(%r15)
 
     movq -8(%rbp), %rax
 
@@ -223,7 +223,7 @@ update_view:
     movq %rax, %rcx
     movq cpos(%rip), %rdx
     call vdot
-    movl %eax, 56(%r15)
+    movl %eax, 44(%r15)
 
     movq $1, %rax
     cvtsi2ss %rax, %xmm0
