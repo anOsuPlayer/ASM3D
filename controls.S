@@ -61,12 +61,11 @@ input:
     subq $32, %rsp
 
     input0:
+        movb $1, framelock(%rip)
 
         call _getch
         cmpb %al, quit(%rip)
         je input1
-
-        movb $1, framelock(%rip)
 
         movq cpos(%rip), %rcx
 

@@ -256,8 +256,6 @@ update_ratio:
     popq %rbp
     ret
 
-d:  .string "%lf"
-
 .global update_perspective
 update_perspective:
     pushq %rbp

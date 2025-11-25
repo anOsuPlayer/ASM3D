@@ -1,5 +1,6 @@
 .section .data
 
+.global frame
 frame:          .quad   0
 
 .global exitv
@@ -272,21 +273,14 @@ buffer_frame:
     call twait_flag
 
     movb $0, framelock(%rip)
+    
+    call free_frame
+    call make_frame
+    call style_frame
 
-    cmpb $1, rebuffer(%rip)
-    jne buffer_frame0
-        
-        call free_frame
-        call make_frame
-        call style_frame
+    call update
 
-        call update
-
-        call render_assets
-
-        movb $0, rebuffer(%rip)
-
-    buffer_frame0:
+    call render_assets
 
     addq $48, %rsp
     popq %rbp

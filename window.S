@@ -20,9 +20,6 @@ screen_w:           .long   0
 .global screen_h
 screen_h:           .long   0
 
-.global rebuffer
-rebuffer:           .byte   0
-
 .section .text
 
 .global get_screen_size
@@ -45,7 +42,6 @@ get_screen_size:
 
     cmpl %eax, screen_w(%rip)
     je get_screen_size0
-        movb $1, rebuffer(%rip)
         movb $1, framelock(%rip)
     get_screen_size0:
 
@@ -58,7 +54,6 @@ get_screen_size:
 
     cmpl %eax, screen_h(%rip)
     je get_screen_size1
-        movb $1, rebuffer(%rip)
         movb $1, framelock(%rip)
     get_screen_size1:
 

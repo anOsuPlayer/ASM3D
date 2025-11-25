@@ -1,6 +1,7 @@
 .section .data
 
-
+depthbuf:       .string "@&%QWNM0gB$#DR8mHXKAUbOGpV4d9h6PkqwSE2]ayjxY5Zenol[utl13If}C{iF|)7JvTLs?z/*cr!+<>;=^,:'-."
+buflen:         .long   89
 
 .section .text
 
@@ -15,6 +16,8 @@ render_assets:
     addq $32, %rsp
     popq %rbp
     ret
+
+dbg: .string "%lf %lf %lf %lf\n"
 
 .global project
 project:
@@ -39,8 +42,8 @@ project:
     call mult_matrix_vec
 
     vmovups (%r8), %xmm0
-    vbroadcastss 12(%r8), %xmm1
-    vdivps %xmm1, %xmm0, %xmm0
+    // vbroadcastss 12(%r8), %xmm1
+    // vdivps %xmm1, %xmm0, %xmm0
 
     movq -24(%rbp), %rcx
     call free_vec
@@ -48,7 +51,92 @@ project:
     movq -16(%rbp), %rax
     vmovups %xmm0, (%rax)
 
+    movss (%rax), %xmm5
+    cvtss2sd %xmm5, %xmm5
+    movq %xmm5, %rdx
+    movss 4(%rax), %xmm5
+    cvtss2sd %xmm5, %xmm5
+    movq %xmm5, %r8
+    movss 8(%rax), %xmm5
+    cvtss2sd %xmm5, %xmm5
+    movq %xmm5, %r9
+    movss 12(%rax), %xmm5
+    cvtss2sd %xmm5, %xmm5
+    movq %xmm5, 32(%rsp)
+    leaq dbg(%rip), %rcx
+    xorq %rax, %rax
+    call printf
+
+    movq $4000000000, %rcx
+    call twait
+
     addq $64, %rsp
+    popq %rbp
+    ret
+
+.global draw_point
+draw_point:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $32, %rsp
+
+    movss (%rcx), %xmm0
+    movss %xmm0, -4(%rbp)
+    movq $1, %rax
+    cvtsi2ss %rax, %xmm0
+    movss -4(%rbp), %xmm1
+    addss %xmm0, %xmm1
+    movss %xmm1, -4(%rbp)
+
+    subss 4(%rcx), %xmm0
+    movss %xmm0, -8(%rbp)
+
+    movq $2, %rax
+    cvtsi2ss %rax, %xmm1
+
+    movss -4(%rbp), %xmm0
+    divss %xmm1, %xmm0
+    movss %xmm0, -4(%rbp)
+    movss -8(%rbp), %xmm0
+    divss %xmm1, %xmm0
+    movss %xmm0, -8(%rbp)
+
+    movl screen_w(%rip), %ebx
+    cvtsi2ss %ebx, %xmm0
+    movss -4(%rbp), %xmm1
+    mulss %xmm1, %xmm0
+    cvttss2si %xmm0, %eax
+    movl %eax, -4(%rbp)
+
+    movl screen_h(%rip), %ebx
+    cvtsi2ss %ebx, %xmm0
+    movss -8(%rbp), %xmm1
+    mulss %xmm1, %xmm0
+    roundss $2, %xmm0, %xmm0
+    cvttss2si %xmm0, %eax
+    movl %eax, -8(%rbp)
+
+    movl buflen(%rip), %ebx
+    cvtsi2ss %ebx, %xmm0
+    movss 8(%rcx), %xmm1
+    mulss %xmm1, %xmm0
+    cvttss2si %xmm0, %rax
+
+    leaq depthbuf(%rip), %r8
+    movzxb (%r8, %rax, 1), %r8
+
+    movl $0, %ebx
+    addl -4(%rbp), %ebx
+    movl %ebx, -12(%rbp)
+
+    movl screen_w(%rip), %eax
+    movl -8(%rbp), %ebx
+    xorq %rdx, %rdx
+    imull %ebx
+
+    addl %ebx, -12(%rbp)
+
+    addq $32, %rsp
     popq %rbp
     ret
 
@@ -75,6 +163,8 @@ render_points:
             movq -16(%rbp), %rdx
 
             call project
+            movq %rdx, %rcx
+            call draw_point
 
             addq $8, %r15
 
