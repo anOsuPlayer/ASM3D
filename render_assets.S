@@ -17,8 +17,6 @@ render_assets:
     popq %rbp
     ret
 
-dbg: .string "%lf %lf %lf %lf\n"
-
 .global project
 project:
     pushq %rbp
@@ -42,33 +40,14 @@ project:
     call mult_matrix_vec
 
     vmovups (%r8), %xmm0
-    // vbroadcastss 12(%r8), %xmm1
-    // vdivps %xmm1, %xmm0, %xmm0
+    vbroadcastss 12(%r8), %xmm1
+    vdivps %xmm1, %xmm0, %xmm0
 
     movq -24(%rbp), %rcx
     call free_vec
 
     movq -16(%rbp), %rax
     vmovups %xmm0, (%rax)
-
-    movss (%rax), %xmm5
-    cvtss2sd %xmm5, %xmm5
-    movq %xmm5, %rdx
-    movss 4(%rax), %xmm5
-    cvtss2sd %xmm5, %xmm5
-    movq %xmm5, %r8
-    movss 8(%rax), %xmm5
-    cvtss2sd %xmm5, %xmm5
-    movq %xmm5, %r9
-    movss 12(%rax), %xmm5
-    cvtss2sd %xmm5, %xmm5
-    movq %xmm5, 32(%rsp)
-    leaq dbg(%rip), %rcx
-    xorq %rax, %rax
-    call printf
-
-    movq $4000000000, %rcx
-    call twait
 
     addq $64, %rsp
     popq %rbp
@@ -134,7 +113,12 @@ draw_point:
     xorq %rdx, %rdx
     imull %ebx
 
-    addl %ebx, -12(%rbp)
+    addl %eax, -12(%rbp)
+
+    movq frame(%rip), %rcx
+    movl -12(%rbp), %ebx
+    addq %rbx, %rcx
+    movb $97, (%rcx)
 
     addq $32, %rsp
     popq %rbp
@@ -163,7 +147,7 @@ render_points:
             movq -16(%rbp), %rdx
 
             call project
-            movq %rdx, %rcx
+            movq %rax, %rcx
             call draw_point
 
             addq $8, %r15

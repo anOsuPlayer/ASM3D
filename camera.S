@@ -284,6 +284,8 @@ update_perspective:
     movss -4(%rbp), %xmm0
     rcpss %xmm0, %xmm0
 
+    fstp %st(0)
+
     movss %xmm0, 20(%r15)
 
     movss ratio(%rip), %xmm1

@@ -43,8 +43,8 @@ vmod:
 
     vmovups (%rcx), %xmm0
     vmulps %xmm0, %xmm0, %xmm0
-    haddps %xmm0, %xmm0
-    haddps %xmm0, %xmm0
+    vhaddps %xmm0, %xmm0, %xmm2
+    vhaddps %xmm2, %xmm2, %xmm0
     sqrtss %xmm0, %xmm0
 
     movss %xmm0, -4(%rbp)
