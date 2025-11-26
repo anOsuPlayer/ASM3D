@@ -11,16 +11,22 @@ fscanf_read2:       .string "%f %f %f"
 POINTS:             .quad 0
 .global pointcount
 pointcount:         .long 0
+.global psize
+psize:              .quad 8
 
 .global LINES
 LINES:              .quad 0
 .global linescount
 linescount:         .long 0
+.global lsize
+lsize:              .quad 16
 
 .global SURFACES
 SURFACES:           .quad 0
 .global surfacescount
 surfacescount:      .long 0
+.global ssize
+ssize:              .quad 24
 
 .section .text
 
@@ -108,7 +114,7 @@ make_point:
 
     incl pointcount(%rip)
     movl pointcount(%rip), %eax
-    movl $8, %ebx
+    movl psize(%rip), %ebx
     xorq %rdx, %rdx
     imull %ebx
 
@@ -126,7 +132,7 @@ make_point:
     movq POINTS(%rip), %rax
     movzx -4(%rbp), %rcx
     addq %rcx, %rax
-    subq $8, %rax
+    subq psize(%rip), %rax
     movq %rax, -16(%rbp)
 
     movq $1, %rax
@@ -153,7 +159,7 @@ make_line:
 
     incl linescount(%rip)
     movl linescount(%rip), %eax
-    movl $16, %ebx
+    movl lsize(%rip), %ebx
     xorq %rdx, %rdx
     imull %ebx
 
@@ -171,7 +177,7 @@ make_line:
     movq LINES(%rip), %rax
     movzx -4(%rbp), %rcx
     addq %rcx, %rax
-    subq $16, %rax
+    subq lsize(%rip), %rax
     movq %rax, -12(%rbp)
 
     movq $1, %rax
@@ -200,7 +206,7 @@ make_surface:
 
     incl surfacescount(%rip)
     movl surfacescount(%rip), %eax
-    movl $24, %ebx
+    movl ssize(%rip), %ebx
     xorq %rdx, %rdx
     imull %ebx
 
@@ -218,7 +224,7 @@ make_surface:
     movq SURFACES(%rip), %rax
     movzx -4(%rbp), %rcx
     addq %rcx, %rax
-    subq $24, %rax
+    subq ssize(%rip), %rax
     movq %rax, -12(%rbp)
     
     movq $1, %rax
@@ -257,7 +263,7 @@ free_assets:
 
             movq (%r15), %rcx
             call free_vec
-            addq $8, %r15
+            addq psize(%rip), %r15
 
         decl pointcount(%rip)
         cmpl $0, pointcount(%rip)
@@ -277,7 +283,7 @@ free_assets:
             call free_vec
             movq 8(%r15), %rcx
             call free_vec
-            addq $16, %r15
+            addq lsize(%rip), %r15
 
         decl linescount(%rip)
         cmpl $0, linescount(%rip)
@@ -299,7 +305,7 @@ free_assets:
             call free_vec
             movq 16(%r15), %rcx
             call free_vec
-            addq $24, %r15
+            addq ssize(%rip), %r15
 
         decl surfacescount(%rip)
         cmpl $0, surfacescount(%rip)

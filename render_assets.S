@@ -141,6 +141,18 @@ draw_point:
     popq %rbp
     ret
 
+.global draw_line
+draw_line:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $32, %rsp
+
+
+
+    addq $32, %rsp
+    popq %rbp
+    ret
+
 .global render_points
 render_points:
     pushq %rbp
@@ -169,7 +181,7 @@ render_points:
             call draw_point
 
             render_points2:
-            addq $8, %r15
+            addq psize(%rip), %r15
 
         decl -4(%rbp)
         cmpl $0, -4(%rbp)

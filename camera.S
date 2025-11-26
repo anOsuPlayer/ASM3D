@@ -7,6 +7,7 @@ cpos:           .quad   0
 cdir:           .quad   0
 .global cup
 cup:            .quad   0
+.global cright
 cright:         .quad   0
 
 .global axy

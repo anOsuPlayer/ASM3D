@@ -115,6 +115,18 @@ style_frame:
     movl -4(%rbp), %ecx
     movb $0, (%rax, %rcx, 1)
 
+    addq $64, %rsp
+    popq %rbp
+    ret
+
+.global print_frame
+print_frame:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $128, %rsp
+
+    movq frame(%rip), %rax
+    
     addq $3, %rax
     movl screen_w(%rip), %ebx
     addq %rbx, %rax
@@ -151,16 +163,6 @@ style_frame:
     leaq statcam(%rip), %rdx
     movq $24, %r8
     call memcpy
-
-    addq $64, %rsp
-    popq %rbp
-    ret
-
-.global print_frame
-print_frame:
-    pushq %rbp
-    movq %rsp, %rbp
-    subq $128, %rsp
 
     movq cpos(%rip), %rax
 
