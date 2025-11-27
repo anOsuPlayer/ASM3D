@@ -12,6 +12,7 @@ render_assets:
     subq $32, %rsp
 
     call render_points
+    call render_lines
 
     addq $32, %rsp
     popq %rbp
@@ -99,9 +100,10 @@ draw_point:
     cvtsi2ss %ebx, %xmm0
     movss 8(%rcx), %xmm1
     mulss %xmm1, %xmm0
-    cvttss2si %xmm0, %rax
+    cvttss2si %xmm0, %eax
+    movl %eax, -12(%rbp)
 
-    cmpq $0, %rax
+    cmpl $0, %eax
     jl draw_point1
     cmpq buflen(%rip), %rax
     jg draw_point1
@@ -137,6 +139,8 @@ draw_point:
 
     draw_point1:
 
+    vmovdqu -16(%rbp), %xmm0
+
     addq $32, %rsp
     popq %rbp
     ret
@@ -145,11 +149,16 @@ draw_point:
 draw_line:
     pushq %rbp
     movq %rsp, %rbp
-    subq $32, %rsp
+    subq $64, %rsp
 
+    movq %rdx, -8(%rbp)
+    call draw_point
+    vmovdqu %xmm0, -24(%rbp)
+    movq -8(%rbp), %rcx
+    call draw_point
+    vmovdqu %xmm0, -40(%rbp)
 
-
-    addq $32, %rsp
+    addq $64, %rsp
     popq %rbp
     ret
 
@@ -180,7 +189,6 @@ render_points:
 
             call draw_point
 
-            render_points2:
             addq psize(%rip), %r15
 
         decl -4(%rbp)
@@ -188,6 +196,54 @@ render_points:
         jne render_points0
 
     render_points1:
+
+    movq -16(%rbp), %rcx
+    call free_vec
+
+    addq $32, %rsp
+    popq %rbp
+    ret
+
+.global render_lines
+render_lines:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $32, %rsp
+
+    movq LINES(%rip), %r15
+    
+    movl linescount(%rip), %eax
+    movl %eax, -4(%rbp)
+
+    call make_vec
+    movq %rax, -16(%rbp)
+
+    cmpl $0, -4(%rbp)
+    je render_lines1
+
+        render_lines0:
+
+            movq (%r15), %rcx
+            movq -16(%rbp), %rdx
+
+            call project
+            movq %rax, %rcx
+
+            movq 8(%r15), %rcx
+            movq -16(%rbp), %rdx
+
+            call project
+            movq %rax, %rdx
+
+            call draw_line
+
+            addq lsize(%rip), %r15
+
+        decl -4(%rbp)
+        cmpl $0, -4(%rbp)
+        jne render_lines0
+
+    render_lines1:
 
     movq -16(%rbp), %rcx
     call free_vec

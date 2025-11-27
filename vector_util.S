@@ -10,11 +10,15 @@ make_vec:
     movq %rsp, %rbp
     subq $32, %rsp
 
+    movq %rcx, -8(%rbp)
+
     movq $16, %rcx
     call malloc
 
     pxor %xmm0, %xmm0
     vmovups %xmm0, (%rax)
+
+    movq -8(%rbp), %rcx
 
     addq $32, %rsp
     popq %rbp

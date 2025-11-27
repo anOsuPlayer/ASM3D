@@ -34,7 +34,7 @@ ssize:              .quad 24
 make_assets:
     pushq %rbp
     movq %rsp, %rbp
-    subq $96, %rsp
+    subq $144, %rsp
 
     leaq HANDLE_NAME(%rip), %rcx
     leaq HANDLE_MODE(%rip), %rdx
@@ -85,6 +85,47 @@ make_assets:
         cmpl $1, -16(%rbp)
         jne make_assets2
 
+            call make_line
+            movq (%rax), %rcx
+            movq %rcx, -24(%rbp)
+            movq 8(%rax), %rcx
+            movq %rcx, -32(%rbp)
+
+            movq HANDLE(%rip), %rcx
+            leaq fscanf_read2(%rip), %rdx
+            leaq -40(%rbp), %r8
+            leaq -48(%rbp), %r9
+            leaq -56(%rbp), %rax
+            movq %rax, 32(%rsp)
+            movq $0, %rax
+            call fscanf
+
+            movq -24(%rbp), %rax
+
+            movl -40(%rbp), %ecx
+            movl %ecx, (%rax)
+            movl -48(%rbp), %ecx
+            movl %ecx, 4(%rax)
+            movl -56(%rbp), %ecx
+            movl %ecx, 8(%rax)
+
+            movq HANDLE(%rip), %rcx
+            leaq fscanf_read2(%rip), %rdx
+            leaq -40(%rbp), %r8
+            leaq -48(%rbp), %r9
+            leaq -56(%rbp), %rax
+            movq %rax, 32(%rsp)
+            movq $0, %rax
+            call fscanf
+
+            movq -32(%rbp), %rax
+
+            movl -40(%rbp), %ecx
+            movl %ecx, (%rax)
+            movl -48(%rbp), %ecx
+            movl %ecx, 4(%rax)
+            movl -56(%rbp), %ecx
+            movl %ecx, 8(%rax)
 
             jmp make_assets3
 
@@ -102,7 +143,7 @@ make_assets:
     movq HANDLE(%rip), %rcx
     call fclose
 
-    addq $96, %rsp
+    addq $144, %rsp
     popq %rbp
     ret
 
@@ -155,7 +196,7 @@ make_point:
 make_line:
     pushq %rbp
     movq %rsp, %rbp
-    subq $32, %rsp
+    subq $48, %rsp
 
     incl linescount(%rip)
     movl linescount(%rip), %eax
@@ -178,7 +219,7 @@ make_line:
     movzx -4(%rbp), %rcx
     addq %rcx, %rax
     subq lsize(%rip), %rax
-    movq %rax, -12(%rbp)
+    movq %rax, -16(%rbp)
 
     movq $1, %rax
     cvtsi2ss %rax, %xmm6
@@ -190,11 +231,11 @@ make_line:
     movss %xmm6, 12(%rax)
     movq %rax, %rdx
 
-    movq -12(%rbp), %rax
+    movq -16(%rbp), %rax
     movq %rcx, (%rax)
     movq %rdx, 8(%rax)
-    
-    addq $32, %rsp
+
+    addq $48, %rsp
     popq %rbp
     ret
 
@@ -243,7 +284,7 @@ make_surface:
     movq -12(%rbp), %rax
     movq %rcx, (%rax)
     movq %rdx, 8(%rax)
-    movq %rdx, 16(%r8)
+    movq %r8, 16(%rax)
     
     addq $32, %rsp
     popq %rbp
