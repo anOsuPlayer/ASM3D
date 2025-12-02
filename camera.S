@@ -10,10 +10,12 @@ cup:            .quad   0
 .global cright
 cright:         .quad   0
 
-.global axy
-axy:            .float  0
-.global ayz
-ayz:            .float  0
+.global cyaw
+cyaw:           .float  0
+.global cpitch
+cpitch:         .float  0
+.global croll
+croll:          .float  0
 
 .global VIEW
 VIEW:           .quad   0
