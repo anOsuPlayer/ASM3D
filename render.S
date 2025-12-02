@@ -13,7 +13,7 @@ clear:          .string "cls"
 statpos:        .ascii "x:%+08.3lf y:%+08.3lf z:%+08.3lf"
 statdir:        .ascii "dx:%+08.3lf dy:%+08.3lf dz:%+08.3lf"
 statcup:        .ascii "ux:%+08.3lf uy:%+08.3lf uz:%+08.3lf"
-statang:        .ascii "axy:%+08.5lf ayz:%+08.5lf"
+statang:        .ascii "yaw:%+08.5lf pitch:%+08.5lf roll:%+08.5lf"
 statcam:        .ascii "fov:%+08.3lf ar:%+08.5lf"
 
 newline:        .byte   10
@@ -154,7 +154,7 @@ print_frame:
     addq %rbx, %rcx
 
     leaq statang(%rip), %rdx
-    movq $25, %r8
+    movq $41, %r8
     call memcpy
 
     incq %rcx
@@ -206,21 +206,25 @@ print_frame:
     call ss2sd
     movq %rcx, 72(%rsp)
 
-    movl axy(%rip), %ecx
+    movl cyaw(%rip), %ecx
     call ss2sd
     movq %rcx, 80(%rsp)
 
-    movl ayz(%rip), %ecx
+    movl cpitch(%rip), %ecx
     call ss2sd
     movq %rcx, 88(%rsp)
 
-    movl fov(%rip), %ecx
+    movl croll(%rip), %ecx
     call ss2sd
     movq %rcx, 96(%rsp)
 
-    movl ratio(%rip), %ecx
+    movl fov(%rip), %ecx
     call ss2sd
     movq %rcx, 104(%rsp)
+
+    movl ratio(%rip), %ecx
+    call ss2sd
+    movq %rcx, 112(%rsp)
 
     movq $0, %rax
     movq frame(%rip), %rcx
@@ -282,7 +286,7 @@ buffer_frame:
 
     call update
 
-    call render_assets
+    // call render_assets
 
     addq $48, %rsp
     popq %rbp

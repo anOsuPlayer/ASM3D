@@ -17,6 +17,8 @@ cpitch:         .float  0
 .global croll
 croll:          .float  0
 
+.global quaternion
+quaternion:     .quad   0
 .global VIEW
 VIEW:           .quad   0
 
@@ -47,7 +49,7 @@ update:
     movq %rsp, %rbp
     subq $32, %rsp
 
-    call update_direction
+    call update_quaternion
     call update_view
     call update_ratio
     call update_perspective
@@ -104,8 +106,9 @@ center:
     movl $0, 4(%rax)
     movl $0, 8(%rax)
 
-    movl $0, axy(%rip)
-    movl $0, ayz(%rip)
+    movl $0, cyaw(%rip)
+    movl $0, cpitch(%rip)
+    movl $0, croll(%rip)
 
     movss deffov(%rip), %xmm0
     movss %xmm0, fov(%rip)
@@ -114,62 +117,11 @@ center:
     popq %rbp
     ret
 
-.global update_direction
-update_direction:
+.global update_quaternion
+update_quaternion:
     pushq %rbp
     movq %rsp, %rbp
     subq $92, %rsp
-
-    movss axy(%rip), %xmm0
-    movss %xmm0, mathin(%rip)
-    call wsincos
-    movss mathout1(%rip), %xmm0
-    movss %xmm0, -4(%rbp)
-    movss mathout2(%rip), %xmm0
-    movss %xmm0, -8(%rbp)
-
-    movss ayz(%rip), %xmm0
-    movss %xmm0, mathin(%rip)
-    call wsincos
-    movss mathout1(%rip), %xmm0
-    movss %xmm0, -12(%rbp)
-    movss mathout2(%rip), %xmm0
-    movss %xmm0, -16(%rbp)
-
-    movq cdir(%rip), %rax
-
-    movss -4(%rbp), %xmm0
-    movss -12(%rbp), %xmm1
-    vmulss %xmm0, %xmm1, %xmm0
-    movss %xmm0, (%rax)
-
-    movss -8(%rbp), %xmm0
-    movss -12(%rbp), %xmm1
-    vmulss %xmm0, %xmm1, %xmm0
-    movss %xmm0, 4(%rax)
-
-    movl -16(%rbp), %ecx
-    movl %ecx, 8(%rax)
-
-    call make_vec
-    movq %rax, -24(%rbp)
-
-    movq $1, %rcx
-    cvtsi2ss %rcx, %xmm0
-    movss %xmm0, 8(%rax)
-
-    movq cdir(%rip), %rcx
-    movq -24(%rbp), %rdx
-    movq cright(%rip), %r8
-    call vcross
-
-    movq cright(%rip), %rcx
-    movq cdir(%rip), %rdx
-    movq cup(%rip), %r8
-    call vcross
-
-    movq -24(%rbp), %rcx
-    call free_vec
 
     addq $92, %rsp
     popq %rbp
@@ -181,59 +133,6 @@ update_view:
     movq %rsp, %rbp
     subq $48, %rsp
 
-    movq VIEW(%rip), %r15
-
-    call make_vec
-    movq %rax, -8(%rbp)
-
-    movq cright(%rip), %rcx
-    vmovups (%rcx), %xmm0
-    vmovups %xmm0, (%r15)
-
-    movq cup(%rip), %rcx
-    vmovups (%rcx), %xmm0
-    vmovups %xmm0, 16(%r15)
-
-    movq cdir(%rip), %rcx
-    vmovups (%rcx), %xmm0
-    vmovups %xmm0, 32(%r15)
-
-    movq -8(%rbp), %rax
-
-    movq cright(%rip), %rcx
-    movq %rax, %rdx
-    call vneg
-    movq %rax, %rcx
-    movq cpos(%rip), %rdx
-    call vdot
-    movl %eax, 12(%r15)
-
-    movq -8(%rbp), %rax
-
-    movq cup(%rip), %rcx
-    movq %rax, %rdx
-    call vneg
-    movq %rax, %rcx
-    movq cpos(%rip), %rdx
-    call vdot
-    movl %eax, 28(%r15)
-
-    movq -8(%rbp), %rax
-
-    movq cdir(%rip), %rcx
-    movq %rax, %rdx
-    call vneg
-    movq %rax, %rcx
-    movq cpos(%rip), %rdx
-    call vdot
-    movl %eax, 44(%r15)
-
-    movq $1, %rax
-    cvtsi2ss %rax, %xmm0
-    movss %xmm0, 60(%r15)
-
-    movq -8(%rbp), %rcx
-    call free_vec
 
     addq $48, %rsp
     popq %rbp

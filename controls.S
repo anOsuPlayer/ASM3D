@@ -14,6 +14,8 @@ look_up:                .byte   105
 look_down:              .byte   107
 look_left:              .byte   106
 look_right:             .byte   108
+roll_left:              .byte   117
+roll_right:             .byte   111
 
 fov_up:                 .byte   99
 fov_down:               .byte   118
@@ -136,46 +138,60 @@ input:
 
         cmpb look_up(%rip), %al
         jne input8
-            movss ayz(%rip), %xmm0
+            movss cpitch(%rip), %xmm0
             addss dl(%rip), %xmm0
-            movss %xmm0, ayz(%rip)
+            movss %xmm0, cpitch(%rip)
             jmp inputend
         input8:
         cmpb look_down(%rip), %al
         jne input9
-            movss ayz(%rip), %xmm0
+            movss cpitch(%rip), %xmm0
             subss dl(%rip), %xmm0
-            movss %xmm0, ayz(%rip)
+            movss %xmm0, cpitch(%rip)
             jmp inputend
         input9:
         cmpb look_left(%rip), %al
-        jne inputA
-            movss axy(%rip), %xmm0
+        jne input10
+            movss cyaw(%rip), %xmm0
             addss dl(%rip), %xmm0
-            movss %xmm0, axy(%rip)
+            movss %xmm0, cyaw(%rip)
             jmp inputend
-        inputA:
+        input10:
         cmpb look_right(%rip), %al
-        jne inputB
-            movss axy(%rip), %xmm0
+        jne input11
+            movss cyaw(%rip), %xmm0
             subss dl(%rip), %xmm0
-            movss %xmm0, axy(%rip)
+            movss %xmm0, cyaw(%rip)
             jmp inputend
-        inputB:
+        input11:
+        cmpb roll_left(%rip), %al
+        jne input12
+            movss croll(%rip), %xmm0
+            addss dl(%rip), %xmm0
+            movss %xmm0, croll(%rip)
+            jmp inputend
+        input12:
+        cmpb roll_right(%rip), %al
+        jne input13
+            movss croll(%rip), %xmm0
+            subss dl(%rip), %xmm0
+            movss %xmm0, croll(%rip)
+            jmp inputend
+        input13:
 
         cmpb reset(%rip), %al
-        jne inputC
+        jne input14
             call center
             jmp inputend
-        inputC:
+        input14:
         cmpb reload(%rip), %al
-        jne inputD
+        jne input15
             call free_assets
             call make_assets
-        inputD:
+        input15:
 
         cmpb fov_up(%rip), %al
-        jne inputE
+        jne input16
             movss fov(%rip), %xmm0
             movss maxfov(%rip), %xmm1
             ucomiss %xmm0, %xmm1
@@ -185,9 +201,9 @@ input:
             addss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
             jmp inputend
-        inputE:
+        input16:
         cmpb fov_down(%rip), %al
-        jne inputF
+        jne input17
             movss fov(%rip), %xmm0
             movss minfov(%rip), %xmm1
             ucomiss %xmm0, %xmm1
@@ -197,7 +213,7 @@ input:
             subss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
             jmp inputend
-        inputF:
+        input17:
 
     inputend:
     jmp input0
