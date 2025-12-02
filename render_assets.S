@@ -41,8 +41,6 @@ project:
     call mult_matrix_vec
 
     vmovups (%r8), %xmm0
-    vbroadcastss 12(%r8), %xmm1
-    vdivps %xmm1, %xmm0, %xmm0
 
     movq -24(%rbp), %rcx
     call free_vec
@@ -51,6 +49,21 @@ project:
     vmovups %xmm0, (%rax)
 
     addq $64, %rsp
+    popq %rbp
+    ret
+
+.global makendc
+makendc:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $32, %rsp
+
+    vmovups (%rcx), %xmm0
+    vbroadcastss 12(%rcx), %xmm1
+    vdivps %xmm1, %xmm0, %xmm0
+    vmovups %xmm0, (%rcx)
+
+    addq $32, %rsp
     popq %rbp
     ret
 
@@ -104,26 +117,24 @@ draw_point:
     movl %eax, -12(%rbp)
 
     cmpl $0, %eax
-    jl draw_point1
+    jl draw_point0
     cmpq buflen(%rip), %rax
-    jg draw_point1
+    jg draw_point0
 
     leaq depthbuf(%rip), %r8
     movzxb (%r8, %rax, 1), %r8
 
-    draw_point0:
-
     cmpl $0, -4(%rbp)
-    jl draw_point1
+    jl draw_point0
     cmpl $0, -8(%rbp)
-    jl draw_point1
+    jl draw_point0
 
     movl screen_w(%rip), %eax
     cmpl -4(%rbp), %eax
-    jl draw_point1
+    jl draw_point0
     movl screen_h(%rip), %eax
     cmpl -8(%rbp), %eax
-    jl draw_point1
+    jl draw_point0
 
     movl screen_w(%rip), %eax
     incl %eax
@@ -137,28 +148,24 @@ draw_point:
     addq %rax, %rcx
     movb %r8b, (%rcx)
 
-    draw_point1:
-
-    vmovdqu -16(%rbp), %xmm0
+    draw_point0:
 
     addq $32, %rsp
     popq %rbp
     ret
 
+d: .string "%lf %lf %lf\n"
+d2: .string "%d"
+
 .global draw_line
 draw_line:
     pushq %rbp
     movq %rsp, %rbp
-    subq $64, %rsp
+    subq $96, %rsp
 
-    movq %rdx, -8(%rbp)
-    call draw_point
-    vmovdqu %xmm0, -24(%rbp)
-    movq -8(%rbp), %rcx
-    call draw_point
-    vmovdqu %xmm0, -40(%rbp)
+    
 
-    addq $64, %rsp
+    addq $96, %rsp
     popq %rbp
     ret
 
@@ -186,6 +193,7 @@ render_points:
 
             call project
             movq %rax, %rcx
+            call makendc
 
             call draw_point
 
@@ -208,7 +216,7 @@ render_points:
 render_lines:
     pushq %rbp
     movq %rsp, %rbp
-    subq $32, %rsp
+    subq $64, %rsp
 
     movq LINES(%rip), %r15
     
@@ -217,6 +225,8 @@ render_lines:
 
     call make_vec
     movq %rax, -16(%rbp)
+    call make_vec
+    movq %rax, -24(%rbp)
 
     cmpl $0, -4(%rbp)
     je render_lines1
@@ -227,13 +237,15 @@ render_lines:
             movq -16(%rbp), %rdx
 
             call project
-            movq %rax, %rcx
+            movq %rax, -32(%rbp)
 
             movq 8(%r15), %rcx
-            movq -16(%rbp), %rdx
+            movq -24(%rbp), %rdx
 
             call project
             movq %rax, %rdx
+
+            movq -32(%rbp), %rcx
 
             call draw_line
 
@@ -247,7 +259,9 @@ render_lines:
 
     movq -16(%rbp), %rcx
     call free_vec
+    movq -24(%rbp), %rcx
+    call free_vec
 
-    addq $32, %rsp
+    addq $64, %rsp
     popq %rbp
     ret

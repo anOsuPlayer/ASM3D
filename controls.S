@@ -19,6 +19,7 @@ fov_up:                 .byte   99
 fov_down:               .byte   118
 
 reset:                  .byte   114
+reload:                 .byte   101
 quit:                   .byte   113
 
 dfov:                   .float  .5
@@ -167,9 +168,14 @@ input:
             call center
             jmp inputend
         inputC:
+        cmpb reload(%rip), %al
+        jne inputD
+            call free_assets
+            call make_assets
+        inputD:
 
         cmpb fov_up(%rip), %al
-        jne inputD
+        jne inputE
             movss fov(%rip), %xmm0
             movss maxfov(%rip), %xmm1
             ucomiss %xmm0, %xmm1
@@ -179,9 +185,9 @@ input:
             addss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
             jmp inputend
-        inputD:
+        inputE:
         cmpb fov_down(%rip), %al
-        jne inputE
+        jne inputF
             movss fov(%rip), %xmm0
             movss minfov(%rip), %xmm1
             ucomiss %xmm0, %xmm1
@@ -191,7 +197,7 @@ input:
             subss dfov(%rip), %xmm0
             movss %xmm0, fov(%rip)
             jmp inputend
-        inputE:
+        inputF:
 
     inputend:
     jmp input0
