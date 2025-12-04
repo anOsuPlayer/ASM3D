@@ -11,8 +11,6 @@ framelock:      .byte   1
 clear:          .string "cls"
 
 statpos:        .ascii "x:%+08.3lf y:%+08.3lf z:%+08.3lf"
-statdir:        .ascii "dx:%+08.3lf dy:%+08.3lf dz:%+08.3lf"
-statcup:        .ascii "ux:%+08.3lf uy:%+08.3lf uz:%+08.3lf"
 statang:        .ascii "yaw:%+08.5lf pitch:%+08.5lf roll:%+08.5lf"
 statcam:        .ascii "fov:%+08.3lf ar:%+08.5lf"
 
@@ -139,20 +137,6 @@ print_frame:
     incq %rcx
     addq %rbx, %rcx
 
-    leaq statdir(%rip), %rdx
-    movq $35, %r8
-    call memcpy
-
-    incq %rcx
-    addq %rbx, %rcx
-
-    leaq statcup(%rip), %rdx
-    movq $35, %r8
-    call memcpy
-
-    incq %rcx
-    addq %rbx, %rcx
-
     leaq statang(%rip), %rdx
     movq $41, %r8
     call memcpy
@@ -178,53 +162,25 @@ print_frame:
     call ss2sd
     movq %rcx, %r9
 
-    movq cdir(%rip), %rax
-
-    movl (%rax), %ecx
+    movl cyaw(%rip), %ecx
     call ss2sd
     movq %rcx, 32(%rsp)
 
-    movl 4(%rax), %ecx
-    call ss2sd
-    movq %rcx, 40(%rsp)
-    
-    movl 8(%rax), %ecx
-    call ss2sd
-    movq %rcx, 48(%rsp)
-
-    movq cup(%rip), %rax
-
-    movl (%rax), %ecx
-    call ss2sd
-    movq %rcx, 56(%rsp)
-
-    movl 4(%rax), %ecx
-    call ss2sd
-    movq %rcx, 64(%rsp)
-    
-    movl 8(%rax), %ecx
-    call ss2sd
-    movq %rcx, 72(%rsp)
-
-    movl cyaw(%rip), %ecx
-    call ss2sd
-    movq %rcx, 80(%rsp)
-
     movl cpitch(%rip), %ecx
     call ss2sd
-    movq %rcx, 88(%rsp)
+    movq %rcx, 40(%rsp)
 
     movl croll(%rip), %ecx
     call ss2sd
-    movq %rcx, 96(%rsp)
+    movq %rcx, 48(%rsp)
 
     movl fov(%rip), %ecx
     call ss2sd
-    movq %rcx, 104(%rsp)
+    movq %rcx, 56(%rsp)
 
     movl ratio(%rip), %ecx
     call ss2sd
-    movq %rcx, 112(%rsp)
+    movq %rcx, 64(%rsp)
 
     movq $0, %rax
     movq frame(%rip), %rcx

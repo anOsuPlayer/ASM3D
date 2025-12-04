@@ -74,65 +74,44 @@ input:
 
         cmpb move_forward(%rip), %al
         jne input2
-            movq cdir(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vaddps (%rcx), %xmm0, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss (%rcx), %xmm0
+            addss dm(%rip), %xmm0
+            movss %xmm0, (%rcx)
             jmp inputend
         input2:
         cmpb move_back(%rip), %al
         jne input3
-            movq cdir(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vmovups (%rcx), %xmm2
-            vsubps %xmm0, %xmm2, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss (%rcx), %xmm0
+            subss dm(%rip), %xmm0
+            movss %xmm0, (%rcx)
             jmp inputend
         input3:
         cmpb move_left(%rip), %al
         jne input4
-            movq cright(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vmovups (%rcx), %xmm2
-            vsubps %xmm0, %xmm2, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss 4(%rcx), %xmm0
+            addss dm(%rip), %xmm0
+            movss %xmm0, 4(%rcx)
             jmp inputend
         input4:
         cmpb move_right(%rip), %al
         jne input5
-            movq cright(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vaddps (%rcx), %xmm0, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss 4(%rcx), %xmm0
+            subss dm(%rip), %xmm0
+            movss %xmm0, 4(%rcx)
             jmp inputend
         input5:
         cmpb move_up(%rip), %al
         jne input6
-            movq cup(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vaddps (%rcx), %xmm0, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss 8(%rcx), %xmm0
+            addss dm(%rip), %xmm0
+            movss %xmm0, 8(%rcx)
             jmp inputend
         input6:
         cmpb move_down(%rip), %al
         jne input7
-            movq cup(%rip), %rdx
-            vmovups (%rdx), %xmm0
-            vbroadcastss dm(%rip), %xmm1
-            vmulps %xmm0, %xmm1, %xmm0
-            vmovups (%rcx), %xmm2
-            vsubps %xmm0, %xmm2, %xmm0
-            vmovups %xmm0, (%rcx)
+            movss 8(%rcx), %xmm0
+            subss dm(%rip), %xmm0
+            movss %xmm0, 8(%rcx)
             jmp inputend
         input7:
 

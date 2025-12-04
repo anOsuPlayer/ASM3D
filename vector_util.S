@@ -146,6 +146,83 @@ vcross:
     popq %rbp
     ret
 
+.global qmul
+qmul:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $64, %rsp
+
+    pxor %xmm1, %xmm1
+    movss 12(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    subss %xmm0, %xmm1
+
+    movss %xmm1, -16(%rbp)
+
+    pxor %xmm1, %xmm1
+    movss 12(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    addss %xmm0, %xmm1
+
+    movss %xmm1, -12(%rbp)
+
+    pxor %xmm1, %xmm1
+    movss 12(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+
+    movss %xmm1, -8(%rbp)
+
+    pxor %xmm1, %xmm1
+    movss 12(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    subss %xmm0, %xmm1
+
+    movss %xmm1, -4(%rbp)
+
+    vmovups -16(%rbp), %xmm0
+    vmovups %xmm0, (%r8)
+
+    addq $64, %rsp
+    popq %rbp
+    ret
+
 .global free_vec
 free_vec:
     pushq %rbp
@@ -157,4 +234,3 @@ free_vec:
     addq $32, %rsp
     popq %rbp
     ret
-

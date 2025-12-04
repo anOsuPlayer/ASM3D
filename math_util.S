@@ -24,22 +24,22 @@ sd2ss:
     movq %xmm0, %rcx
     ret
 
-.global sin
-sin:
+.global msin
+msin:
     flds mathin(%rip)
     fsin
     fstps mathout1(%rip)
     ret
 
-.global cos
-cos:
+.global mcos
+mcos:
     flds mathin(%rip)
     fcos
     fstps mathout1(%rip)
     ret
 
-.global wsincos
-wsincos:
+.global msincos
+msincos:
     flds mathin(%rip)
     fsincos
     fstps mathout1(%rip)

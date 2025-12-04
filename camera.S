@@ -3,12 +3,8 @@
 .global cpos
 cpos:           .quad   0
 
-.global cdir
-cdir:           .quad   0
-.global cup
-cup:            .quad   0
-.global cright
-cright:         .quad   0
+.global orientation
+orientation:
 
 .global cyaw
 cyaw:           .float  0
@@ -67,11 +63,7 @@ set_camera:
     call make_vec
     movq %rax, cpos(%rip)
     call make_vec
-    movq %rax, cdir(%rip)
-    call make_vec
-    movq %rax, cup(%rip)
-    call make_vec
-    movq %rax, cright(%rip)
+    movq %rax, quaternion(%rip)
 
     call make_matrix
     movq %rax, VIEW(%rip)
@@ -96,16 +88,6 @@ center:
     movl $0, 4(%rax)
     movl $0, 8(%rax)
 
-    movq cdir(%rip), %rax
-    movl $0, (%rax)
-    movl $0, 4(%rax)
-    movl $0, 8(%rax)
-
-    movq cup(%rip), %rax
-    movl $0, (%rax)
-    movl $0, 4(%rax)
-    movl $0, 8(%rax)
-
     movl $0, cyaw(%rip)
     movl $0, cpitch(%rip)
     movl $0, croll(%rip)
@@ -117,13 +99,91 @@ center:
     popq %rbp
     ret
 
+d: .string "%lf %lf %lf %lf\n"
+
 .global update_quaternion
 update_quaternion:
     pushq %rbp
     movq %rsp, %rbp
-    subq $92, %rsp
+    subq $96, %rsp
 
-    addq $92, %rsp
+    movq quaternion(%rip), %rax
+    pxor %xmm0, %xmm0
+    vmovups %xmm0, (%rax)
+
+    call make_vec
+    movq %rax, -8(%rbp)
+
+    vmovups orientation(%rip), %xmm0
+    movl $2, %eax
+    cvtsi2ss %eax, %xmm1
+    vbroadcastss %xmm1, %xmm1
+    vdivps %xmm1, %xmm0, %xmm0
+    vmovups %xmm0, -24(%rbp)
+
+    movss -24(%rbp), %xmm0
+    movss %xmm0, mathin(%rip)
+    call msincos
+    movss mathout1(%rip), %xmm0
+    movss %xmm0, -48(%rbp)
+    movss mathout2(%rip), %xmm0
+    movss %xmm0, -44(%rbp)
+
+    movss -20(%rbp), %xmm0
+    movss %xmm0, mathin(%rip)
+    call msincos
+    movss mathout1(%rip), %xmm0
+    movss %xmm0, -40(%rbp)
+    movss mathout2(%rip), %xmm0
+    movss %xmm0, -36(%rbp)
+
+    movss -16(%rbp), %xmm0
+    movss %xmm0, mathin(%rip)
+    call msincos
+    movss mathout1(%rip), %xmm0
+    movss %xmm0, -32(%rbp)
+    movss mathout2(%rip), %xmm0
+    movss %xmm0, -28(%rbp)
+
+    movq -8(%rbp), %rax
+    movss -48(%rbp), %xmm0
+    movss %xmm0, 12(%rax)
+    movss -44(%rbp), %xmm0
+    movss %xmm0, 8(%rax)
+
+    movq quaternion(%rip), %rax
+    movss -40(%rbp), %xmm0
+    movss %xmm0, 12(%rax)
+    movss -36(%rbp), %xmm0
+    movss %xmm0, 4(%rax)
+
+    movq -8(%rbp), %rcx
+    movq quaternion(%rip), %rdx
+    movq quaternion(%rip), %r8
+    call qmul
+
+    movq -8(%rbp), %rax
+    
+    pxor %xmm0, %xmm0
+    vmovups %xmm0, (%rax)
+    
+    movss -32(%rbp), %xmm0
+    movss %xmm0, 12(%rax)
+    movss -28(%rbp), %xmm0
+    movss %xmm0, (%rax)
+
+    movq quaternion(%rip), %rcx
+    movq -8(%rbp), %rdx
+    movq quaternion(%rip), %r8
+    call qmul
+
+    movq quaternion(%rip), %rcx
+    call vnorm
+
+    movq -8(%rbp), %rcx
+    call free_vec
+
+    addq $96, %rsp
     popq %rbp
     ret
 
@@ -230,11 +290,7 @@ free_camera:
 
     movq cpos(%rip), %rcx
     call free_vec
-    movq cdir(%rip), %rcx
-    call free_vec
-    movq cup(%rip), %rcx
-    call free_vec
-    movq cright(%rip), %rcx
+    movq quaternion(%rip), %rcx
     call free_vec
 
     movq VIEW(%rip), %rcx
