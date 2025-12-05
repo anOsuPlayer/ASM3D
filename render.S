@@ -242,7 +242,7 @@ buffer_frame:
 
     call update
 
-    // call render_assets
+    call render_assets
 
     addq $48, %rsp
     popq %rbp

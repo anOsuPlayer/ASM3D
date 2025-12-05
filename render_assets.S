@@ -154,7 +154,7 @@ draw_point:
     popq %rbp
     ret
 
-d: .string "%lf %lf %lf\n"
+d: .string "%lf %lf %lf %lf\n"
 d2: .string "%d"
 
 .global draw_line

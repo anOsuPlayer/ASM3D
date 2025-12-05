@@ -89,14 +89,14 @@ input:
         cmpb move_left(%rip), %al
         jne input4
             movss 4(%rcx), %xmm0
-            addss dm(%rip), %xmm0
+            subss dm(%rip), %xmm0
             movss %xmm0, 4(%rcx)
             jmp inputend
         input4:
         cmpb move_right(%rip), %al
         jne input5
             movss 4(%rcx), %xmm0
-            subss dm(%rip), %xmm0
+            addss dm(%rip), %xmm0
             movss %xmm0, 4(%rcx)
             jmp inputend
         input5:

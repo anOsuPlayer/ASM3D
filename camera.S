@@ -178,6 +178,7 @@ update_quaternion:
     call qmul
 
     movq quaternion(%rip), %rcx
+    movq quaternion(%rip), %rdx
     call vnorm
 
     movq -8(%rbp), %rcx
@@ -191,10 +192,128 @@ update_quaternion:
 update_view:
     pushq %rbp
     movq %rsp, %rbp
-    subq $48, %rsp
+    subq $64, %rsp
 
+    movq VIEW(%rip), %r15
 
-    addq $48, %rsp
+    movl $1, %eax
+    cvtsi2ss %eax, %xmm0
+    movss %xmm0, (%r15)
+    movss %xmm0, 20(%r15)
+    movss %xmm0, 40(%r15)
+    movss %xmm0, 60(%r15)
+
+    movq quaternion(%rip), %rax
+    vmovups (%rax), %xmm0
+    vmulps %xmm0, %xmm0, %xmm0
+    vmovups %xmm0, -16(%rbp)
+
+    movl $2, %eax
+    cvtsi2ss %eax, %xmm2
+
+    movss -12(%rbp), %xmm0
+    addss -8(%rbp), %xmm0
+    mulss %xmm2, %xmm0
+    movss (%r15), %xmm1
+    subss %xmm0, %xmm1
+    movss %xmm1, (%r15)
+
+    movss -16(%rbp), %xmm0
+    addss -8(%rbp), %xmm0
+    mulss %xmm2, %xmm0
+    movss 20(%r15), %xmm1
+    subss %xmm0, %xmm1
+    movss %xmm1, 20(%r15)
+
+    movss -16(%rbp), %xmm0
+    addss -12(%rbp), %xmm0
+    mulss %xmm2, %xmm0
+    movss 40(%r15), %xmm1
+    subss %xmm0, %xmm1
+    movss %xmm1, 40(%r15)
+
+    movq quaternion(%rip), %rax
+    vmovups (%rax), %xmm0
+    vmovups %xmm0, -16(%rbp)
+
+    movss -16(%rbp), %xmm0
+    mulss -12(%rbp), %xmm0
+    movss -8(%rbp), %xmm1
+    mulss -4(%rbp), %xmm1
+
+    vsubss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 4(%r15)
+    vaddss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 16(%r15)
+
+    movss -16(%rbp), %xmm0
+    mulss -8(%rbp), %xmm0
+    movss -12(%rbp), %xmm1
+    mulss -4(%rbp), %xmm1
+
+    vsubss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 32(%r15)
+    vaddss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 8(%r15)
+
+    movss -12(%rbp), %xmm0
+    mulss -8(%rbp), %xmm0
+    movss -16(%rbp), %xmm1
+    mulss -4(%rbp), %xmm1
+
+    vsubss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 24(%r15)
+    vaddss %xmm0, %xmm1, %xmm3
+    mulss %xmm2, %xmm3
+    movss %xmm3, 36(%r15)
+
+    call make_vec
+    movq %rax, -24(%rbp)
+
+    vmovups (%r15), %xmm0
+    vmovups %xmm0, (%rax)
+    movq %rax, %rcx
+    movq %rax, %rdx
+    call vneg
+    movq %rax, %rcx
+    movq cpos(%rip), %rdx
+    call vdot
+    movq %rax, %xmm0
+    movss %xmm0, 12(%r15)
+
+    movq -24(%rbp), %rax
+    vmovups 16(%r15), %xmm0
+    vmovups %xmm0, (%rax)
+    movq %rax, %rcx
+    movq %rax, %rdx
+    call vneg
+    movq %rax, %rcx
+    movq cpos(%rip), %rdx
+    call vdot
+    movq %rax, %xmm0
+    movss %xmm0, 28(%r15)
+
+    movq -24(%rbp), %rax
+    vmovups 32(%r15), %xmm0
+    vmovups %xmm0, (%rax)
+    movq %rax, %rcx
+    movq %rax, %rdx
+    call vneg
+    movq %rax, %rcx
+    movq cpos(%rip), %rdx
+    call vdot
+    movq %rax, %xmm0
+    movss %xmm0, 44(%r15)
+
+    movq -24(%rbp), %rcx
+    call free_vec
+
+    addq $64, %rsp
     popq %rbp
     ret
 
