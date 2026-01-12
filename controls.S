@@ -118,14 +118,14 @@ input:
         cmpb look_up(%rip), %al
         jne input8
             movss cpitch(%rip), %xmm0
-            addss dl(%rip), %xmm0
+            subss dl(%rip), %xmm0
             movss %xmm0, cpitch(%rip)
             jmp inputend
         input8:
         cmpb look_down(%rip), %al
         jne input9
             movss cpitch(%rip), %xmm0
-            subss dl(%rip), %xmm0
+            addss dl(%rip), %xmm0
             movss %xmm0, cpitch(%rip)
             jmp inputend
         input9:
