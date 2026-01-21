@@ -1,9 +1,9 @@
 #ifndef WINDOW_H
     #define WINDOW_H
 
-    extern int screen_w;
-    extern int screen_h;
+    extern const int screen_w;
+    extern const int screen_h;
 
-    void get_screen_size();
+    extern void get_screen_size();
 
 #endif

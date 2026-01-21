@@ -4,7 +4,7 @@
     #include <stdlib.h>
     #include <stdio.h>
 
-    extern void* frame;
+    extern const void* frame;
 
     extern void make_frame();
     extern void free_frame();

@@ -44,30 +44,49 @@ get_screen_size:
         incw %ax
         cwtl
 
+        cmpl %eax, screen_w(%rip)
+        je get_screen_size0
+            movb $1, framelock(%rip)
+        get_screen_size0:
+
+        movl %eax, screen_w(%rip)
+
+        movw BOTTOM(%rip), %ax
+        subw TOP(%rip), %ax
+        incw %ax
+        cwtl
+
+        cmpl %eax, screen_h(%rip)
+        je get_screen_size1
+            movb $1, framelock(%rip)
+        get_screen_size1:
+
+        movl %eax, screen_h(%rip)
+
     #else
 
-        
+        movq $0, %rdi
+        movq $0x5413, %rsi
+        leaq -16(%rbp), %rdx
+        call ioctl
+
+        movzxw -16(%rbp), %ax
+        cmpl %eax, screen_h(%rip)
+        je get_screen_size0
+            movb $1, framelock(%rip)
+        get_screen_size0:
+
+        movl %eax, screen_h(%rip)
+
+        movzxw -14(%rbp), %ax
+        cmpl %eax, screen_w(%rip)
+        je get_screen_size1
+            movb $1, framelock(%rip)
+        get_screen_size1:
+
+        movl %eax, screen_w(%rip)
 
     #endif
-
-    cmpl %eax, screen_w(%rip)
-    je get_screen_size0
-        movb $1, framelock(%rip)
-    get_screen_size0:
-
-    movl %eax, screen_w(%rip)
-
-    movw BOTTOM(%rip), %ax
-    subw TOP(%rip), %ax
-    incw %ax
-    cwtl
-
-    cmpl %eax, screen_h(%rip)
-    je get_screen_size1
-        movb $1, framelock(%rip)
-    get_screen_size1:
-
-    movl %eax, screen_h(%rip)
 
     addq $48, %rsp
     popq %rbp
