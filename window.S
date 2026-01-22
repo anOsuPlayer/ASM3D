@@ -1,6 +1,6 @@
 .section .data
 
-#if defined(_WIN32)
+#ifdef _WIN32
 
     STDOUT_H:           .long   -11
 
@@ -30,7 +30,7 @@ get_screen_size:
     movq %rsp, %rbp
     subq $48, %rsp
 
-    #if defined(_WIN32)
+    #ifdef _WIN32
 
         movl STDOUT_H(%rip), %ecx
         call GetStdHandle
@@ -70,7 +70,9 @@ get_screen_size:
         leaq -16(%rbp), %rdx
         call ioctl
 
-        movzxw -16(%rbp), %ax
+        movzxw -16(%rbp), %eax
+        incl %eax
+
         cmpl %eax, screen_h(%rip)
         je get_screen_size0
             movb $1, framelock(%rip)
@@ -78,7 +80,9 @@ get_screen_size:
 
         movl %eax, screen_h(%rip)
 
-        movzxw -14(%rbp), %ax
+        movzxw -14(%rbp), %eax
+        incl %eax
+        
         cmpl %eax, screen_w(%rip)
         je get_screen_size1
             movb $1, framelock(%rip)
