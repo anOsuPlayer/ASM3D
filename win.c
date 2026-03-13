@@ -41,10 +41,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            SetTextColor(hdc, RGB(255, 255, 255));
-            SetBkColor(hdc, RGB(0, 0, 0));
-            TextOut(hdc, 50, 50, "Hello world", 11);
-
+            DisplayData(hwnd, hdc, msg, wParam, lParam);
+            
             EndPaint(hwnd, &ps);
             return 0;
         }

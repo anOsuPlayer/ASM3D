@@ -1,7 +1,7 @@
 #ifndef WIN_H
     #define WIN_H
 
-    #include "common.h"
+    #include "camera.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 

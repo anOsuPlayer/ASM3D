@@ -1,25 +1,25 @@
 #include "basic.h"
 
-Point make_point() {
+Point MakePoint() {
     return (Point) malloc(sizeof(struct point_t));
 }
 
-void free_point(Point p) {
+void FreePoint(Point p) {
     free(p);
 }
 
-Line make_line() {
+Line MakeLine() {
     return (Line) malloc(sizeof(struct line_t));
 }
 
-void free_line(Line l) {
+void FreeLine(Line l) {
     free(l);
 }
 
-Surface make_surface() {
+Surface MakeSurface() {
     return (Surface) malloc(sizeof(struct surface_t));
 }
 
-void free_surface(Surface s) {
+void FreeSurface(Surface s) {
     free(s);
 }

@@ -1,5 +1,5 @@
-#ifndef BASE_ASSETS_H
-    #define BASE_ASSETS_H
+#ifndef BASIC_ASSETS_H
+    #define BASIC_ASSETS_H
 
     #include "common.h"
 
@@ -18,13 +18,13 @@
         float x3, y3, z3;
     } *Surface;
 
-    Point make_point();
-    void free_point(Point p);
+    Point MakePoint();
+    void FreePoint(Point p);
 
-    Line make_line();
-    void free_line(Line l);
+    Line MakeLine();
+    void FreeLine(Line l);
 
-    Surface make_surface();
-    void free_surface(Surface s);
+    Surface MakeSurface();
+    void FreeSurface(Surface s);
 
 #endif
