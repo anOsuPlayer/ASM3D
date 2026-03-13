@@ -1,0 +1,12 @@
+#ifndef WIN_H
+    #define WIN_H
+
+    #include "common.h"
+
+    HWND MakeWindow(HINSTANCE inst, int show);
+
+    void Loop(HWND wndw);
+
+    LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+#endif
