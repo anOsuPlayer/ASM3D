@@ -37,6 +37,9 @@ void Loop(HWND wndw) {
 
 LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
+        case WM_CREATE : {
+            return 0;
+        }
         case WM_PAINT : {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
@@ -46,6 +49,35 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             EndPaint(hwnd, &ps);
             return 0;
         }
+        case WM_KILLFOCUS : {
+            FreeMouse();
+            return 0;
+        }
+        case WM_SIZE : {
+            INT w = LOWORD(lParam);
+            INT h = HIWORD(lParam);
+
+            AR = ((FLOAT) w) / ((FLOAT) h);
+            return 0;
+        }
+        case WM_KEYDOWN : {
+            Move(hwnd, wParam, lParam);
+            
+            Repaint(hwnd);
+            return 0;
+        }
+        case WM_LBUTTONDOWN : {
+            OnLeftClick(hwnd, wParam, lParam);
+
+            Repaint(hwnd);
+            return 0;
+        }
+        case WM_MOUSEMOVE : {
+            Look(hwnd, wParam, lParam);
+
+            Repaint(hwnd);
+            return 0;
+        }
         case WM_DESTROY : {
             PostQuitMessage(0);
             return 0;
@@ -53,4 +85,9 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 
     DefWindowProc(hwnd, msg, wParam, lParam);
+}
+
+void Repaint(HWND hwnd) {
+    update();
+    InvalidateRect(hwnd, NULL, TRUE);
 }

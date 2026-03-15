@@ -6,9 +6,10 @@
     #include <stdlib.h>
     #include <stdio.h>
     #include <stdint.h>
+    #include <math.h>
 
-    static const DWORD      WIN_WIDTH   = 800;
-    static const DWORD      WIN_HEIGHT  = 600;
+    static const UINT       WIN_WIDTH   = 800;
+    static const UINT       WIN_HEIGHT  = 600;
     static const LPCSTR     WIN_NAME    = "ASM3D";
 
     static const COLORREF   TEXT_FG     = RGB(255, 255, 255);

@@ -2,11 +2,14 @@
     #define WIN_H
 
     #include "camera.h"
+    #include "controls.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 
     void Loop(HWND wndw);
 
     LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+    void Repaint(HWND hwnd);
 
 #endif
