@@ -42,12 +42,13 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             FLOAT dyaw = (FLOAT) x-25;
             FLOAT dpitch = (FLOAT) 25-y;
 
-            Angle.x += dyaw * DROT;
-            Angle.y += dpitch * DROT;
+            Angle.x -= dyaw * DROT;
+            Angle.y -= dpitch * DROT;
+            
+            CenterMouse(hwnd);
         }
         
         PREV_MOUSE_LOCATION = lParam;
-        CenterMouse(hwnd);
     }
 }
 

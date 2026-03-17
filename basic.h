@@ -18,13 +18,4 @@
         float x3, y3, z3;
     } *Surface;
 
-    Point MakePoint();
-    void FreePoint(Point p);
-
-    Line MakeLine();
-    void FreeLine(Line l);
-
-    Surface MakeSurface();
-    void FreeSurface(Surface s);
-
 #endif

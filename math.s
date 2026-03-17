@@ -226,6 +226,65 @@ mulqq:
     movq %rsp, %rbp
     subq $64, %rsp
 
+    movss 12(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    movss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    subss %xmm0, %xmm1
+
+    movss %xmm1, (%r8)
+
+    movss 12(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    movss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    addss %xmm0, %xmm1
+
+    movss %xmm1, 4(%r8)
+
+    movss 12(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    movss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    addss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    addss %xmm0, %xmm1
+
+    movss %xmm1, 8(%r8)
+
+    movss 12(%rcx), %xmm0
+    mulss 12(%rdx), %xmm0
+    movss %xmm0, %xmm1
+    movss (%rcx), %xmm0
+    mulss (%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 4(%rcx), %xmm0
+    mulss 4(%rdx), %xmm0
+    subss %xmm0, %xmm1
+    movss 8(%rcx), %xmm0
+    mulss 8(%rdx), %xmm0
+    subss %xmm0, %xmm1
+
+    movss %xmm1, 12(%r8)
 
     addq $64, %rsp
     popq %rbp

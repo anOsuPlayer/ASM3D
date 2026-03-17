@@ -3,6 +3,7 @@
 
     #include "camera.h"
     #include "controls.h"
+    #include "engine.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 
