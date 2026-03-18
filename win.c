@@ -45,8 +45,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             HDC hdc = BeginPaint(hwnd, &ps);
 
             DisplayData(hwnd, hdc, msg, wParam, lParam);
-
-            Render(hwnd, hdc);
             
             EndPaint(hwnd, &ps);
             return 0;
@@ -60,6 +58,7 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             INT h = HIWORD(lParam);
 
             AR = ((FLOAT) w) / ((FLOAT) h);
+            REPAINT_INDEX = 0;
             return 0;
         }
         case WM_KEYDOWN : {
@@ -81,6 +80,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
         case WM_DESTROY : {
+            DeleteObject(DEFAULT_FONT());
+
             PostQuitMessage(0);
             return 0;
         }
@@ -91,5 +92,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 void Repaint(HWND hwnd) {
     update();
-    InvalidateRect(hwnd, NULL, TRUE);
+    InvalidateRect(hwnd, NULL, !(REPAINT_INDEX++));
+    REPAINT_INDEX = (REPAINT_INDEX == 3000) ? 0 : REPAINT_INDEX;
 }

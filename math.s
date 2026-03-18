@@ -12,7 +12,7 @@ make_vec:
     movq $16, %rcx
     call malloc
 
-    vpxorq %xmm0, %xmm0, %xmm0
+    vpxor %xmm0, %xmm0, %xmm0
     vmovups %xmm0, (%rax)
 
     addq $32, %rsp
@@ -40,8 +40,9 @@ make_matrix:
     movq $64, %rcx
     call malloc
 
-    vpxorq %zmm1, %zmm1, %zmm1
-    vmovups %zmm1, (%rax)
+    vpxor %ymm1, %ymm1, %ymm1
+    vmovups %ymm1, (%rax)
+    vmovups %ymm1, 32(%rax)
 
     addq $32, %rsp
     popq %rbp
