@@ -41,6 +41,13 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CREATE : {
             return 0;
         }
+        case WM_TIMER : {
+            if (CAN_REPAINT) {
+                Repaint(hwnd);
+                CAN_REPAINT = FALSE;
+            }
+            return 0;
+        }
         case WM_PAINT : {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
@@ -82,11 +89,9 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CAN_REPAINT = TRUE;
             return 0;
         }
-        case WM_TIMER : {
-            if (CAN_REPAINT) {
-                Repaint(hwnd);
-                CAN_REPAINT = FALSE;
-            }
+        case WM_MOUSEWHEEL : {
+            Scroll(hwnd, wParam, lParam);
+            CAN_REPAINT = TRUE;
             return 0;
         }
         case WM_DESTROY : {

@@ -24,6 +24,10 @@ compute_point:
     ucomiss Near(%rip), %xmm0
     jbe compute_point_Cquit
 
+    movss -28(%rbp), %xmm0
+    ucomiss Far(%rip), %xmm0
+    jae compute_point_Cquit
+
     leaq -40(%rbp), %rcx
     leaq -40(%rbp), %rdx
     call vndc
@@ -51,9 +55,9 @@ compute_point:
 
     jmp compute_point_quit
     compute_point_Cquit:
-    movq $-1, %rax
+    movq $-10000, %rax
     cvtsi2ss %rax, %xmm0
-    movss %xmm0, -28(%rbp)
+    movss %xmm0, -32(%rbp)
 
     compute_point_quit:
     movq -8(%rbp), %rax

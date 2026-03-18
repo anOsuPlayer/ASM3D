@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "controls.h"
 
 void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     SetTextColor(hdc, TEXT_FG);
@@ -13,10 +14,11 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     rec.right -= 20;
 
     CHAR str1[200];
-    sprintf(str1, "x: %+.03f, y: %+.03f, z: %+.03f\nyaw: %+.03f, pitch: %+.03f, roll: %+.03f\nFOV: %.01f, AR: %.04f",
+    sprintf(str1, "x: %+.03f, y: %+.03f, z: %+.03f\nyaw: %+.03f, pitch: %+.03f, roll: %+.03f\nFOV: %.01f, AR: %.04f\nMovement: %s",
         Pos.x, Pos.y, Pos.z,
         Angle.x, Angle.y, Angle.z,
-        FOV, AR);
+        FOV, AR,
+        (IsDirectional() ? "Directional" : "Absolute"));
     
     DrawText(hdc, str1, -1, &rec, DT_CENTER);
 

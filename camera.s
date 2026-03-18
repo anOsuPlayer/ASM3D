@@ -34,7 +34,7 @@ Width:  .float  0
 Height: .float  0
 
 .global Near
-Near:       .float  .5
+Near:       .float  .1
 .global Far
 Far:        .float  200.0
 
@@ -236,11 +236,6 @@ update_view:
     subss %xmm1, %xmm0
     mulss %xmm2, %xmm0
     movss %xmm0, 40(%r15)
-
-    movl $0, 12(%r15)
-    movq %r15, %rcx
-    movq %r15, %rdx
-    call vneg
 
     leaq Pos(%rip), %rcx
     leaq -48(%rbp), %rdx

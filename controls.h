@@ -13,8 +13,19 @@
 
     static LPARAM           PREV_MOUSE_LOCATION;
 
+    static const LONG64     RIGHT = 0;
+    static const LONG64     UP = 16;
+    static const LONG64     FRONT = 32;
+
+    static BOOL             DIRECTIONAL_MOVE = FALSE;
+
+    extern void directional_move(LONG64 dir, UINT rate);
+
     void Move(HWND hwnd, WPARAM wParam, LPARAM lParam);
+    BOOL IsDirectional();
+
     void Look(HWND hwnd, WPARAM wParam, LPARAM lParam);
+    void Scroll(HWND hwnd, WPARAM wParam, LPARAM LPARAM);
 
     void OnLeftClick(HWND hwnd, WPARAM wParam, LPARAM lParam);
 

@@ -80,14 +80,12 @@ void FreeSurface(Surface s) {
 
 void RenderPoints(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < PCOUNT; i++) {
-        Vec pos = (Vec) ePOINTS[i];
         struct vec_t screen;
-        compute_point(pos, &screen);
+        compute_point((Vec) ePOINTS[i], &screen);
 
-        if (screen.w != -1.0f) {
+        if (screen.z != -10000.0f) {
             if (screen.x >= 0 && screen.x <= Width && screen.y >= 0 && screen.y < Height) {
-                FLOAT size = 3;
-                Ellipse(hdc, screen.x-size, screen.y-size, screen.x+size, screen.y+size);
+                Ellipse(hdc, screen.x-4, screen.y-4, screen.x+4, screen.y+4);
             }
         }
     }
