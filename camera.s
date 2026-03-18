@@ -10,27 +10,33 @@ PERSPECTIVE:    .quad   0
 .align 16
 .global Angle
 Angle:
-    yaw:    .float  .5
-    pitch:  .float  .2
-    roll:   .float  .1
+    yaw:    .float  0
+    pitch:  .float  0
+    roll:   .float  0
     .float          0
 
 .align 16
 .global Pos
 Pos:
-    x:      .float  10
-    y:      .float  5
-    z:      .float  2
+    x:      .float  0
+    y:      .float  0
+    z:      .float  0
     .float          0
 
 .global FOV    
 FOV:        .float  70.0
 .global AR
 AR:         .float  0
+
+.global Width
+Width:  .float  0
+.global Height    
+Height: .float  0
+
 .global Near
 Near:       .float  .5
 .global Far
-Far:        .float  150.0
+Far:        .float  200.0
 
 .section .text
 .global setup_camera
@@ -271,7 +277,38 @@ update_perspective:
     movq %rsp, %rbp
     subq $64, %rsp
 
-    
+    movq PERSPECTIVE(%rip), %r15
+
+    fldpi
+    movl $360, %eax
+    cvtsi2ss %eax, %xmm0
+    movss %xmm0, -4(%rbp)
+    fdivs -4(%rbp)
+    fmuls FOV(%rip)
+    fptan
+    fdiv %st(1), %st(0)
+    fsts 20(%r15)
+    fdivs AR(%rip)
+    fstps (%r15)
+    fstps -4(%rbp)
+
+    fld1
+    fstps 56(%r15)
+
+    movss Far(%rip), %xmm0
+    addss Near(%rip), %xmm0
+    movss Far(%rip), %xmm1
+    subss Near(%rip), %xmm1
+    divss %xmm1, %xmm0
+    movss %xmm0, 40(%r15)
+
+    movq $2, %rax
+    cvtsi2ss %rax, %xmm2
+    movss Far(%rip), %xmm0
+    mulss Near(%rip), %xmm0
+    mulss %xmm2, %xmm0
+    divss %xmm1, %xmm0
+    movss %xmm0, 44(%r15)
 
     addq $64, %rsp
     popq %rbp

@@ -11,11 +11,16 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             break;
         }
         case 'D' : {
-            Pos.y += (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+            Pos.y -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             break;
         }
         case 'A' : {
-            Pos.y -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+            Pos.y += (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+            break;
+        }
+        case 'R' : {
+            Pos.x = Pos.y = Pos.z = 0;
+            Angle.x = Angle.y = Angle.z = 0;
             break;
         }
         case ' ' : {

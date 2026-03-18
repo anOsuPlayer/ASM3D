@@ -2,6 +2,7 @@
     #define ENGINE_H
 
     #include "basic.h"
+    #include "camera.h"
 
     static Point*       ePOINTS;
     static UINT         PCOUNT = 0;
@@ -23,5 +24,13 @@
 
     Surface MakeSurface();
     void FreeSurface(Surface s);
+
+    extern void compute_point(Vec pos, Vec screen);
+
+    void RenderPoints(HWND hwnd, HDC hdc);
+    void RenderLines(HWND hwnd, HDC hdc);
+    void RenderSurfaces(HWND hwnd, HDC hdc);
+
+    void Render(HWND hwnd, HDC hdc);
 
 #endif

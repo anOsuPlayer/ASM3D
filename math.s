@@ -121,7 +121,7 @@ vndc:
 
     vbroadcastss 12(%rcx), %xmm0
     vmovups (%rcx), %xmm1
-    vdivps %xmm1, %xmm0, %xmm0
+    vdivps %xmm0, %xmm1, %xmm0
     vmovups %xmm0, (%rdx)
 
     addq $32, %rsp
@@ -182,40 +182,37 @@ vcross:
     popq %rbp
     ret
 
-
 .global mulmv
 mulmv:
     pushq %rbp
     movq %rsp, %rbp
     subq $48, %rsp
-    
-    vmovups (%rcx), %xmm0
+
     vmovups (%rdx), %xmm1
-    vmulps %xmm0, %xmm1, %xmm2
+
+    vmovups (%rcx), %xmm0
+    vmulps %xmm0, %xmm1, %xmm0
+    vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
-    vhaddps %xmm0, %xmm0, %xmm1
-    movss %xmm1, (%r8)
+    movss %xmm0, (%r8)
 
     vmovups 16(%rcx), %xmm0
-    vmovups (%rdx), %xmm1
-    vmulps %xmm0, %xmm1, %xmm2
+    vmulps %xmm0, %xmm1, %xmm0
+    vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
-    vhaddps %xmm0, %xmm0, %xmm1
-    movss %xmm1, 4(%r8)
+    movss %xmm0, 4(%r8)
 
     vmovups 32(%rcx), %xmm0
-    vmovups (%rdx), %xmm1
-    vmulps %xmm0, %xmm1, %xmm2
+    vmulps %xmm0, %xmm1, %xmm0
+    vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
-    vhaddps %xmm0, %xmm0, %xmm1
-    movss %xmm1, 8(%r8)
+    movss %xmm0, 8(%r8)
 
     vmovups 48(%rcx), %xmm0
-    vmovups (%rdx), %xmm1
-    vmulps %xmm0, %xmm1, %xmm2
+    vmulps %xmm0, %xmm1, %xmm0
+    vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
-    vhaddps %xmm0, %xmm0, %xmm1
-    movss %xmm1, 12(%r8)
+    movss %xmm0, 12(%r8)
 
     addq $48, %rsp
     popq %rbp

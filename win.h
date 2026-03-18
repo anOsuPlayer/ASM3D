@@ -11,7 +11,7 @@
 
     LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    static UINT REPAINT_INDEX = 0;
+    static BOOL CAN_REPAINT = FALSE;
     void Repaint(HWND hwnd);
 
 #endif

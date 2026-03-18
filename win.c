@@ -26,6 +26,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
     );
 
     ShowWindow(wndw, show);
+    SetTimer(wndw, 1, 8, NULL);
 }
 
 void Loop(HWND wndw) {
@@ -46,6 +47,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DisplayData(hwnd, hdc, msg, wParam, lParam);
             
+            Render(hwnd, hdc);
+
             EndPaint(hwnd, &ps);
             return 0;
         }
@@ -57,26 +60,33 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             INT w = LOWORD(lParam);
             INT h = HIWORD(lParam);
 
-            AR = ((FLOAT) w) / ((FLOAT) h);
-            REPAINT_INDEX = 0;
+            Width = ((FLOAT) w);
+            Height = ((FLOAT) h);
+
+            AR =  Width / Height;
+            CAN_REPAINT = TRUE;
             return 0;
         }
         case WM_KEYDOWN : {
             Move(hwnd, wParam, lParam);
-            
-            Repaint(hwnd);
+            CAN_REPAINT = TRUE;
             return 0;
         }
         case WM_LBUTTONDOWN : {
             OnLeftClick(hwnd, wParam, lParam);
-
-            Repaint(hwnd);
+            CAN_REPAINT = TRUE;
             return 0;
         }
         case WM_MOUSEMOVE : {
             Look(hwnd, wParam, lParam);
-
-            Repaint(hwnd);
+            CAN_REPAINT = TRUE;
+            return 0;
+        }
+        case WM_TIMER : {
+            if (CAN_REPAINT) {
+                Repaint(hwnd);
+                CAN_REPAINT = FALSE;
+            }
             return 0;
         }
         case WM_DESTROY : {
@@ -92,6 +102,5 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 void Repaint(HWND hwnd) {
     update();
-    InvalidateRect(hwnd, NULL, !(REPAINT_INDEX++));
-    REPAINT_INDEX = (REPAINT_INDEX == 3000) ? 0 : REPAINT_INDEX;
+    InvalidateRect(hwnd, NULL, TRUE);
 }

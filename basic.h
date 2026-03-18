@@ -4,18 +4,15 @@
     #include "common.h"
 
     typedef struct point_t {
-        float x, y, z;
+        float x, y, z, w;
     } *Point;
 
     typedef struct line_t {
-        float x1, y1, z1;
-        float x2, y2, z2;
+        struct point_t A, B;
     } *Line;
 
     typedef struct surface_t {
-        float x1, y1, z1;
-        float x2, y2, z2;
-        float x3, y3, z3;
+        struct point_t A, B, C;
     } *Surface;
 
 #endif

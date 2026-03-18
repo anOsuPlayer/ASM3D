@@ -13,6 +13,12 @@
     extern FLOAT            FOV;
     extern FLOAT            AR;
 
+    extern FLOAT            Width;
+    extern FLOAT            Height;
+
+    extern FLOAT            Near;
+    extern FLOAT            Far;
+
     extern void setup_camera();
     extern void free_camera();
 
