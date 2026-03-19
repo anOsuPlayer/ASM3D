@@ -108,7 +108,7 @@ update_quaternion:
     
     vmovups %xmm0, -16(%rbp)
     
-    vpxorq %xmm0, %xmm0, %xmm0
+    vpxor %xmm0, %xmm0, %xmm0
 
     vmovups %xmm0, -32(%rbp)
     vmovups %xmm0, -48(%rbp)

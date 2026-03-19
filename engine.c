@@ -85,7 +85,7 @@ void RenderPoints(HWND hwnd, HDC hdc) {
 
         if (screen.z != -10000.0f) {
             if (screen.x >= 0 && screen.x <= Width && screen.y >= 0 && screen.y < Height) {
-                Ellipse(hdc, screen.x-4, screen.y-4, screen.x+4, screen.y+4);
+                Ellipse(hdc, screen.x-5, screen.y-5, screen.x+5, screen.y+5);
             }
         }
     }
