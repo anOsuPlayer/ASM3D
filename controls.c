@@ -4,46 +4,46 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     switch (wParam) {
         case 'W' : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(FRONT, (GetKeyState(VK_SHIFT) ? 2 : 1));
+                directional_move(FRONT, (!GetKeyState(VK_SHIFT) ? 2 : 1));
             }
             else {
-                Pos.x += (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                Pos.x += (!GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             }
             break;
         }
         case 'S' : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(FRONT, (GetKeyState(VK_SHIFT) ? -2 : -1));
+                directional_move(FRONT, (!GetKeyState(VK_SHIFT) ? -2 : -1));
             }
             else {
-                Pos.x -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                Pos.x -= (!GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             }
             break;
         }
         case 'D' : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(RIGHT, (GetKeyState(VK_SHIFT) ? 2 : 1));
+                directional_move(RIGHT, (!GetKeyState(VK_SHIFT) ? 2 : 1));
             }
             else {
-                Pos.y += (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                Pos.y += (!GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             }
             break;
         }
         case 'A' : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(RIGHT, (GetKeyState(VK_SHIFT) ? -2 : -1));
+                directional_move(RIGHT, (!GetKeyState(VK_SHIFT) ? -2 : -1));
             }
             else {
-                Pos.y -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                Pos.y -= (!GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             }
             break;
         }
         case 'E' : {
-            Angle.z += (GetKeyState(VK_SHIFT) & 1 ? 1.0f : 2.0f) * 5.0f * DROT;
+            Angle.z += (!GetKeyState(VK_SHIFT) & 1 ? 1.0f : 2.0f) * 5.0f * DROT;
             break;
         }
         case 'Q' : {
-            Angle.z -= (GetKeyState(VK_SHIFT) & 1 ? 1.0f : 2.0f) * 5.0f * DROT;
+            Angle.z -= (!GetKeyState(VK_SHIFT) & 1 ? 1.0f : 2.0f) * 5.0f * DROT;
             break;
         }
         case 'R' : {
@@ -54,16 +54,16 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
         }
         case ' ' : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(UP, (GetKeyState(VK_SHIFT) ? 2 : 1));
+                directional_move(UP, (!GetKeyState(VK_SHIFT) ? 2 : 1));
             }
             else {
-                Pos.z += (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                Pos.z += (!GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
             }
             break;
         }
         case VK_CONTROL : {
             if (DIRECTIONAL_MOVE) {
-                directional_move(UP, (GetKeyState(VK_SHIFT) ? -2 : -1));
+                directional_move(UP, (!GetKeyState(VK_SHIFT) ? -2 : -1));
             }
             else {
                 Pos.z -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);

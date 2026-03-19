@@ -1,7 +1,7 @@
 #ifndef CONTROLS_H
     #define CONTROLS_H
 
-    #include "camera.h"
+    #include "engine.h"
 
     static const FLOAT      DPOS = 0.125f;
     static const FLOAT      DROT = 0.001745f;

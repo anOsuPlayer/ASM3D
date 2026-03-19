@@ -53,7 +53,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             HDC hdc = BeginPaint(hwnd, &ps);
 
             DisplayData(hwnd, hdc, msg, wParam, lParam);
-            
             Render(hwnd, hdc);
 
             EndPaint(hwnd, &ps);

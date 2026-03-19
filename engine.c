@@ -4,16 +4,6 @@ void InitializeAssets() {
     ePOINTS = (Point*) malloc(sizeof(Point));
     eLINES = (Line*) malloc(sizeof(Line));
     eSURFACES = (Surface*) malloc(sizeof(Surface));
-
-    Point p = MakePoint();
-    p->x = 5;
-    p->y = 0;
-    p->z = 0;
-
-    Point p2 = MakePoint();
-    p2->x = 3;
-    p2->y = 0;
-    p2->z = 5;
 }
 
 void TerminateAssets() {
