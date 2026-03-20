@@ -32,6 +32,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 void Loop(HWND wndw) {
     MSG message;
     while (GetMessage(&message, NULL, 0, 0)) {
+        TranslateMessage(&message);
         DispatchMessage(&message);
     }
 }
@@ -42,15 +43,22 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
         case WM_TIMER : {
-            if (CAN_REPAINT) {
+            if (CanRepaint()) {
                 Repaint(hwnd);
-                CAN_REPAINT = FALSE;
+                ClearRepaint();
             }
             return 0;
         }
         case WM_PAINT : {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
+
+            if (GetWinMode() == LOAD_ASSETS) {
+                DisplayAssetLoader(hwnd, hdc, wParam, lParam);
+            }
+            else if (GetWinMode() == CREATE_ASSETS) {
+                DisplayAssetCreator(hwnd, hdc, wParam, lParam);
+            }
 
             DisplayData(hwnd, hdc, msg, wParam, lParam);
             Render(hwnd, hdc);
@@ -70,27 +78,41 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             Height = ((FLOAT) h);
 
             AR =  Width / Height;
-            CAN_REPAINT = TRUE;
+            SetRepaint();
             return 0;
         }
+        
         case WM_KEYDOWN : {
-            Move(hwnd, wParam, lParam);
-            CAN_REPAINT = TRUE;
+            if (GetWinMode() == RENDER) {
+                Move(hwnd, wParam, lParam);
+            }
+
+            Special(hwnd, wParam, lParam);
+            SetRepaint();
             return 0;
         }
+        case WM_CHAR : {
+            if (GetWinMode() != RENDER) {
+                Type(hwnd, wParam, lParam);
+            }
+
+            SetRepaint();
+            return 0;
+        }
+
         case WM_LBUTTONDOWN : {
             OnLeftClick(hwnd, wParam, lParam);
-            CAN_REPAINT = TRUE;
+            SetRepaint();
             return 0;
         }
         case WM_MOUSEMOVE : {
             Look(hwnd, wParam, lParam);
-            CAN_REPAINT = TRUE;
+            SetRepaint();
             return 0;
         }
         case WM_MOUSEWHEEL : {
             Scroll(hwnd, wParam, lParam);
-            CAN_REPAINT = TRUE;
+            SetRepaint();
             return 0;
         }
         case WM_DESTROY : {

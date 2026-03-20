@@ -74,8 +74,9 @@ void RenderPoints(HWND hwnd, HDC hdc) {
         compute_point((Vec) ePOINTS[i], &screen);
 
         if (screen.z != -10000.0f) {
+            FLOAT size = 5 * powf(screen.z, 3.0f);
             if (screen.x >= 0 && screen.x <= Width && screen.y >= 0 && screen.y < Height) {
-                Ellipse(hdc, screen.x-5, screen.y-5, screen.x+5, screen.y+5);
+                Ellipse(hdc, screen.x-size, screen.y-size, screen.x+size, screen.y+size);
             }
         }
     }

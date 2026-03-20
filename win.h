@@ -3,7 +3,7 @@
 
     #include "camera.h"
     #include "controls.h"
-    #include "engine.h"
+    #include "loader.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 
@@ -11,7 +11,6 @@
 
     LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    static BOOL CAN_REPAINT = FALSE;
     void Repaint(HWND hwnd);
 
 #endif
