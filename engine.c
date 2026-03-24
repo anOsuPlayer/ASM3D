@@ -4,6 +4,15 @@ void InitializeAssets() {
     ePOINTS = (Point*) malloc(sizeof(Point));
     eLINES = (Line*) malloc(sizeof(Line));
     eSURFACES = (Surface*) malloc(sizeof(Surface));
+
+    Line l = MakeLine();
+    l->A.x = 10;
+    l->A.y = 10;
+    l->A.z = 10;
+
+    l->B.x = 5;
+    l->B.y = 5;
+    l->B.z = 5;
 }
 
 void TerminateAssets() {
@@ -71,19 +80,23 @@ void FreeSurface(Surface s) {
 void RenderPoints(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < PCOUNT; i++) {
         struct vec_t screen;
-        compute_point((Vec) ePOINTS[i], &screen);
+        BOOL confirm = compute_point((Vec) ePOINTS[i], &screen);
 
-        if (screen.z != -10000.0f) {
+        if (confirm) {
             FLOAT size = 5 * powf(screen.z, 3.0f);
-            if (screen.x >= 0 && screen.x <= Width && screen.y >= 0 && screen.y < Height) {
-                Ellipse(hdc, screen.x-size, screen.y-size, screen.x+size, screen.y+size);
-            }
+            Ellipse(hdc, screen.x-size, screen.y-size, screen.x+size, screen.y+size);
         }
     }
 }
 
 void RenderLines(HWND hwnd, HDC hdc) {
+    for (UINT i = 0; i < LCOUNT; i++) {
+        struct vec_t screen1, screen2;
+        BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
+        printf("%f %f %f %f\n", screen1.x, screen1.y, screen1.z, screen1.w);
+        printf("%f %f %f %f\n", screen2.x, screen2.y, screen2.z, screen2.w);
+    }
 }
 
 void RenderSurfaces(HWND hwnd, HDC hdc) {

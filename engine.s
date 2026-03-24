@@ -53,17 +53,79 @@ compute_point:
     mulss -36(%rbp), %xmm0
     movss %xmm0, -36(%rbp)
 
+    vpxor %xmm1, %xmm1, %xmm1
+
+    movss -40(%rbp), %xmm0
+    ucomiss %xmm1, %xmm0
+    jb compute_point_Cquit
+    movss -40(%rbp), %xmm0
+    ucomiss Width(%rip), %xmm0
+    ja compute_point_Cquit
+
+    movss -36(%rbp), %xmm0
+    ucomiss %xmm1, %xmm0
+    jb compute_point_Cquit
+    movss -36(%rbp), %xmm0
+    ucomiss Height(%rip), %xmm0
+    ja compute_point_Cquit
+
     jmp compute_point_quit
     compute_point_Cquit:
-    movq $-10000, %rax
-    cvtsi2ss %rax, %xmm0
-    movss %xmm0, -32(%rbp)
+    
+    movq $0, %rax
+    jmp compute_point_end
 
     compute_point_quit:
     movq -8(%rbp), %rax
     vmovups -40(%rbp), %xmm0
     vmovups %xmm0, (%rax)
+    movq $1, %rax
+
+    compute_point_end:
 
     addq $64, %rsp
+    popq %rbp
+    ret
+
+.global compute_line
+compute_line:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $128, %rsp
+
+    movq %rdx, -8(%rbp)
+    movq %r8, -16(%rbp)
+    movq %r9, -24(%rbp)
+
+    movq %rcx, %rdx
+    movq VIEW(%rip), %rcx
+    leaq -48(%rbp), %r8
+    call mulmv
+
+    movq PERSPECTIVE(%rip), %rcx
+    leaq -48(%rbp), %rdx
+    leaq -64(%rbp), %r8
+    call mulmv
+
+    movq -8(%rbp), %rdx
+    movq VIEW(%rip), %rcx
+    leaq -48(%rbp), %r8
+    call mulmv
+
+    movq PERSPECTIVE(%rip), %rcx
+    leaq -48(%rbp), %rdx
+    leaq -80(%rbp), %r8
+    call mulmv
+
+    movq -16(%rbp), %rax
+    vmovups -64(%rbp), %xmm0
+    vmovups %xmm0, (%rax)
+    movq -24(%rbp), %rax
+    vmovups -80(%rbp), %xmm0
+    vmovups %xmm0, (%rax)
+
+    movq $1, %rax
+
+    addq $128, %rsp
     popq %rbp
     ret

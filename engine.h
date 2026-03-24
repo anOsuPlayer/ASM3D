@@ -25,7 +25,8 @@
     Surface MakeSurface();
     void FreeSurface(Surface s);
 
-    extern void compute_point(Vec pos, Vec screen);
+    extern BOOL compute_point(Vec pos, Vec screen);
+    extern BOOL compute_line(Vec pos1, Vec pos2, Vec screen1, Vec screen2);
 
     void RenderPoints(HWND hwnd, HDC hdc);
     void RenderLines(HWND hwnd, HDC hdc);
