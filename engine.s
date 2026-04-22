@@ -119,17 +119,17 @@ compute_line:
     vmovups -80(%rbp), %xmm0
     vmovups %xmm0, -64(%rbp)
 
-    vbroadcastss -52(%rbp), %xmm0
-    vaddps -64(%rbp), %xmm0, %xmm1
-    vsubps -64(%rbp), %xmm0, %xmm2
+    vbroadcastss -36(%rbp), %xmm0
+    vaddps -48(%rbp), %xmm0, %xmm1
+    vsubps -48(%rbp), %xmm0, %xmm2
 
     vmovups %xmm1, -96(%rbp)
     vmovups %xmm2, -84(%rbp)
     movl $0, -68(%rbp)
 
-    vbroadcastss -36(%rbp), %xmm0
-    vaddps -48(%rbp), %xmm0, %xmm1
-    vsubps -48(%rbp), %xmm0, %xmm2
+    vbroadcastss -46(%rbp), %xmm0
+    vaddps -64(%rbp), %xmm0, %xmm1
+    vsubps -64(%rbp), %xmm0, %xmm2
 
     vmovups %xmm1, -128(%rbp)
     vmovups %xmm2, -116(%rbp)
@@ -139,13 +139,13 @@ compute_line:
     vpxor %xmm15, %xmm15, %xmm15
 
     compute_line_loop:
-        leaq -128(%rbp), %rcx
-        addq -136(%rbp), %rcx
-        movss (%rcx), %xmm0
-
         leaq -96(%rbp), %rdx
         addq -136(%rbp), %rdx
-        movss (%rdx), %xmm1
+        movss (%rdx), %xmm0
+
+        leaq -128(%rbp), %rcx
+        addq -136(%rbp), %rcx
+        movss (%rcx), %xmm1
 
         ucomiss %xmm15, %xmm1
         jae compute_line_loop0
@@ -166,13 +166,13 @@ compute_line:
             divss %xmm0, %xmm2
             vbroadcastss %xmm2, %xmm2
 
-            vmovups -48(%rbp), %xmm0
-            vsubps -64(%rbp), %xmm0, %xmm0
+            vmovups -64(%rbp), %xmm0
+            vsubps -48(%rbp), %xmm0, %xmm0
             vmulps %xmm2, %xmm0, %xmm0
             
             vmovups -48(%rbp), %xmm1
             vaddps %xmm1, %xmm0, %xmm0
-            vmovups %xmm0, -64(%rbp)
+            vmovups %xmm0, -48(%rbp)
 
             jmp compute_line_loop_cont
         compute_line_loop2:
@@ -181,22 +181,36 @@ compute_line:
             divss %xmm0, %xmm2
             vbroadcastss %xmm2, %xmm2
 
-            vmovups -48(%rbp), %xmm0
-            vsubps -64(%rbp), %xmm0, %xmm0
+            vmovups -64(%rbp), %xmm0
+            vsubps -48(%rbp), %xmm0, %xmm0
             vmulps %xmm2, %xmm0, %xmm0
             
             vmovups -48(%rbp), %xmm1
             vaddps %xmm1, %xmm0, %xmm0
-            vmovups %xmm0, -48(%rbp)
+            vmovups %xmm0, -64(%rbp)
 
         compute_line_loop_cont:
     addq $4, -136(%rbp)
     cmpq $24, -136(%rbp)
     jg compute_line_loop
+    
+    movss -36(%rbp), %xmm0
+    ucomiss Near(%rip), %xmm0
+    jbe compute_line_Cquit
+    movss -36(%rbp), %xmm0
+    ucomiss Far(%rip), %xmm0
+    jae compute_line_Cquit
 
     leaq -48(%rbp), %rcx
     leaq -48(%rbp), %rdx
     call vndc
+
+    movss -52(%rbp), %xmm0
+    ucomiss Near(%rip), %xmm0
+    jbe compute_line_Cquit
+    movss -52(%rbp), %xmm0
+    ucomiss Far(%rip), %xmm0
+    jae compute_line_Cquit
 
     leaq -64(%rbp), %rcx
     leaq -64(%rbp), %rdx
@@ -236,8 +250,6 @@ compute_line:
     divss %xmm2, %xmm0
     mulss -60(%rbp), %xmm0
     movss %xmm0, -60(%rbp)
-
-    vpxor %xmm1, %xmm1, %xmm0
 
     jmp compute_line_quit
     compute_line_Cquit:
