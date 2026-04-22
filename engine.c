@@ -4,15 +4,6 @@ void InitializeAssets() {
     ePOINTS = (Point*) malloc(sizeof(Point));
     eLINES = (Line*) malloc(sizeof(Line));
     eSURFACES = (Surface*) malloc(sizeof(Surface));
-
-    Line l = MakeLine();
-    l->A.x = 10;
-    l->A.y = 0;
-    l->A.z = 0;
-
-    l->B.x = 10;
-    l->B.y = 7;
-    l->B.z = 0;
 }
 
 void TerminateAssets() {
@@ -68,7 +59,7 @@ Surface MakeSurface() {
     s->C.w = 1.0f;
 
     eSURFACES = realloc(eSURFACES, (++SCOUNT) * sizeof(struct surface_t));
-    eSURFACES[LCOUNT-1] = s;
+    eSURFACES[SCOUNT-1] = s;
 
     return s;
 }
@@ -93,27 +84,28 @@ void RenderLines(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < LCOUNT; i++) {
         struct vec_t screen1, screen2;
         BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
-        
-        printf("%f %f %f %f, %f %f %f %f\n", screen1.x, screen1.y, screen1.z, screen1.w,
-            screen2.x, screen2.y, screen2.z, screen2.w);
 
-        HPEN hPen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
-        HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+        if (confirm) {
+            HPEN hPen = CreatePen(PS_SOLID, 3, RGB(255, 255, 255));
+            HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
 
-        MoveToEx(hdc, screen1.x, screen1.y, NULL);
-        LineTo(hdc, screen2.x, screen2.y);
+            MoveToEx(hdc, screen1.x, screen1.y, NULL);
+            LineTo(hdc, screen2.x, screen2.y);
 
-        SelectObject(hdc, hOldPen);
-        DeleteObject(hPen);
+            SelectObject(hdc, hOldPen);
+            DeleteObject(hPen);
+        }
     }
 }
 
 void RenderSurfaces(HWND hwnd, HDC hdc) {
-
+    for (UINT i = 0; i < SCOUNT; i++) {
+        
+    }
 }
 
 void Render(HWND hwnd, HDC hdc) {
-    RenderPoints(hwnd, hdc);
-    RenderLines(hwnd, hdc);
     RenderSurfaces(hwnd, hdc);
+    RenderLines(hwnd, hdc);
+    RenderPoints(hwnd, hdc);
 }

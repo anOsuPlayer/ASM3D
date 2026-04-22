@@ -24,7 +24,7 @@ Pos:
     .float          0
 
 .global FOV    
-FOV:        .float  70.0
+FOV:        .float  65.0
 .global AR
 AR:         .float  0
 
@@ -34,7 +34,7 @@ Width:  .float  0
 Height: .float  0
 
 .global Near
-Near:       .float  .1
+Near:       .float  .5
 .global Far
 Far:        .float  200.0
 
