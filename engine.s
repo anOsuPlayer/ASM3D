@@ -91,41 +91,172 @@ compute_point:
 compute_line:
     pushq %rbp
     movq %rsp, %rbp
-    subq $128, %rsp
+    subq $256, %rsp
 
-    movq %rdx, -8(%rbp)
-    movq %r8, -16(%rbp)
-    movq %r9, -24(%rbp)
+    movq %r8, -8(%rbp)
+    movq %r9, -16(%rbp)
+    movq %rdx, -24(%rbp)
 
     movq %rcx, %rdx
     movq VIEW(%rip), %rcx
     leaq -48(%rbp), %r8
     call mulmv
-
-    movq PERSPECTIVE(%rip), %rcx
     leaq -48(%rbp), %rdx
+    movq PERSPECTIVE(%rip), %rcx
     leaq -64(%rbp), %r8
     call mulmv
+    vmovups -64(%rbp), %xmm0
+    vmovups %xmm0, -48(%rbp)
 
-    movq -8(%rbp), %rdx
+    movq -24(%rbp), %rdx
     movq VIEW(%rip), %rcx
-    leaq -48(%rbp), %r8
+    leaq -64(%rbp), %r8
     call mulmv
-
+    leaq -64(%rbp), %rdx
     movq PERSPECTIVE(%rip), %rcx
-    leaq -48(%rbp), %rdx
     leaq -80(%rbp), %r8
     call mulmv
+    vmovups -80(%rbp), %xmm0
+    vmovups %xmm0, -64(%rbp)
 
-    movq -16(%rbp), %rax
+    vbroadcastss -52(%rbp), %xmm0
+    vaddps -64(%rbp), %xmm0, %xmm1
+    vsubps -64(%rbp), %xmm0, %xmm2
+
+    vmovups %xmm1, -96(%rbp)
+    vmovups %xmm2, -84(%rbp)
+    movl $0, -68(%rbp)
+
+    vbroadcastss -36(%rbp), %xmm0
+    vaddps -48(%rbp), %xmm0, %xmm1
+    vsubps -48(%rbp), %xmm0, %xmm2
+
+    vmovups %xmm1, -128(%rbp)
+    vmovups %xmm2, -116(%rbp)
+    movl $0, -100(%rbp)
+
+    movq $0, -136(%rbp)
+    vpxor %xmm15, %xmm15, %xmm15
+
+    compute_line_loop:
+        leaq -128(%rbp), %rcx
+        addq -136(%rbp), %rcx
+        movss (%rcx), %xmm0
+
+        leaq -96(%rbp), %rdx
+        addq -136(%rbp), %rdx
+        movss (%rdx), %xmm1
+
+        ucomiss %xmm15, %xmm1
+        jae compute_line_loop0
+
+            ucomiss %xmm15, %xmm0
+            jbe compute_line_Cquit
+
+        jmp compute_line_loop1
+
+        compute_line_loop0:
+        ucomiss %xmm15, %xmm0
+        jae compute_line_loop_cont
+        jmp compute_line_loop2
+
+        compute_line_loop1:
+            movss %xmm0, %xmm2
+            subss %xmm1, %xmm0
+            divss %xmm0, %xmm2
+            vbroadcastss %xmm2, %xmm2
+
+            vmovups -48(%rbp), %xmm0
+            vsubps -64(%rbp), %xmm0, %xmm0
+            vmulps %xmm2, %xmm0, %xmm0
+            
+            vmovups -48(%rbp), %xmm1
+            vaddps %xmm1, %xmm0, %xmm0
+            vmovups %xmm0, -64(%rbp)
+
+            jmp compute_line_loop_cont
+        compute_line_loop2:
+            movss %xmm0, %xmm2
+            subss %xmm1, %xmm0
+            divss %xmm0, %xmm2
+            vbroadcastss %xmm2, %xmm2
+
+            vmovups -48(%rbp), %xmm0
+            vsubps -64(%rbp), %xmm0, %xmm0
+            vmulps %xmm2, %xmm0, %xmm0
+            
+            vmovups -48(%rbp), %xmm1
+            vaddps %xmm1, %xmm0, %xmm0
+            vmovups %xmm0, -48(%rbp)
+
+        compute_line_loop_cont:
+    addq $4, -136(%rbp)
+    cmpq $24, -136(%rbp)
+    jg compute_line_loop
+
+    leaq -48(%rbp), %rcx
+    leaq -48(%rbp), %rdx
+    call vndc
+
+    leaq -64(%rbp), %rcx
+    leaq -64(%rbp), %rdx
+    call vndc
+
+    fld1
+    fadds -48(%rbp)
+    fstps -48(%rbp)
+    fld1
+    fsubs -44(%rbp)
+    fstps -44(%rbp)
+
+    fld1
+    fadds -64(%rbp)
+    fstps -64(%rbp)
+    fld1
+    fsubs -60(%rbp)
+    fstps -60(%rbp)
+
+    movq $2, %rax
+    cvtsi2ss %rax, %xmm2
+
+    movss Width(%rip), %xmm0
+    divss %xmm2, %xmm0
+    mulss -48(%rbp), %xmm0
+    movss %xmm0, -48(%rbp)
+    movss Height(%rip), %xmm0
+    divss %xmm2, %xmm0
+    mulss -44(%rbp), %xmm0
+    movss %xmm0, -44(%rbp)
+
+    movss Width(%rip), %xmm0
+    divss %xmm2, %xmm0
+    mulss -64(%rbp), %xmm0
+    movss %xmm0, -64(%rbp)
+    movss Height(%rip), %xmm0
+    divss %xmm2, %xmm0
+    mulss -60(%rbp), %xmm0
+    movss %xmm0, -60(%rbp)
+
+    vpxor %xmm1, %xmm1, %xmm0
+
+    jmp compute_line_quit
+    compute_line_Cquit:
+    
+    movq $0, %rax
+    jmp compute_line_end
+
+    compute_line_quit:
+    movq -8(%rbp), %rax
     vmovups -64(%rbp), %xmm0
     vmovups %xmm0, (%rax)
-    movq -24(%rbp), %rax
-    vmovups -80(%rbp), %xmm0
+    movq -16(%rbp), %rax
+    vmovups -48(%rbp), %xmm0
     vmovups %xmm0, (%rax)
 
     movq $1, %rax
 
-    addq $128, %rsp
+    compute_line_end:
+
+    addq $256, %rsp
     popq %rbp
     ret

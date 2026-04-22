@@ -7,12 +7,12 @@ void InitializeAssets() {
 
     Line l = MakeLine();
     l->A.x = 10;
-    l->A.y = 10;
-    l->A.z = 10;
+    l->A.y = 0;
+    l->A.z = 0;
 
-    l->B.x = 5;
-    l->B.y = 5;
-    l->B.z = 5;
+    l->B.x = 10;
+    l->B.y = 7;
+    l->B.z = 0;
 }
 
 void TerminateAssets() {
@@ -93,9 +93,18 @@ void RenderLines(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < LCOUNT; i++) {
         struct vec_t screen1, screen2;
         BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
+        
+        printf("%f %f %f %f, %f %f %f %f\n", screen1.x, screen1.y, screen1.z, screen1.w,
+            screen2.x, screen2.y, screen2.z, screen2.w);
 
-        printf("%f %f %f %f\n", screen1.x, screen1.y, screen1.z, screen1.w);
-        printf("%f %f %f %f\n", screen2.x, screen2.y, screen2.z, screen2.w);
+        HPEN hPen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
+        HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+        MoveToEx(hdc, screen1.x, screen1.y, NULL);
+        LineTo(hdc, screen2.x, screen2.y);
+
+        SelectObject(hdc, hOldPen);
+        DeleteObject(hPen);
     }
 }
 
