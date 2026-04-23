@@ -108,7 +108,9 @@ void DisplayAssetCreator(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     break;
                 }
                 case 2 : {
-
+                    ClearConfirmed();
+                    SetWinState(5);
+                    break;
                 }
                 case 3 : {
 
@@ -148,6 +150,43 @@ void DisplayAssetCreator(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
 
                 Point p = MakePoint();
                 p->x = x; p->y = y; p->z = z;
+            }
+
+        }
+    }
+    else if (GetWinState() == 5) {
+        SetInput();
+
+        if (GetConfirmedSize() != 0) {
+            SetWinState(6);
+        }
+        else {
+            sprintf(out, "Input line coordinates in format \"x1, y1, z1; x2, y2, z2\": %s", GetText());
+    
+            DrawText(hdc, out, -1, &rec, DT_LEFT | DT_BOTTOM | DT_SINGLELINE);
+        }
+    }
+    else if (GetWinState() == 6) {
+        StopInput();
+
+        if (GetConfirmedSize() == 0) {
+            SetWinState(-1);
+        }
+        else {
+            FLOAT x1, y1, z1, x2, y2, z2;
+            UINT success = sscanf(GetConfirmedText(), "%f, %f, %f; %f, %f, %f", &x1, &y1, &z1, &x2, &y2, &z2);
+
+            if (success != 6) {
+                SetWinState(101);
+            }
+            else {
+                sprintf(out, "Line created between (%.02f, %.02f, %.02f) and (%.02f, %.02f, %.02f).", x1, y1, z1, x2, y2, z2);
+        
+                DrawText(hdc, out, -1, &rec, DT_LEFT | DT_BOTTOM | DT_SINGLELINE);
+
+                Line l = MakeLine();
+                l->A.x = x1; l->A.y = y1; l->A.z = z1;
+                l->B.x = x2; l->B.y = y2; l->B.z = z2;
             }
 
         }
