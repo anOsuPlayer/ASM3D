@@ -51,9 +51,20 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             break;
         }
         case 'R' : {
-            Pos.x = Pos.y = Pos.z = 1;
-            Angle.x = Angle.y = Angle.z = 0;
-            FOV = 65.0;
+            if (GetKeyState(VK_SHIFT) < 0) {
+                FLOAT dx = (1-Pos.x)/10, dy = (1-Pos.y)/10, dz = (1-Pos.z)/10;
+                FLOAT dyaw = (-Angle.x)/10, dpitch = (-Angle.y)/10, droll = (-Angle.z)/10;
+                FLOAT df = (65.0f-FOV)/10;
+    
+                Pos.x += dx; Pos.y += dy; Pos.z += dz;
+                Angle.x += dyaw; Angle.y += dpitch; Angle.z += droll;
+                FOV += df;
+            }
+            else {
+                Pos.x = Pos.y = Pos.z = 1.0f;
+                Angle.x = Angle.y = Angle.z = 0.0f;
+                FOV = 65.0f;
+            }
             break;
         }
         case ' ' : {
