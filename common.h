@@ -7,6 +7,7 @@
     #include <stdio.h>
     #include <stdint.h>
     #include <math.h>
+    #include <time.h>
 
     static const UINT       WIN_WIDTH   = 1200;
     static const UINT       WIN_HEIGHT  = 800;
@@ -27,6 +28,18 @@
 
     } WINMODE;
 
+    static UINT              FPS = 240;
+
+    UINT GetFPS();
+    void SetFPS(UINT FPS);
+
+    LONG GetFrameSize();
+
+    static ULONG            FRAME_TIME = 0;
+
+    ULONG GetFrameTime();
+    void SetFrameTime(ULONG fps);
+
     static WINMODE          MODE = RENDER;
 
     WINMODE GetWinMode();
@@ -42,11 +55,18 @@
 
     void ResetWinState();
 
-    static BOOL CAN_REPAINT = TRUE;
+    static BOOL             CAN_REPAINT = TRUE;
 
     BOOL CanRepaint();
 
     void SetRepaint();
     void ClearRepaint();
+
+    static BOOL             SHOW_DEBUG = TRUE;
+
+    BOOL HasDebug();
+
+    void ShowDebug();
+    void HideDebug();
 
 #endif

@@ -18,9 +18,9 @@ Angle:
 .align 16
 .global Pos
 Pos:
-    x:      .float  0
-    y:      .float  0
-    z:      .float  0
+    x:      .float  1
+    y:      .float  1
+    z:      .float  1
     .float          0
 
 .global FOV    
@@ -36,7 +36,7 @@ Height: .float  0
 .global Near
 Near:       .float  .5
 .global Far
-Far:        .float  200.0
+Far:        .float  500.0
 
 .section .text
 .global setup_camera

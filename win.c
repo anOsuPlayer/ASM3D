@@ -60,8 +60,28 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 DisplayAssetCreator(hwnd, hdc, wParam, lParam);
             }
 
-            DisplayData(hwnd, hdc, msg, wParam, lParam);
+            struct timespec start, end;
+            clock_gettime(CLOCK_MONOTONIC, &start);
+
             Render(hwnd, hdc);
+            if (HasDebug()) {
+                DisplayData(hwnd, hdc, msg, wParam, lParam);
+            }
+
+            clock_gettime(CLOCK_MONOTONIC, &end);
+            LONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
+            LONG nsdiff = GetFrameSize() - delta;
+            
+            if (nsdiff > 0) {
+                struct timespec tdelta;
+                tdelta.tv_sec = nsdiff / 1000000000L;
+                tdelta.tv_nsec = nsdiff % 1000000000L;
+                SetFrameTime(nsdiff + delta);
+                nanosleep(&tdelta, NULL);
+            }
+            else {
+                SetFrameTime(delta);
+            }
 
             EndPaint(hwnd, &ps);
             return 0;
@@ -106,8 +126,10 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
         case WM_MOUSEMOVE : {
-            Look(hwnd, wParam, lParam);
-            SetRepaint();
+            if (HasMouse()) {
+                Look(hwnd, wParam, lParam);
+                SetRepaint();
+            }
             return 0;
         }
         case WM_MOUSEWHEEL : {

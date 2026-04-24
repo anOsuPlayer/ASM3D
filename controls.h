@@ -12,6 +12,8 @@
 
     static BOOL             HAS_MOUSE = FALSE;
 
+    BOOL HasMouse();
+
     static LPARAM           PREV_MOUSE_LOCATION;
 
     static const LONG64     RIGHT = 0;

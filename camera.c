@@ -38,4 +38,9 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     );
     
     DrawText(hdc, str2, -1, &rec, DT_LEFT);
+
+    CHAR str3[500];
+    sprintf(str3, "frametime: %9lluns\n FPS: %11.02f", GetFrameTime(), 1e9f / GetFrameTime());
+
+    DrawText(hdc, str3, -1, &rec, DT_RIGHT);
 }

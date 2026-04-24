@@ -20,6 +20,26 @@ HFONT DEFAULT_FONT() {
     return font;
 }
 
+UINT GetFPS() {
+    return FPS;
+}
+
+void SetFPS(UINT fps) {
+    FPS = fps;
+}
+
+LONG GetFrameSize() {
+    return 1000000000L / FPS;
+}
+
+ULONG GetFrameTime() {
+    return FRAME_TIME;
+}
+
+void SetFrameTime(ULONG lastft) {
+    FRAME_TIME = lastft;
+}
+
 WINMODE GetWinMode() {
     return MODE;
 }
@@ -61,4 +81,16 @@ void SetRepaint() {
 
 void ClearRepaint() {
     CAN_REPAINT = FALSE;
+}
+
+BOOL HasDebug() {
+    return SHOW_DEBUG;
+}
+
+void ShowDebug() {
+    SHOW_DEBUG = TRUE;
+}
+
+void HideDebug() {
+    SHOW_DEBUG = FALSE;
 }

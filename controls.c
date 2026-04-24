@@ -1,5 +1,9 @@
 #include "controls.h"
 
+BOOL HasMouse() {
+    return HAS_MOUSE;
+}
+
 void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     switch (wParam) {
         case 'W' : {
@@ -47,9 +51,9 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             break;
         }
         case 'R' : {
-            Pos.x = Pos.y = Pos.z = 0;
+            Pos.x = Pos.y = Pos.z = 1;
             Angle.x = Angle.y = Angle.z = 0;
-            FOV = 70.0;
+            FOV = 65.0;
             break;
         }
         case ' ' : {
@@ -81,6 +85,10 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
         }
         case VK_TAB : {
             DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
+            break;
+        }
+        case VK_F3 : {
+            HasDebug() ? HideDebug() : ShowDebug();
             break;
         }
     }
@@ -131,12 +139,12 @@ void Special(HWND hwnd, WPARAM wParam, LPARAM lParam) {
 
 void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     if (HAS_MOUSE) {
-        if (lParam != PREV_MOUSE_LOCATION && lParam != ((25) | (25 << 16))) {
+        if (lParam != PREV_MOUSE_LOCATION && lParam != ((100) | (100 << 16))) {
             INT x = LOWORD(lParam);
             INT y = HIWORD(lParam);
         
-            FLOAT dyaw = (FLOAT) x-25;
-            FLOAT dpitch = (FLOAT) 25-y;
+            FLOAT dyaw = (FLOAT) x-100;
+            FLOAT dpitch = (FLOAT) 100-y;
 
             Angle.x += dyaw * DROT;
             Angle.y -= dpitch * DROT;
@@ -166,7 +174,7 @@ void CaptureMouse(HWND hwnd) {
     HAS_MOUSE = TRUE;
     CenterMouse(hwnd);
 
-    POINT tl = { 0, 0 }, br = { 50, 50 };
+    POINT tl = { 0, 0 }, br = { 200, 200 };
     ClientToScreen(hwnd, &tl);
     ClientToScreen(hwnd, &br);
 
@@ -177,7 +185,7 @@ void CaptureMouse(HWND hwnd) {
 }
 
 void CenterMouse(HWND hwnd) {
-    POINT p = { 25, 25 };
+    POINT p = { 100, 100 };
     ClientToScreen(hwnd, &p);
 
     SetCursorPos(p.x, p.y);

@@ -39,7 +39,7 @@ void DisplayAssetLoader(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
             SetWinState(100);
         }
         else {
-            SetWinState(100);
+            SetWinState(3);
         }
     }
     else if (GetWinState() == 100) {
