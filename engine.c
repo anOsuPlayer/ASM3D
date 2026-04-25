@@ -5,20 +5,28 @@ void SetupAxes() {
     X->A.x = 0; X->A.y = 0; X->A.z = 0;
     X->B.x = 100000; X->B.y = 0; X->B.z = 0;
     X->p->color = 0x00000055;
-
+    strcpy(X->p->name, "x_axis");
+    strcpy(X->p->group, "axes");
+    
     Line Y = MakeLine();
     Y->A.x = 0; Y->A.y = 0; Y->A.z = 0;
     Y->B.x = 0; Y->B.y = 100000; Y->B.z = 0;
     Y->p->color = 0x00005500;
+    strcpy(Y->p->name, "y_axis");
+    strcpy(Y->p->group, "axes");
 
     Line Z = MakeLine();
     Z->A.x = 0; Z->A.y = 0; Z->A.z = 0;
     Z->B.x = 0; Z->B.y = 0; Z->B.z = 100000;
     Z->p->color = 0x00550000;
+    strcpy(Z->p->name, "z_axes");
+    strcpy(Z->p->group, "axes");
 
     Point O = MakePoint();
-    O->x = 0; O->y = 0; O->z = 0;
+    O->P.x = 0; O->P.y = 0; O->P.z = 0;
     O->p->color = 0x00555555;
+    strcpy(O->p->name, "origin");
+    strcpy(O->p->group, "axes");
 }
 
 void SetupGrid() {
@@ -27,19 +35,27 @@ void SetupGrid() {
         G1->A.x = 2*i; G1->A.y = 200; G1->A.z = 0;
         G1->B.x = 2*i; G1->B.y = -200; G1->B.z = 0;
         G1->p->color = 0x00111111;
+        strcpy(G1->p->name, "grid");
+        strcpy(G1->p->group, "grid");
         Line G2 = MakeLine();
         G2->A.x = -2*i; G2->A.y = 200; G2->A.z = 0;
         G2->B.x = -2*i; G2->B.y = -200; G2->B.z = 0;
         G2->p->color = 0x00111111;
+        strcpy(G2->p->name, "grid");
+        strcpy(G2->p->group, "grid");
 
         Line G3 = MakeLine();
         G3->A.x = 200; G3->A.y = 2*i; G3->A.z = 0;
         G3->B.x = -200; G3->B.y = 2*i; G3->B.z = 0;
         G3->p->color = 0x00111111;
+        strcpy(G3->p->name, "grid");
+        strcpy(G3->p->group, "grid");
         Line G4 = MakeLine();
         G4->A.x = 200; G4->A.y = -2*i; G4->A.z = 0;
         G4->B.x = -200; G4->B.y = -2*i; G4->B.z = 0;
         G4->p->color = 0x00111111;
+        strcpy(G4->p->name, "grid");
+        strcpy(G4->p->group, "grid");
     }
 }
 
@@ -72,14 +88,20 @@ void TerminateAssets() {
 Point MakePoint() {
     Point p = (Point) malloc(sizeof(struct point_t));
     p->p = (Properties) malloc(sizeof(struct properties_t));
-    p->w = 1.0f;
+    p->P.w = 1.0f;
 
     p->p->color = 0x00ffffff;
+    p->p->hidden = FALSE;
     
     ePOINTS = realloc(ePOINTS, (++PCOUNT) * sizeof(struct point_t));
     ePOINTS[PCOUNT-1] = p;
 
     return p;
+}
+
+void FreePoint(Point p) {
+    free(p->p);
+    free(p);
 }
 
 void DeletePoint(const char* pname) {
@@ -100,9 +122,12 @@ void DeletePoint(const char* pname) {
     ePOINTS = realloc(ePOINTS, (--PCOUNT) * sizeof(struct point_t));
 }
 
-void FreePoint(Point p) {
-    free(p->p);
-    free(p);
+void ShowPoint(const char* pname, BOOL show) {
+    for (UINT i = 0; i < PCOUNT; i++) {
+        if (strcmp(ePOINTS[i]->p->name, pname) == 0) {
+            ePOINTS[i]->p->hidden = !show;
+        }
+    }
 }
 
 Line MakeLine() {
@@ -112,6 +137,7 @@ Line MakeLine() {
     l->B.w = 1.0f;
 
     l->p->color = 0x00ffffff;
+    l->p->hidden = FALSE;
 
     eLINES = realloc(eLINES, (++LCOUNT) * sizeof(struct line_t));
     eLINES[LCOUNT-1] = l;
@@ -119,11 +145,16 @@ Line MakeLine() {
     return l;
 }
 
-void DeleteLine(const char* pname) {
+void FreeLine(Line l) {
+    free(l->p);
+    free(l);
+}
+
+void DeleteLine(const char* lname) {
     Line l = NULL;
 
     for (UINT i = 0; i < LCOUNT; i++) {
-        if (strcmp(eLINES[i]->p->name, pname) == 0) {
+        if (strcmp(eLINES[i]->p->name, lname) == 0) {
             l = eLINES[i];
             for (UINT e = i+1; e < LCOUNT; e++) {
                 eLINES[e-1] = eLINES[e];
@@ -137,9 +168,12 @@ void DeleteLine(const char* pname) {
     eLINES = realloc(eLINES, (--LCOUNT) * sizeof(struct point_t));
 }
 
-void FreeLine(Line l) {
-    free(l->p);
-    free(l);
+void ShowLine(const char* lname, BOOL show) {
+    for (UINT i = 0; i < LCOUNT; i++) {
+        if (strcmp(eLINES[i]->p->name, lname) == 0) {
+            eLINES[i]->p->hidden = !show;
+        }
+    }
 }
 
 Surface MakeSurface() {
@@ -150,11 +184,17 @@ Surface MakeSurface() {
     s->C.w = 1.0f;
 
     s->p->color = 0x00ffffff;
+    s->p->hidden = FALSE;
 
     eSURFACES = realloc(eSURFACES, (++SCOUNT) * sizeof(struct surface_t));
     eSURFACES[SCOUNT-1] = s;
 
     return s;
+}
+
+void FreeSurface(Surface s) {
+    free(s->p);
+    free(s);
 }
 
 void DeleteSurface(const char* pname) {
@@ -175,44 +215,99 @@ void DeleteSurface(const char* pname) {
     eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(struct point_t));
 }
 
-void FreeSurface(Surface s) {
-    free(s->p);
-    free(s);
+void ShowSurface(const char* sname, BOOL show) {
+    for (UINT i = 0; i < SCOUNT; i++) {
+        if (strcmp(eSURFACES[i]->p->name, sname) == 0) {
+            eSURFACES[i]->p->hidden = !show;
+        }
+    }
+}
+
+void DeleteAsset(const char* name) {
+    DeletePoint(name);
+    DeleteLine(name);
+    DeleteSurface(name);
+}
+
+void ShowAsset(const char* name, BOOL show) {
+    ShowPoint(name, show);
+    ShowLine(name, show);
+    ShowSurface(name, show);
+}
+
+void DeleteGroup(const char* gname) {
+    for (UINT i = 0; i < PCOUNT; i++) {
+        if (strcmp(ePOINTS[i]->p->group, gname) == 0) {
+            DeletePoint(ePOINTS[i]->p->name);
+        }
+    }
+    for (UINT i = 0; i < LCOUNT; i++) {
+        if (strcmp(eLINES[i]->p->group, gname) == 0) {
+            DeleteLine(eLINES[i]->p->name);
+        }
+    }
+    for (UINT i = 0; i < SCOUNT; i++) {
+        if (strcmp(eSURFACES[i]->p->group, gname) == 0) {
+            DeleteSurface(eSURFACES[i]->p->name);
+        }
+    }
+}
+
+void ShowGroup(const char* gname, BOOL show) {
+    for (UINT i = 0; i < PCOUNT; i++) {
+        if (strcmp(ePOINTS[i]->p->group, gname) == 0) {
+            ePOINTS[i]->p->hidden = !show;
+        }
+    }
+    for (UINT i = 0; i < LCOUNT; i++) {
+        if (strcmp(eLINES[i]->p->group, gname) == 0) {
+            eLINES[i]->p->hidden = !show;
+        }
+    }
+    for (UINT i = 0; i < SCOUNT; i++) {
+        if (strcmp(eSURFACES[i]->p->group, gname) == 0) {
+            eSURFACES[i]->p->hidden = !show;
+        }
+    }
 }
 
 void RenderPoints(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < PCOUNT; i++) {
-        struct vec_t screen;
-        BOOL confirm = compute_point((Vec) ePOINTS[i], &screen);
-
-        if (confirm) {
-            Properties p = ePOINTS[i]->p;
-            HBRUSH brush = CreateSolidBrush(p->color);
-            HBRUSH old_brush = (HBRUSH)SelectObject(hdc, brush);
-            
-            Ellipse(hdc, screen.x-5, screen.y-5, screen.x+5, screen.y+5);
-
-            SelectObject(hdc, old_brush);
-            DeleteObject(brush);
+        if (!ePOINTS[i]->p->hidden) {
+            struct vec_t screen;
+            BOOL confirm = compute_point((Vec) &ePOINTS[i]->P, &screen);
+    
+            if (confirm) {
+                Properties p = ePOINTS[i]->p;
+                HBRUSH brush = CreateSolidBrush(p->color);
+                HBRUSH old_brush = (HBRUSH)SelectObject(hdc, brush);
+                
+                Ellipse(hdc, screen.x-5, screen.y-5, screen.x+5, screen.y+5);
+    
+                SelectObject(hdc, old_brush);
+                DeleteObject(brush);
+            }
         }
     }
 }
 
 void RenderLines(HWND hwnd, HDC hdc) {
     for (UINT i = 0; i < LCOUNT; i++) {
-        struct vec_t screen1, screen2;
-        BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
+        if (!eLINES[i]->p->hidden) {
+            struct vec_t screen1, screen2;
+            BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
-        if (confirm) {
-            Properties p = eLINES[i]->p;
-            HPEN pen = CreatePen(PS_SOLID, 3, p->color);
-            HPEN old_pen = (HPEN)SelectObject(hdc, pen);
+            if (confirm) {
+                Properties p = eLINES[i]->p;
+                HPEN pen = CreatePen(PS_SOLID, 3, p->color);
+                HPEN old_pen = (HPEN)SelectObject(hdc, pen);
 
-            MoveToEx(hdc, screen1.x, screen1.y, NULL);
-            LineTo(hdc, screen2.x, screen2.y);
+                MoveToEx(hdc, screen1.x, screen1.y, NULL);
+                LineTo(hdc, screen2.x, screen2.y);
 
-            SelectObject(hdc, old_pen);
-            DeleteObject(pen);
+                SelectObject(hdc, old_pen);
+                DeleteObject(pen);
+            }
         }
     }
 }

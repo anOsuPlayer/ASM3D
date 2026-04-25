@@ -85,7 +85,7 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             break;
         }
         case VK_ESCAPE : {
-            FreeMouse(hwnd);
+            FreeMouse();
             break;
         }
         case VK_CONTROL : {

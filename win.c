@@ -27,6 +27,8 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 
     ShowWindow(hwnd, show);
     SetTimer(hwnd, 1, 0, NULL);
+
+    return hwnd;
 }
 
 void Loop(HWND hwnd) {
