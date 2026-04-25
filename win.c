@@ -33,7 +33,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 
 void Loop(HWND hwnd) {
     MSG message;
-    while (GetMessage(&message, NULL, 0, 0) && IsRunning()) {
+    while (GetMessage(&message, NULL, 0, 0)) {
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
@@ -69,9 +69,13 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(bg, hbmbg);
             SelectObject(fg, hbmfg);
 
-            HBRUSH hKeyBrush = CreateSolidBrush(0x00ff00ff);
-            FillRect(fg, &winsize, hKeyBrush);
-            DeleteObject(hKeyBrush);
+            HBRUSH fgbrush = CreateSolidBrush(0x00ff00ff);
+            FillRect(fg, &winsize, fgbrush);
+            DeleteObject(fgbrush);
+
+            if (GetWinMode() == CONSOLE) {
+                DisplayConsole(hwnd, fg, wParam, lParam);
+            }
 
             if (HasDebug()) {
                 DisplayData(hwnd, fg, msg, wParam, lParam);
@@ -134,34 +138,55 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             ReleaseDC(hwnd, hdc);
 
-            SetRepaint();
+            Repaint(hwnd);
             return 0;
         }
+        
         case WM_KEYDOWN : {
-            Move(hwnd, wParam, lParam);
-            SetRepaint();
+            if (GetWinMode() == RENDER) {
+                Move(hwnd, wParam, lParam);
+            }
+
+            Special(hwnd, wParam, lParam);
+            Repaint(hwnd);
             return 0;
         }
+        case WM_CHAR : {
+            if (GetWinMode() != RENDER) {
+                Type(hwnd, wParam, lParam);
+            }
+
+            Repaint(hwnd);
+            return 0;
+        }
+
         case WM_LBUTTONDOWN : {
             OnLeftClick(hwnd, wParam, lParam);
-            SetRepaint();
+            Repaint(hwnd);
             return 0;
         }
         case WM_MOUSEMOVE : {
             if (HasMouse()) {
                 Look(hwnd, wParam, lParam);
-                SetRepaint();
+                Repaint(hwnd);
             }
             return 0;
         }
         case WM_MOUSEWHEEL : {
             Scroll(hwnd, wParam, lParam);
-            SetRepaint();
+            Repaint(hwnd);
             return 0;
         }
         case WM_DESTROY : {
             DeleteObject(DEFAULT_FONT());
             DeleteObject(BACKGROUND());
+
+            if (bg) {
+                DeleteDC(bg);
+                DeleteDC(fg);
+                DeleteObject(hbmbg);
+                DeleteObject(hbmfg);
+            }
 
             PostQuitMessage(0);
             return 0;
@@ -173,5 +198,5 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 void Repaint(HWND hwnd) {
     update();
-    RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+    InvalidateRect(hwnd, NULL, FALSE);
 }

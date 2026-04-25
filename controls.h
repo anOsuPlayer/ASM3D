@@ -2,6 +2,7 @@
     #define CONTROLS_H
 
     #include "engine.h"
+    #include "text.h"
 
     static const FLOAT      DPOS = 0.125f;
     static const FLOAT      DROT = 0.001745f;
@@ -28,6 +29,10 @@
 
     void Move(HWND hwnd, WPARAM wParam, LPARAM lParam);
     BOOL IsDirectional();
+
+    void Type(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+    void Special(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
     void Look(HWND hwnd, WPARAM wParam, LPARAM lParam);
     void Scroll(HWND hwnd, WPARAM wParam, LPARAM LPARAM);

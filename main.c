@@ -6,10 +6,8 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show) {
     InitializeAssets();
     
     HWND hwnd = MakeWindow(inst, show);
-    InitializeConsole(hwnd);
     Loop(hwnd);
 
-    TerminateConsole();
     TerminateAssets();
     free_camera();
 

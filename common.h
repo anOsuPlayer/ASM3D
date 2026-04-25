@@ -32,6 +32,19 @@
     ULONG GetFrameTime();
     void SetFrameTime(ULONG fps);
 
+    typedef enum WINMODE {
+
+        RENDER,
+
+        CONSOLE
+
+    } WINMODE;
+
+    static WINMODE          MODE = RENDER;
+
+    WINMODE GetWinMode();
+    void SetWinMode(WINMODE wmode);
+
     static UINT             WINSTATE = 0;
 
     UINT GetWinState();

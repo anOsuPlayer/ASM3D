@@ -50,12 +50,26 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             }
             break;
         }
-        case 'E' : {
-            Angle.z += ((GetKeyState(VK_SHIFT) < 0) ? 1.0f : 2.0f) * 5.0f * DROT;
+        case ' ' : {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
+            }
+            else {
+                Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
+            }
             break;
         }
-        case 'Q' : {
-            Angle.z -= ((GetKeyState(VK_SHIFT) < 0) ? 1.0f : 2.0f) * 5.0f * DROT;
+        case VK_CONTROL : {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+            }
+            else {
+                Pos.z -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+            }
+            break;
+        }
+        case VK_TAB : {
+            DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
             break;
         }
         case 'R' : {
@@ -75,30 +89,46 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             }
             break;
         }
-        case ' ' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
-            }
-            else {
-                Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
+        case 'T' : {
+            SetWinMode(CONSOLE);
+        }
+    }
+}
+
+void Type(HWND hwnd, WPARAM wParam, LPARAM lParam) {
+    unsigned char c = (unsigned char) wParam;
+    
+    switch (c) {
+        case '\r' : {
+            ConfirmText();
+            break;
+        }
+        case '\b' : {
+            if (CanInput()) {
+                EraseChar();
             }
             break;
         }
+        default : {
+            if (CanInput()) {
+                if (c >= 32 && c <= 127) {
+                    AppendChar(c);
+                }
+            }
+            break;
+        }
+    }
+}
+
+void Special(HWND hwnd, WPARAM wParam, LPARAM lParam) {
+    switch (wParam) {
         case VK_ESCAPE : {
-            FreeMouse();
-            break;
-        }
-        case VK_CONTROL : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+            if (GetWinMode() != RENDER) {
+                SetWinMode(RENDER);
             }
             else {
-                Pos.z -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
+                FreeMouse(hwnd);
             }
-            break;
-        }
-        case VK_TAB : {
-            DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
             break;
         }
         case VK_F3 : {
@@ -118,11 +148,19 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             INT x = LOWORD(lParam);
             INT y = HIWORD(lParam);
         
-            FLOAT dyaw = (FLOAT) x-100;
-            FLOAT dpitch = (FLOAT) 100-y;
-
-            Angle.x += dyaw * DROT;
-            Angle.y -= dpitch * DROT;
+            
+            if (GetKeyState(VK_LMENU) < 0) {
+                FLOAT droll = (FLOAT) x-100;
+                Angle.z -= droll * DROT;
+                SetRepaint();
+            }
+            else {
+                FLOAT dyaw = (FLOAT) x-100;
+                FLOAT dpitch = (FLOAT) 100-y;
+                
+                Angle.x += dyaw * DROT;
+                Angle.y -= dpitch * DROT;
+            }
             
             CenterMouse(hwnd);
         }

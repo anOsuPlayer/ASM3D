@@ -50,6 +50,16 @@ void SetFrameTime(ULONG lastft) {
     FRAME_TIME = lastft;
 }
 
+WINMODE GetWinMode() {
+    return MODE;
+}
+
+void SetWinMode(WINMODE wmode) {
+    MODE = wmode;
+    ResetWinState();
+    SetRepaint();
+}
+
 UINT GetWinState() {
     return WINSTATE;
 }

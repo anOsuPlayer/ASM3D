@@ -238,17 +238,17 @@ void ShowAsset(const char* name, BOOL show) {
 void DeleteGroup(const char* gname) {
     for (UINT i = 0; i < PCOUNT; i++) {
         if (strcmp(ePOINTS[i]->p->group, gname) == 0) {
-            DeletePoint(ePOINTS[i]->p->name);
+            DeletePoint(ePOINTS[i--]->p->name);
         }
     }
     for (UINT i = 0; i < LCOUNT; i++) {
         if (strcmp(eLINES[i]->p->group, gname) == 0) {
-            DeleteLine(eLINES[i]->p->name);
+            DeleteLine(eLINES[i--]->p->name);
         }
     }
     for (UINT i = 0; i < SCOUNT; i++) {
         if (strcmp(eSURFACES[i]->p->group, gname) == 0) {
-            DeleteSurface(eSURFACES[i]->p->name);
+            DeleteSurface(eSURFACES[i--]->p->name);
         }
     }
 }
