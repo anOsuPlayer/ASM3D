@@ -34,7 +34,7 @@ Width:  .float  0
 Height: .float  0
 
 .global Near
-Near:       .float  .5
+Near:       .float  .01
 .global Far
 Far:        .float  500.0
 

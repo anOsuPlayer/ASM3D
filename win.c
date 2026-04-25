@@ -12,7 +12,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 
     RegisterClass(&wc);
 
-    HWND wndw = CreateWindowEx(
+    HWND hwnd = CreateWindowEx(
         0,
         CLASS_NAME,
         WIN_NAME,
@@ -25,19 +25,27 @@ HWND MakeWindow(HINSTANCE inst, int show) {
         NULL
     );
 
-    ShowWindow(wndw, show);
-    SetTimer(wndw, 1, 0, NULL);
+    ShowWindow(hwnd, show);
+    SetTimer(hwnd, 1, 0, NULL);
 }
 
-void Loop(HWND wndw) {
+void Loop(HWND hwnd) {
     MSG message;
-    while (GetMessage(&message, NULL, 0, 0)) {
+    while (GetMessage(&message, NULL, 0, 0) && IsRunning()) {
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
+
+    DestroyWindow(hwnd);
 }
 
 LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    static HDC bg;
+    static HDC fg;
+    static HBITMAP hbmbg;
+    static HBITMAP hbmfg;
+    static RECT winsize;
+
     switch (msg) {
         case WM_CREATE : {
             return 0;
@@ -53,21 +61,24 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            if (GetWinMode() == LOAD_ASSETS) {
-                DisplayAssetLoader(hwnd, hdc, wParam, lParam);
-            }
-            else if (GetWinMode() == CREATE_ASSETS) {
-                DisplayAssetCreator(hwnd, hdc, wParam, lParam);
-            }
-
             struct timespec start, end;
             clock_gettime(CLOCK_MONOTONIC, &start);
 
-            Render(hwnd, hdc);
-            if (HasDebug()) {
-                DisplayData(hwnd, hdc, msg, wParam, lParam);
-            }
+            SelectObject(bg, hbmbg);
+            SelectObject(fg, hbmfg);
 
+            HBRUSH hKeyBrush = CreateSolidBrush(0x00ff00ff);
+            FillRect(fg, &winsize, hKeyBrush);
+            DeleteObject(hKeyBrush);
+
+            if (HasDebug()) {
+                DisplayData(hwnd, fg, msg, wParam, lParam);
+            }
+            Render(hwnd, bg);
+
+            BitBlt(hdc, 0, 0, winsize.right, winsize.bottom, bg, 0, 0, SRCCOPY);
+            TransparentBlt(hdc, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00ff);
+            
             clock_gettime(CLOCK_MONOTONIC, &end);
             LONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
             LONG nsdiff = GetFrameSize() - delta;
@@ -93,33 +104,42 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_SIZE : {
             INT w = LOWORD(lParam);
             INT h = HIWORD(lParam);
+            
+            winsize.right = w;
+            winsize.bottom = h;
 
             Width = ((FLOAT) w);
             Height = ((FLOAT) h);
 
             AR =  Width / Height;
-            SetRepaint();
-            return 0;
-        }
+
+            HDC hdc = GetDC(hwnd);
         
+            if (bg) {
+                DeleteDC(bg);
+                DeleteDC(fg);
+                DeleteObject(hbmbg);
+                DeleteObject(hbmfg);
+            }
+
+            bg = CreateCompatibleDC(hdc);
+            fg = CreateCompatibleDC(hdc);
+            hbmbg = CreateCompatibleBitmap(hdc, w, h);
+            hbmfg = CreateCompatibleBitmap(hdc, w, h);
+
+            SelectObject(bg, hbmbg);
+            SelectObject(fg, hbmfg);
+
+            ReleaseDC(hwnd, hdc);
+
+            SetRepaint();
+            return 0;
+        }
         case WM_KEYDOWN : {
-            if (GetWinMode() == RENDER) {
-                Move(hwnd, wParam, lParam);
-            }
-
-            Special(hwnd, wParam, lParam);
+            Move(hwnd, wParam, lParam);
             SetRepaint();
             return 0;
         }
-        case WM_CHAR : {
-            if (GetWinMode() != RENDER) {
-                Type(hwnd, wParam, lParam);
-            }
-
-            SetRepaint();
-            return 0;
-        }
-
         case WM_LBUTTONDOWN : {
             OnLeftClick(hwnd, wParam, lParam);
             SetRepaint();
@@ -139,6 +159,7 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         case WM_DESTROY : {
             DeleteObject(DEFAULT_FONT());
+            DeleteObject(BACKGROUND());
 
             PostQuitMessage(0);
             return 0;
@@ -150,5 +171,5 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 void Repaint(HWND hwnd) {
     update();
-    InvalidateRect(hwnd, NULL, TRUE);
+    RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
 }

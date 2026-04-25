@@ -20,6 +20,16 @@ HFONT DEFAULT_FONT() {
     return font;
 }
 
+HBRUSH BACKGROUND() {
+    static HBRUSH brush;
+
+    if (brush == NULL) {
+        brush = CreateSolidBrush(0x00000000);
+    }
+
+    return brush;
+}
+
 UINT GetFPS() {
     return FPS;
 }
@@ -38,16 +48,6 @@ ULONG GetFrameTime() {
 
 void SetFrameTime(ULONG lastft) {
     FRAME_TIME = lastft;
-}
-
-WINMODE GetWinMode() {
-    return MODE;
-}
-
-void SetWinMode(WINMODE wmode) {
-    MODE = wmode;
-    ResetWinState();
-    SetRepaint();
 }
 
 UINT GetWinState() {

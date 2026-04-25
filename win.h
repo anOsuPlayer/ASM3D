@@ -3,11 +3,12 @@
 
     #include "camera.h"
     #include "controls.h"
-    #include "loader.h"
+    #include "engine.h"
+    #include "console.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 
-    void Loop(HWND wndw);
+    void Loop(HWND hwnd);
 
     LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 

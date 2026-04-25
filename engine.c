@@ -82,6 +82,24 @@ Point MakePoint() {
     return p;
 }
 
+void DeletePoint(const char* pname) {
+    Point p = NULL;
+
+    for (UINT i = 0; i < PCOUNT; i++) {
+        if (strcmp(ePOINTS[i]->p->name, pname) == 0) {
+            p = ePOINTS[i];
+            for (UINT e = i+1; e < PCOUNT; e++) {
+                ePOINTS[e-1] = ePOINTS[e];
+            }
+            
+            break;
+        }
+    }
+
+    FreePoint(p);
+    ePOINTS = realloc(ePOINTS, (--PCOUNT) * sizeof(struct point_t));
+}
+
 void FreePoint(Point p) {
     free(p->p);
     free(p);
@@ -99,6 +117,24 @@ Line MakeLine() {
     eLINES[LCOUNT-1] = l;
 
     return l;
+}
+
+void DeleteLine(const char* pname) {
+    Line l = NULL;
+
+    for (UINT i = 0; i < LCOUNT; i++) {
+        if (strcmp(eLINES[i]->p->name, pname) == 0) {
+            l = eLINES[i];
+            for (UINT e = i+1; e < LCOUNT; e++) {
+                eLINES[e-1] = eLINES[e];
+            }
+            
+            break;
+        }
+    }
+
+    FreeLine(l);
+    eLINES = realloc(eLINES, (--LCOUNT) * sizeof(struct point_t));
 }
 
 void FreeLine(Line l) {
@@ -119,6 +155,24 @@ Surface MakeSurface() {
     eSURFACES[SCOUNT-1] = s;
 
     return s;
+}
+
+void DeleteSurface(const char* pname) {
+    Surface s = NULL;
+
+    for (UINT i = 0; i < SCOUNT; i++) {
+        if (strcmp(eSURFACES[i]->p->name, pname) == 0) {
+            s = eSURFACES[i];
+            for (UINT e = i+1; e < SCOUNT; e++) {
+                eSURFACES[e-1] = eSURFACES[e];
+            }
+            
+            break;
+        }
+    }
+
+    FreeSurface(s);
+    eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(struct point_t));
 }
 
 void FreeSurface(Surface s) {
@@ -169,7 +223,15 @@ void RenderSurfaces(HWND hwnd, HDC hdc) {
     }
 }
 
+void RenderBackground(HWND hwnd, HDC hdc) {
+    RECT rc;
+    GetClientRect(hwnd, &rc);
+    FillRect(hdc, &rc, BACKGROUND());
+}
+
 void Render(HWND hwnd, HDC hdc) {
+    RenderBackground(hwnd, hdc);
+
     RenderSurfaces(hwnd, hdc);
     RenderLines(hwnd, hdc);
     RenderPoints(hwnd, hdc);

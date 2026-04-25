@@ -4,6 +4,7 @@
     #include "common.h"
 
     typedef struct properties_t {
+        CHAR name[20];
         UINT color;
     } *Properties;
 

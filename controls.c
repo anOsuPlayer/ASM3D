@@ -4,6 +4,14 @@ BOOL HasMouse() {
     return HAS_MOUSE;
 }
 
+void HideMouse() {
+    while (ShowCursor(FALSE) >= 0);
+}
+
+void ShowMouse() {
+    while (ShowCursor(TRUE) < 0);
+}
+
 void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     switch (wParam) {
         case 'W' : {
@@ -76,13 +84,8 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             }
             break;
         }
-        case 'N' : {
-            if (GetKeyState(VK_SHIFT) < 0) {
-                SetWinMode(LOAD_ASSETS);
-            }
-            else {
-                SetWinMode(CREATE_ASSETS);
-            }
+        case VK_ESCAPE : {
+            FreeMouse(hwnd);
             break;
         }
         case VK_CONTROL : {
@@ -107,45 +110,6 @@ void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
 
 BOOL IsDirectional() {
     return DIRECTIONAL_MOVE;
-}
-
-void Type(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-    unsigned char c = (unsigned char) wParam;
-    
-    switch (c) {
-        case '\r' : {
-            ConfirmText();
-            break;
-        }
-        case '\b' : {
-            if (CanInput()) {
-                EraseChar();
-            }
-            break;
-        }
-        default : {
-            if (CanInput()) {
-                if (c >= 32 && c <= 127) {
-                    AppendChar(c);
-                }
-            }
-            break;
-        }
-    }
-}
-
-void Special(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-    switch (wParam) {
-        case VK_ESCAPE : {
-            if (GetWinMode() != RENDER) {
-                SetWinMode(RENDER);
-            }
-            else {
-                FreeMouse(hwnd);
-            }
-            break;
-        }
-    }
 }
 
 void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
@@ -184,15 +148,15 @@ void OnLeftClick(HWND hwnd, WPARAM wParam, LPARAM lParam) {
 void CaptureMouse(HWND hwnd) {
     HAS_MOUSE = TRUE;
     CenterMouse(hwnd);
-
+    
     POINT tl = { 0, 0 }, br = { 200, 200 };
     ClientToScreen(hwnd, &tl);
     ClientToScreen(hwnd, &br);
-
+    
     RECT clip = { tl.x, tl.y, br.x, br.y };
-
+    
     ClipCursor(&clip);
-    ShowCursor(FALSE);
+    HideMouse();
 }
 
 void CenterMouse(HWND hwnd) {
@@ -206,5 +170,5 @@ void FreeMouse() {
     HAS_MOUSE = FALSE;
 
     ClipCursor(NULL);
-    ShowCursor(TRUE);
+    ShowMouse();
 }

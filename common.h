@@ -8,25 +8,17 @@
     #include <stdint.h>
     #include <math.h>
     #include <time.h>
+    #include <pthread.h>
 
     static const UINT       WIN_WIDTH   = 1200;
     static const UINT       WIN_HEIGHT  = 800;
     static const LPCSTR     WIN_NAME    = "ASM3D";
 
     HFONT DEFAULT_FONT();
+    HBRUSH BACKGROUND();
 
     static const COLORREF   TEXT_FG     = RGB(255, 255, 255);
     static const COLORREF   TEXT_BG     = RGB(0, 0, 0);
-
-    typedef enum WINMODE {
-
-        RENDER,
-
-        LOAD_ASSETS,
-
-        CREATE_ASSETS
-
-    } WINMODE;
 
     static UINT              FPS = 240;
 
@@ -39,11 +31,6 @@
 
     ULONG GetFrameTime();
     void SetFrameTime(ULONG fps);
-
-    static WINMODE          MODE = RENDER;
-
-    WINMODE GetWinMode();
-    void SetWinMode(WINMODE wmode);
 
     static UINT             WINSTATE = 0;
 

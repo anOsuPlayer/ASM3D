@@ -17,12 +17,15 @@
     void TerminateAssets();
 
     Point MakePoint();
+    void DeletePoint(const char* pname);
     void FreePoint(Point p);
 
     Line MakeLine();
+    void DeleteLine(const char* lname);
     void FreeLine(Line l);
 
     Surface MakeSurface();
+    void DeleteSurface(const char* sname);
     void FreeSurface(Surface s);
 
     extern BOOL compute_point(Vec pos, Vec screen);

@@ -2,7 +2,6 @@
     #define CONTROLS_H
 
     #include "engine.h"
-    #include "text.h"
 
     static const FLOAT      DPOS = 0.125f;
     static const FLOAT      DROT = 0.001745f;
@@ -13,6 +12,9 @@
     static BOOL             HAS_MOUSE = FALSE;
 
     BOOL HasMouse();
+
+    void HideMouse();
+    void ShowMouse();
 
     static LPARAM           PREV_MOUSE_LOCATION;
 
@@ -26,10 +28,6 @@
 
     void Move(HWND hwnd, WPARAM wParam, LPARAM lParam);
     BOOL IsDirectional();
-
-    void Type(HWND hwnd, WPARAM wParam, LPARAM lParam);
-
-    void Special(HWND hwnd, WPARAM wParam, LPARAM lParam);
 
     void Look(HWND hwnd, WPARAM wParam, LPARAM lParam);
     void Scroll(HWND hwnd, WPARAM wParam, LPARAM LPARAM);
