@@ -17,6 +17,8 @@
     void HideMouse();
     void ShowMouse();
 
+    static BOOL             KEYS[256];
+
     static LPARAM           PREV_MOUSE_LOCATION;
 
     static const LONG64     RIGHT = 0;
@@ -27,7 +29,10 @@
 
     extern void directional_move(LONG64 dir, UINT rate);
 
-    void Move(HWND hwnd, WPARAM wParam, LPARAM lParam);
+    void GetKeyDown(HWND hwnd, WPARAM wParam, LPARAM lParam);
+    void GetKeyUp(HWND hwnd, WPARAM wParam, LPARAM lParam);
+
+    void Move();
     BOOL IsDirectional();
 
     void Type(HWND hwnd, WPARAM wParam, LPARAM lParam);

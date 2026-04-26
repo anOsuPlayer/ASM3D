@@ -12,86 +12,91 @@ void ShowMouse() {
     while (ShowCursor(TRUE) < 0);
 }
 
-void Move(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-    switch (wParam) {
-        case 'W' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(FRONT, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
-            }
-            else {
-                Pos.x += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
-            }
-            break;
+void GetKeyDown(HWND hwnd, WPARAM wParam, LPARAM lParam) {
+    KEYS[wParam] = TRUE;
+}
+
+void GetKeyUp(HWND hwnd, WPARAM wParam, LPARAM lParam) {
+    KEYS[wParam] = FALSE;
+}
+
+void Move() {
+    if (KEYS['W']) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(FRONT, (GetKeyState(VK_SHIFT) < 0) ? 2.0f : 1.0f);
         }
-        case 'S' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
-            }
-            else {
-                Pos.x -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
-            }
-            break;
+        else {
+            Pos.x += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
         }
-        case 'D' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
-            }
-            else {
-                Pos.y += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
-            }
-            break;
+    }
+    else if (KEYS['S']) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
         }
-        case 'A' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
-            }
-            else {
-                Pos.y -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
-            }
-            break;
+        else {
+            Pos.x -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
         }
-        case ' ' : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
-            }
-            else {
-                Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
-            }
-            break;
+    }
+
+    if (KEYS['D']) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
         }
-        case VK_CONTROL : {
-            if (DIRECTIONAL_MOVE) {
-                directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
-            }
-            else {
-                Pos.z -= (GetKeyState(VK_SHIFT) ? 2*DPOS : DPOS);
-            }
-            break;
+        else {
+            Pos.y += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
         }
-        case VK_TAB : {
-            DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
-            break;
+    }
+    else if (KEYS['A']) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
         }
-        case 'R' : {
-            if (GetKeyState(VK_SHIFT) < 0) {
-                FLOAT dx = (1-Pos.x)/10, dy = (1-Pos.y)/10, dz = (1-Pos.z)/10;
-                FLOAT dyaw = (-Angle.x)/10, dpitch = (-Angle.y)/10, droll = (-Angle.z)/10;
-                FLOAT df = (65.0f-FOV)/10;
-    
-                Pos.x += dx; Pos.y += dy; Pos.z += dz;
-                Angle.x += dyaw; Angle.y += dpitch; Angle.z += droll;
-                FOV += df;
-            }
-            else {
-                Pos.x = Pos.y = Pos.z = 1.0f;
-                Angle.x = Angle.y = Angle.z = 0.0f;
-                FOV = 65.0f;
-            }
-            break;
+        else {
+            Pos.y -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
         }
-        case 'T' : {
-            SetWinMode(CONSOLE);
+    }
+
+    if (KEYS[' ']) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
         }
+        else {
+            Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
+        }
+    }
+    else if (KEYS[VK_CONTROL]) {
+        if (DIRECTIONAL_MOVE) {
+            directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+        }
+        else {
+            Pos.z -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
+        }
+    }
+
+    if (KEYS[VK_TAB]) {
+        DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
+        KEYS[VK_TAB] = FALSE;
+    }
+
+    if (KEYS['R']) {
+        if (GetKeyState(VK_SHIFT) < 0) {
+            FLOAT dx = (1-Pos.x)/10, dy = (1-Pos.y)/10, dz = (1-Pos.z)/10;
+            FLOAT dyaw = (-Angle.x)/10, dpitch = (-Angle.y)/10, droll = (-Angle.z)/10;
+            FLOAT df = (65.0f-FOV)/10;
+
+            Pos.x += dx; Pos.y += dy; Pos.z += dz;
+            Angle.x += dyaw; Angle.y += dpitch; Angle.z += droll;
+            FOV += df;
+        }
+        else {
+            Pos.x = Pos.y = Pos.z = 1.0f;
+            Angle.x = Angle.y = Angle.z = 0.0f;
+            FOV = 65.0f;
+        }
+    }
+
+    if (KEYS['T']) {
+        SetWinMode(CONSOLE);
+        KEYS['T'] = FALSE;
     }
 }
 

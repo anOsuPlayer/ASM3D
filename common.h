@@ -14,7 +14,11 @@
     static const UINT       WIN_HEIGHT  = 800;
     static const LPCSTR     WIN_NAME    = "ASM3D";
 
+    static UINT             FONT_SIZE = 16;
+
     HFONT DEFAULT_FONT();
+    void ResizeFont(UINT w);
+
     HBRUSH BACKGROUND();
 
     static const COLORREF   TEXT_FG     = RGB(255, 255, 255);

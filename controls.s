@@ -5,10 +5,6 @@ DPOS:           .float .125
 .section .text
 .global directional_move
 directional_move:
-    pushq %rbp
-    movq %rsp, %rbp
-    subq $32, %rsp
-
     movq VIEW(%rip), %r15
     addq %rcx, %r15
     cvtsi2ss %edx, %xmm2
@@ -25,8 +21,4 @@ directional_move:
     
     leaq Pos(%rip), %rax
     movl $0, 12(%rax)
-
-    addq $32, %rsp
-    popq %rbp
     ret
-

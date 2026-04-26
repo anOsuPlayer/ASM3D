@@ -2,10 +2,13 @@
 
 HFONT DEFAULT_FONT() {
     static HFONT font;
-    
-    if (font == NULL) {
+    static UINT current_size;
+
+    if (font == NULL || FONT_SIZE != current_size) {
+        current_size = FONT_SIZE;
+
         font = CreateFont(
-            16, 0, 0, 0,
+            current_size, 0, 0, 0,
             FW_DONTCARE,
             FALSE, FALSE, FALSE,
             ANSI_CHARSET,
@@ -18,6 +21,11 @@ HFONT DEFAULT_FONT() {
     }
 
     return font;
+}
+
+void ResizeFont(UINT w) {
+    UINT newsize = (w / 70);
+    FONT_SIZE = newsize > 16 ? 16 : newsize < 1 ? 1 : newsize;
 }
 
 HBRUSH BACKGROUND() {

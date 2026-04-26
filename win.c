@@ -26,7 +26,6 @@ HWND MakeWindow(HINSTANCE inst, int show) {
     );
 
     ShowWindow(hwnd, show);
-    SetTimer(hwnd, 1, 0, NULL);
 
     return hwnd;
 }
@@ -36,6 +35,7 @@ void Loop(HWND hwnd) {
     while (GetMessage(&message, NULL, 0, 0)) {
         TranslateMessage(&message);
         DispatchMessage(&message);
+        Repaint(hwnd);
     }
 
     DestroyWindow(hwnd);
@@ -52,13 +52,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CREATE : {
             return 0;
         }
-        case WM_TIMER : {
-            if (CanRepaint()) {
-                Repaint(hwnd);
-                ClearRepaint();
-            }
-            return 0;
-        }
         case WM_PAINT : {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
@@ -73,17 +66,17 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             FillRect(fg, &winsize, fgbrush);
             DeleteObject(fgbrush);
 
-            if (GetWinMode() == CONSOLE) {
-                DisplayConsole(hwnd, fg, wParam, lParam);
-            }
-
             if (HasDebug()) {
                 DisplayData(hwnd, fg, msg, wParam, lParam);
             }
+            if (GetWinMode() == CONSOLE) {
+                DisplayConsole(hwnd, fg, wParam, lParam);
+            }
+            
             Render(hwnd, bg);
-
+            
+            TransparentBlt(bg, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00ff);
             BitBlt(hdc, 0, 0, winsize.right, winsize.bottom, bg, 0, 0, SRCCOPY);
-            TransparentBlt(hdc, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00ff);
             
             clock_gettime(CLOCK_MONOTONIC, &end);
             LONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
@@ -114,6 +107,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             winsize.right = w;
             winsize.bottom = h;
 
+            ResizeFont(w);
+
             Width = ((FLOAT) w);
             Height = ((FLOAT) h);
 
@@ -137,18 +132,24 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(fg, hbmfg);
 
             ReleaseDC(hwnd, hdc);
-
-            Repaint(hwnd);
             return 0;
         }
         
         case WM_KEYDOWN : {
             if (GetWinMode() == RENDER) {
-                Move(hwnd, wParam, lParam);
+                GetKeyDown(hwnd, wParam, lParam);
             }
-
+            
             Special(hwnd, wParam, lParam);
-            Repaint(hwnd);
+            return 0;
+        }
+        case WM_KEYUP : {
+            if (GetWinMode() == RENDER) {
+                GetKeyUp(hwnd, wParam, lParam);
+            }
+            
+            Special(hwnd, wParam, lParam);
+
             return 0;
         }
         case WM_CHAR : {
@@ -156,25 +157,21 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 Type(hwnd, wParam, lParam);
             }
 
-            Repaint(hwnd);
             return 0;
         }
 
         case WM_LBUTTONDOWN : {
             OnLeftClick(hwnd, wParam, lParam);
-            Repaint(hwnd);
             return 0;
         }
         case WM_MOUSEMOVE : {
             if (HasMouse()) {
                 Look(hwnd, wParam, lParam);
-                Repaint(hwnd);
             }
             return 0;
         }
         case WM_MOUSEWHEEL : {
             Scroll(hwnd, wParam, lParam);
-            Repaint(hwnd);
             return 0;
         }
         case WM_DESTROY : {
@@ -196,7 +193,12 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-void Repaint(HWND hwnd) {
+void Update(HWND hwnd) {
+    Move();
     update();
+}
+
+void Repaint(HWND hwnd) {
+    Update(hwnd);
     InvalidateRect(hwnd, NULL, FALSE);
 }
