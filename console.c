@@ -1,8 +1,8 @@
 #include "console.h"
 
 void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
-    SetTextColor(hdc, TEXT_FG);
-    SetBkColor(hdc, TEXT_BG);
+    SetTextColor(hdc, GetFontFG());
+    SetBkColor(hdc, GetFontBG());
     SelectObject(hdc, DEFAULT_FONT());
 
     RECT rec;
@@ -41,7 +41,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
         cursor += off;
 
         if (strcmp(word, "exit") == 0) {
-            DestroyWindow(hwnd);
+            PostMessage(hwnd, WM_CLOSE, 0, 0);
         }
         else if (strcmp(word, "make") == 0) {
             INT out = sscanf(cursor, "%s%n", word, &off);
@@ -72,9 +72,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Unnamed Point created at (%.2f, %.2f, %.2f)\n", word, x, y, z);
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
-                    p->p->color = color;
-
-                    SetRepaint();
+                    p->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -83,12 +81,10 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 cursor += off;
 
                 if (sscanf(cursor, "%s%n", name, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Point of color \"%x\" created at (%.2f, %.2f, %.2f)", color, x, y, z);
+                    sprintf(GetText(), "Unnamed Point of color \"%08x\" created at (%.2f, %.2f, %.2f)", color, x, y, z);
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
-                    p->p->color = color;
-
-                    SetRepaint();
+                    p->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -104,13 +100,11 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 cursor += off;
 
                 if (sscanf(cursor, "%s%n", group, &off) <= 0) {
-                    sprintf(GetText(), "Point \"%s\" of color \"%x\" created at (%.2f, %.2f, %.2f)\n", name, color, x, y, z);
+                    sprintf(GetText(), "Point \"%s\" of color \"%08x\" created at (%.2f, %.2f, %.2f)\n", name, color, x, y, z);
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
-                    strcpy(p->p->name, name);
-                    p->p->color = color;
-
-                    SetRepaint();
+                    strcpy(p->props->name, name);
+                    p->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -123,15 +117,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     return;
                 }
 
-                sprintf(GetText(), "Point \"%s\" of color \"%x\" created at (%.2f, %.2f, %.2f) in group \"%s\"\n",
+                sprintf(GetText(), "Point \"%s\" of color \"%08x\" created at (%.2f, %.2f, %.2f) in group \"%s\"\n",
                     name, color, x, y, z, group);
                 Point p = MakePoint();
                 p->P.x = x; p->P.y = y; p->P.z = z;
-                strcpy(p->p->name, word);
-                strcpy(p->p->group, group);
-                p->p->color = color;
-
-                SetRepaint();
+                strcpy(p->props->name, word);
+                strcpy(p->props->group, group);
+                p->props->color = color;
                 
                 SetWinState(3);
                 return;
@@ -156,9 +148,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                    l->p->color = color;
-
-                    SetRepaint();
+                    l->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -167,14 +157,12 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 cursor += off;
 
                 if (sscanf(cursor, "%s%n", name, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Line of color \"%x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)",
+                    sprintf(GetText(), "Unnamed Line of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)",
                         color, x1, y1, z1, x2, y2, z2);
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                    l->p->color = color;
-
-                    SetRepaint();
+                    l->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -190,15 +178,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 cursor += off;
 
                 if (sscanf(cursor, "%s%n", group, &off) <= 0) {
-                    sprintf(GetText(), "Line \"%s\" of color \"%x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)\n", name,
+                    sprintf(GetText(), "Line \"%s\" of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)\n", name,
                         color, x1, y1, z1, x2, y2, z2);
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                    strcpy(l->p->name, name);
-                    l->p->color = color;
-
-                    SetRepaint();
+                    strcpy(l->props->name, name);
+                    l->props->color = color;
                     
                     SetWinState(3);
                     return;
@@ -211,16 +197,14 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     return;
                 }
 
-                sprintf(GetText(), "Line \"%s\" of color \"%x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) in group \"%s\"\n",
+                sprintf(GetText(), "Line \"%s\" of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) in group \"%s\"\n",
                     name, color, x1, y1, z1, x2, y2, z2, group);
                 Line l = MakeLine();
                 l->A.x = x1; l->A.y = y1; l->A.z = z1;
                 l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                strcpy(l->p->name, name);
-                strcpy(l->p->group, group);
-                l->p->color = color;
-
-                SetRepaint();
+                strcpy(l->props->name, name);
+                strcpy(l->props->group, group);
+                l->props->color = color;
 
                 SetWinState(3);
                 return;
@@ -245,8 +229,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     DeleteGroup(word);
                     sprintf(GetText(), "Deleting Group \"%s\"\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -259,8 +241,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     DeletePoint(word);
                     sprintf(GetText(), "Deleting Point \"%s\"\n", word);
-                    
-                    SetRepaint();
                 }
 
             }
@@ -274,15 +254,11 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     DeleteLine(word);
                     sprintf(GetText(), "Deleting Line \"%s\"\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else {
                 DeleteAsset(word);
                 sprintf(GetText(), "Deleting Asset \"%s\"\n", word);
-
-                SetRepaint();
             }
         }
         else if (strcmp(word, "show") == 0) {
@@ -302,8 +278,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowGroup(word, TRUE);
                     sprintf(GetText(), "Group \"%s\" is now visible\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -316,8 +290,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowPoint(word, TRUE);
                     sprintf(GetText(), "Point \"%s\" is now visible\n", word);
-                    
-                    SetRepaint();
                 }
 
             }
@@ -331,15 +303,11 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowLine(word, TRUE);
                     sprintf(GetText(), "Line \"%s\" is now visible\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else {
                 ShowAsset(word, TRUE);
                 sprintf(GetText(), "Asset \"%s\" is now visible\n", word);
-
-                SetRepaint();
             }
         }
         else if (strcmp(word, "hide") == 0) {
@@ -359,8 +327,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowGroup(word, FALSE);
                     sprintf(GetText(), "Group \"%s\" is now hidden\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -373,8 +339,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowPoint(word, FALSE);
                     sprintf(GetText(), "Point \"%s\" is now hidden\n", word);
-                    
-                    SetRepaint();
                 }
 
             }
@@ -388,15 +352,11 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     ShowLine(word, FALSE);
                     sprintf(GetText(), "Line \"%s\" is now hidden\n", word);
-                    
-                    SetRepaint();
                 }
             }
             else {
                 ShowAsset(word, FALSE);
                 sprintf(GetText(), "Asset \"%s\" is now hidden\n", word);
-
-                SetRepaint();
             }
         }
         else if (strcmp(word, "fps") == 0) {
@@ -434,8 +394,88 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 sprintf(GetText(), "FPS cap removed\n");
                 SetFPS(-1);
             }
+            else if (strcmp(word, "reset") == 0) {
+                sprintf(GetText(), "FPS Highest and Lowest records reset");
+                ResetFrameTimes();
+            }
             else {
                 sprintf(GetText(), "Unknown FPS command option \"%s\"\n", GetConfirmedText());
+            }
+        }
+        else if (strcmp(word, "color") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Coloring failed, no option specified \"%s\"\n", GetConfirmedText());
+            }
+            else if (strcmp(word, "bg") == 0) {
+                UINT color;
+
+                out = sscanf(cursor, "%x%n", &color, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Coloring failed, no Background color specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    SetEngineBG(color);
+                    sprintf(GetText(), "Background Color changed to \"%08x\"\n", color);
+                }
+            }
+            else if (strcmp(word, "font") == 0) {
+                UINT color;
+
+                out = sscanf(cursor, "%x%n", &color, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Coloring failed, no Font color specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    SetFontFG(color);
+                    sprintf(GetText(), "Font Color changed to \"%08x\"\n", color);
+                }
+            }
+            else if (strcmp(word, "fontbg") == 0) {
+                UINT color;
+
+                out = sscanf(cursor, "%x%n", &color, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Coloring failed, no Background Font color specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    SetFontBG(color);
+                    sprintf(GetText(), "Font Background Color changed to \"%08x\"\n", color);
+                }
+            }
+            else {
+                sprintf(GetText(), "Unknown Color command option \"%s\"\n", GetConfirmedText());
+            }
+        }
+        else if (strcmp(word, "buffer") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "No Buffer option specified \"%s\"\n", GetConfirmedText());
+            }
+            else if (strcmp(word, "default") == 0 || strcmp(word, "aligned") == 0) {
+                SetBufClearMode(ALIGNED_AVX);
+                sprintf(GetText(), "Buffer clear mode set to ALIGNED_AVX\n", GetConfirmedText());
+            }
+            else if (strcmp(word, "nth") == 0) {
+                SetBufClearMode(NTH_AVX);
+                sprintf(GetText(), "Buffer clear mode set to NTH_AVX\n", GetConfirmedText());
+            }
+            else if (strcmp(word, "dual") == 0) {
+                SetBufClearMode(DUAL_ALIGNED_AVX);
+                sprintf(GetText(), "Buffer clear mode set to DUAL_ALIGNED_AVX\n", GetConfirmedText());
+            }
+            else {
+                sprintf(GetText(), "Unknown Buffer command option \"%s\"\n", GetConfirmedText());
             }
         }
         else {
@@ -450,7 +490,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
         if (size == -1) {
             SetInput(TRUE);
             size = GetTextSize();
-            SetRepaint(TRUE);
         }
         else if (GetConfirmedSize() == 0 || GetTextSize() > size) {
             SetWinState(-1);

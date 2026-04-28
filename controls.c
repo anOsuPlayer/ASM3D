@@ -1,5 +1,7 @@
 #include "controls.h"
 
+static BOOL             HAS_MOUSE = FALSE;
+
 BOOL HasMouse() {
     return HAS_MOUSE;
 }
@@ -12,6 +14,10 @@ void ShowMouse() {
     while (ShowCursor(TRUE) < 0);
 }
 
+static BOOL             KEYS[256];
+
+static BOOL             DIRECTIONAL_MOVE = FALSE;
+
 void GetKeyDown(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     KEYS[wParam] = TRUE;
 }
@@ -23,7 +29,7 @@ void GetKeyUp(HWND hwnd, WPARAM wParam, LPARAM lParam) {
 void Move() {
     if (KEYS['W']) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(FRONT, (GetKeyState(VK_SHIFT) < 0) ? 2.0f : 1.0f);
+            directional_move(DMOV_FRONT, (GetKeyState(VK_SHIFT) < 0) ? 2.0f : 1.0f);
         }
         else {
             Pos.x += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -31,7 +37,7 @@ void Move() {
     }
     else if (KEYS['S']) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+            directional_move(DMOV_FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
         }
         else {
             Pos.x -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -40,7 +46,7 @@ void Move() {
 
     if (KEYS['D']) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
+            directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
         }
         else {
             Pos.y += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -48,7 +54,7 @@ void Move() {
     }
     else if (KEYS['A']) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+            directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
         }
         else {
             Pos.y -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -57,7 +63,7 @@ void Move() {
 
     if (KEYS[' ']) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
+            directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? 2 : 1));
         }
         else {
             Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -65,7 +71,7 @@ void Move() {
     }
     else if (KEYS[VK_CONTROL]) {
         if (DIRECTIONAL_MOVE) {
-            directional_move(UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
+            directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? -2 : -1));
         }
         else {
             Pos.z -= ((GetKeyState(VK_SHIFT) < 0) ? 2*DPOS : DPOS);
@@ -147,6 +153,8 @@ BOOL IsDirectional() {
     return DIRECTIONAL_MOVE;
 }
 
+static LPARAM           PREV_MOUSE_LOCATION;
+
 void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     if (HAS_MOUSE) {
         if (lParam != PREV_MOUSE_LOCATION && lParam != ((100) | (100 << 16))) {
@@ -157,7 +165,6 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             if (GetKeyState(VK_LMENU) < 0) {
                 FLOAT droll = (FLOAT) x-100;
                 Angle.z -= droll * DROT;
-                SetRepaint();
             }
             else {
                 FLOAT dyaw = (FLOAT) x-100;

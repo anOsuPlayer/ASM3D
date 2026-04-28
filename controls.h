@@ -4,28 +4,20 @@
     #include "engine.h"
     #include "text.h"
 
-    static const FLOAT      DPOS = 0.125f;
-    static const FLOAT      DROT = 0.001745f;
+    extern FLOAT            DPOS;
+    extern FLOAT            DROT;
 
-    static const FLOAT      SPEED = 1.0f;
-    static const FLOAT      SENSIBILITY = 1.0f;
-
-    static BOOL             HAS_MOUSE = FALSE;
+    extern FLOAT            SPEED;
+    extern FLOAT            SENS;
 
     BOOL HasMouse();
 
     void HideMouse();
     void ShowMouse();
 
-    static BOOL             KEYS[256];
-
-    static LPARAM           PREV_MOUSE_LOCATION;
-
-    static const LONG64     RIGHT = 0;
-    static const LONG64     UP = 16;
-    static const LONG64     FRONT = 32;
-
-    static BOOL             DIRECTIONAL_MOVE = FALSE;
+    static const LONG64     DMOV_RIGHT = 0;
+    static const LONG64     DMOV_UP = 16;
+    static const LONG64     DMOV_FRONT = 32;
 
     extern void directional_move(LONG64 dir, UINT rate);
 

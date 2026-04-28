@@ -18,7 +18,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
         WIN_NAME,
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
-        WIN_WIDTH, WIN_HEIGHT,
+        GetWindowWidth(), GetWindowHeight(),
         NULL,
         NULL,
         inst,
@@ -50,6 +50,7 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     switch (msg) {
         case WM_CREATE : {
+            MakeBuffers();
             return 0;
         }
         case WM_PAINT : {
@@ -62,7 +63,7 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(bg, hbmbg);
             SelectObject(fg, hbmfg);
 
-            HBRUSH fgbrush = CreateSolidBrush(0x00ff00ff);
+            HBRUSH fgbrush = CreateSolidBrush(0x00ff00fe);
             FillRect(fg, &winsize, fgbrush);
             DeleteObject(fgbrush);
 
@@ -75,7 +76,7 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             
             Render(hwnd, bg);
             
-            TransparentBlt(bg, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00ff);
+            TransparentBlt(bg, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00fe);
             BitBlt(hdc, 0, 0, winsize.right, winsize.bottom, bg, 0, 0, SRCCOPY);
             
             clock_gettime(CLOCK_MONOTONIC, &end);
@@ -107,7 +108,9 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             winsize.right = w;
             winsize.bottom = h;
 
-            ResizeFont(w);
+            SetWindowSize(w, h);
+            UpdateBuffers();
+            ResetFrameTimes();
 
             Width = ((FLOAT) w);
             Height = ((FLOAT) h);
@@ -148,8 +151,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 GetKeyUp(hwnd, wParam, lParam);
             }
             
-            Special(hwnd, wParam, lParam);
-
             return 0;
         }
         case WM_CHAR : {
@@ -176,7 +177,6 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         case WM_DESTROY : {
             DeleteObject(DEFAULT_FONT());
-            DeleteObject(BACKGROUND());
 
             if (bg) {
                 DeleteDC(bg);
@@ -184,6 +184,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 DeleteObject(hbmbg);
                 DeleteObject(hbmfg);
             }
+
+            FreeBuffers();
 
             PostQuitMessage(0);
             return 0;

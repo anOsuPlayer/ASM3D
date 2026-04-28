@@ -14,17 +14,17 @@
 
     typedef struct point_t {
         struct vec_t P;
-        Properties p;
+        Properties props;
     } *Point;
 
     typedef struct line_t {
         struct vec_t A, B;
-        Properties p;
+        Properties props;
     } *Line;
 
     typedef struct surface_t {
         struct vec_t A, B, C;
-        Properties p;
+        Properties props;
     } *Surface;
 
 #endif

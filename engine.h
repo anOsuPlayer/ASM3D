@@ -3,16 +3,11 @@
 
     #include "basic.h"
     #include "camera.h"
-
-    static Point*       ePOINTS;
-    static UINT         PCOUNT = 0;
-
-    static Line*        eLINES;
-    static UINT         LCOUNT = 0;
-
-    static Surface*     eSURFACES;
-    static UINT         SCOUNT = 0;
-
+    #include "buffer.h"
+    
+    extern BOOL compute_point(Vec pos, Vec screen);
+    extern BOOL compute_line(Vec pos1, Vec pos2, Vec screen1, Vec screen2);
+    
     void InitializeAssets();
     void TerminateAssets();
 
@@ -39,9 +34,6 @@
     
     void DeleteGroup(const char* gname);
     void ShowGroup(const char* gname, BOOL show);
-
-    extern BOOL compute_point(Vec pos, Vec screen);
-    extern BOOL compute_line(Vec pos1, Vec pos2, Vec screen1, Vec screen2);
 
     void RenderPoints(HWND hwnd, HDC hdc);
     void RenderLines(HWND hwnd, HDC hdc);

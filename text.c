@@ -1,5 +1,7 @@
 #include "text.h"
 
+static BOOL CAN_INPUT = TRUE;
+
 BOOL CanInput() {
     return CAN_INPUT;
 }
@@ -12,6 +14,9 @@ void StopInput() {
     CAN_INPUT = FALSE;
 }
 
+static CHAR TEXT[500];
+static CHAR CONFIRMED[500];
+
 CHAR* GetText() {
     return TEXT;
 }
@@ -19,6 +24,9 @@ CHAR* GetText() {
 CHAR* GetConfirmedText() {
     return CONFIRMED;
 }
+
+static UINT TEXT_SIZE = 0;
+static UINT CONFIRMED_SIZE = 0;
 
 UINT GetTextSize() {
     return TEXT_SIZE;

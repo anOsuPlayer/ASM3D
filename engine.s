@@ -16,6 +16,9 @@ compute_point:
     leaq -24(%rbp), %r8
     call mulmv
 
+    movl -16(%rbp), %ecx
+    movl %ecx, -44(%rbp)
+
     movq PERSPECTIVE(%rip), %rcx
     leaq -24(%rbp), %rdx
     leaq -40(%rbp), %r8
@@ -78,6 +81,8 @@ compute_point:
 
     compute_point_quit:
     movq -8(%rbp), %rax
+    movl -44(%rbp), %ecx
+    movl %ecx, -32(%rbp)
     vmovups -40(%rbp), %xmm0
     vmovups %xmm0, (%rax)
     movq $1, %rax
@@ -102,6 +107,9 @@ compute_line:
     movq VIEW(%rip), %rcx
     leaq -48(%rbp), %r8
     call mulmv
+    movl -40(%rbp), %ecx
+    movl %ecx, -200(%rbp)
+
     leaq -48(%rbp), %rdx
     movq PERSPECTIVE(%rip), %rcx
     leaq -64(%rbp), %r8
@@ -113,6 +121,9 @@ compute_line:
     movq VIEW(%rip), %rcx
     leaq -64(%rbp), %r8
     call mulmv
+    movl -56(%rbp), %ecx
+    movl %ecx, -204(%rbp)
+
     leaq -64(%rbp), %rdx
     movq PERSPECTIVE(%rip), %rcx
     leaq -80(%rbp), %r8
@@ -254,11 +265,16 @@ compute_line:
     jmp compute_line_end
 
     compute_line_quit:
-    movq -8(%rbp), %rax
-    vmovups -64(%rbp), %xmm0
-    vmovups %xmm0, (%rax)
     movq -16(%rbp), %rax
+    movl -200(%rbp), %ecx
+    movl %ecx, -40(%rbp)
     vmovups -48(%rbp), %xmm0
+    vmovups %xmm0, (%rax)
+
+    movq -8(%rbp), %rax
+    movl -204(%rbp), %ecx
+    movl %ecx, -52(%rbp)
+    vmovups -64(%rbp), %xmm0
     vmovups %xmm0, (%rax)
 
     movq $1, %rax

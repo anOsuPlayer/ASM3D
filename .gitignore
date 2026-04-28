@@ -1,4 +1,5 @@
 *.exe
 /test/
 dbg.c
+.vscode
 a

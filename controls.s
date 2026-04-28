@@ -1,6 +1,14 @@
 .section .data
 
-DPOS:           .float .125
+.global DPOS
+DPOS:           .float .03125
+.global DROT
+DROT:           .float .001745
+
+.global SPEED
+SPEED:          .float 1.0
+.global SENS
+SENS:           .float 1.0
 
 .section .text
 .global directional_move

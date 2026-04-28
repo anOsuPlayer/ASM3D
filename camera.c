@@ -2,8 +2,8 @@
 #include "controls.h"
 
 void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
-    SetTextColor(hdc, TEXT_FG);
-    SetBkColor(hdc, TEXT_BG);
+    SetTextColor(hdc, GetFontFG());
+    SetBkColor(hdc, GetFontBG());
     SelectObject(hdc, DEFAULT_FONT());
 
     RECT rec;
@@ -40,7 +40,8 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     DrawText(hdc, str2, -1, &rec, DT_LEFT);
 
     CHAR str3[500];
-    sprintf(str3, "frametime: %9lluns\n FPS: %11.02f", GetFrameTime(), 1e9f / GetFrameTime());
+    sprintf(str3, "frametime: %9lluns\nFPS: %11.02f\n\nHighest: %11.2f\nLowest: %11.2f", GetFrameTime(), 1e9f / GetFrameTime(),
+        1e9f / GetLowestFrameTime(), 1e9f / GetHighestFrameTime());
 
     DrawText(hdc, str3, -1, &rec, DT_RIGHT);
 }
