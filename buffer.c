@@ -2,17 +2,8 @@
 
 static BUFCLEAR             CLEARMODE = NTH_AVX;
 
-BUFCLEAR GetBufClearMode() {
-    return CLEARMODE;
-}
-
-void SetBufClearMode(BUFCLEAR mode) {
-    CLEARMODE = mode;
-    ResetFrameTimes();
-}
-
 void MakeBuffers() {
-    PIXELS = GetWindowWidth() * GetWindowHeight();
+    PIXELS = GetScaledWidth() * GetScaledHeight();
     BUFSIZE = PIXELS * 4;
     FreeBuffers();
 
@@ -25,6 +16,15 @@ void FreeBuffers() {
         _aligned_free(ZBUFFER);
         _aligned_free(CBUFFER);
     }
+}
+
+BUFCLEAR GetBufClearMode() {
+    return CLEARMODE;
+}
+
+void SetBufClearMode(BUFCLEAR mode) {
+    CLEARMODE = mode;
+    ResetFrameTimes();
 }
 
 COLORREF GetEngineBG() {
@@ -41,9 +41,16 @@ BITMAPINFO* GetBMI() {
     return &BMI;
 }
 
+static FLOAT                RESOLUTION = 1.0f;
+
+extern FLOAT                Width, Height;
+
 void UpdateBuffers() {
-    PIXELS = GetWindowWidth() * GetWindowHeight();
+    PIXELS = GetScaledWidth() * GetScaledHeight();
     BUFSIZE = PIXELS * 4;
+
+    Width = ((FLOAT) GetScaledWidth());
+    Height = ((FLOAT) GetScaledHeight());
 
     ZBUFFER = (FLOAT*) _aligned_realloc(ZBUFFER, BUFSIZE, 64);
     CBUFFER = (UINT*) _aligned_realloc(CBUFFER, BUFSIZE, 64);
@@ -55,6 +62,24 @@ void UpdateBuffers() {
         BMI.bmiHeader.biCompression = BI_RGB;
     }
 
-    BMI.bmiHeader.biWidth = GetWindowWidth();
-    BMI.bmiHeader.biHeight = -((INT) GetWindowHeight());
+    BMI.bmiHeader.biWidth = GetScaledWidth();
+    BMI.bmiHeader.biHeight = -((INT) GetScaledHeight());
+}
+
+FLOAT GetResolution() {
+    return RESOLUTION;
+}
+
+void SetResolution(FLOAT res) {
+    RESOLUTION = res;
+
+    UpdateBuffers();
+}
+
+UINT GetScaledWidth() {
+    return (UINT) (GetWindowWidth() / RESOLUTION);
+}
+
+UINT GetScaledHeight() {
+    return (UINT) (GetWindowHeight() / RESOLUTION);
 }

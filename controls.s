@@ -15,8 +15,7 @@ SENS:           .float 1.0
 directional_move:
     movq VIEW(%rip), %r15
     addq %rcx, %r15
-    cvtsi2ss %edx, %xmm2
-    vbroadcastss %xmm2, %xmm2
+    vbroadcastss %xmm1, %xmm2
 
     vmovups (%r15), %xmm0
     vbroadcastss DPOS(%rip), %xmm1

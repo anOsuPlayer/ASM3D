@@ -12,8 +12,8 @@
 
     LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    void Update(HWND hwnd);
-
     void Repaint(HWND hwnd);
 
+    void Update();
+    
 #endif

@@ -9,17 +9,19 @@
 
     extern FLOAT            SPEED;
     extern FLOAT            SENS;
+    
+    static const FLOAT      BOOST = 6.0f;
 
     BOOL HasMouse();
 
     void HideMouse();
     void ShowMouse();
 
-    static const LONG64     DMOV_RIGHT = 0;
-    static const LONG64     DMOV_UP = 16;
-    static const LONG64     DMOV_FRONT = 32;
+    static const LONGLONG   DMOV_RIGHT = 0;
+    static const LONGLONG   DMOV_UP = 16;
+    static const LONGLONG   DMOV_FRONT = 32;
 
-    extern void directional_move(LONG64 dir, UINT rate);
+    extern void directional_move(LONGLONG dir, FLOAT rate);
 
     void GetKeyDown(HWND hwnd, WPARAM wParam, LPARAM lParam);
     void GetKeyUp(HWND hwnd, WPARAM wParam, LPARAM lParam);

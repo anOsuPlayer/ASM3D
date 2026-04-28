@@ -33,6 +33,7 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 void Loop(HWND hwnd) {
     MSG message;
     while (GetMessage(&message, NULL, 0, 0)) {
+        Update();
         TranslateMessage(&message);
         DispatchMessage(&message);
         Repaint(hwnd);
@@ -54,47 +55,59 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
         case WM_PAINT : {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
-
             struct timespec start, end;
             clock_gettime(CLOCK_MONOTONIC, &start);
-
-            SelectObject(bg, hbmbg);
-            SelectObject(fg, hbmfg);
-
-            HBRUSH fgbrush = CreateSolidBrush(0x00ff00fe);
-            FillRect(fg, &winsize, fgbrush);
-            DeleteObject(fgbrush);
-
-            if (HasDebug()) {
-                DisplayData(hwnd, fg, msg, wParam, lParam);
-            }
-            if (GetWinMode() == CONSOLE) {
-                DisplayConsole(hwnd, fg, wParam, lParam);
-            }
             
-            Render(hwnd, bg);
-            
-            TransparentBlt(bg, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00fe);
-            BitBlt(hdc, 0, 0, winsize.right, winsize.bottom, bg, 0, 0, SRCCOPY);
+            {
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hwnd, &ps);
+
+                SelectObject(bg, hbmbg);
+                SelectObject(fg, hbmfg);
+
+                HBRUSH fgbrush = CreateSolidBrush(0x00ff00fe);
+                FillRect(fg, &winsize, fgbrush);
+                DeleteObject(fgbrush);
+
+                if (HasDebug()) {
+                    DisplayData(hwnd, fg, msg, wParam, lParam);
+                }
+                if (GetWinMode() == CONSOLE) {
+                    DisplayConsole(hwnd, fg, wParam, lParam);
+                }
+                
+                Render(hwnd, bg);
+                
+                TransparentBlt(bg, 0, 0, winsize.right, winsize.bottom, fg, 0, 0, winsize.right, winsize.bottom, 0x00ff00fe);
+                BitBlt(hdc, 0, 0, winsize.right, winsize.bottom, bg, 0, 0, SRCCOPY);
+                
+                EndPaint(hwnd, &ps);
+            }
             
             clock_gettime(CLOCK_MONOTONIC, &end);
-            LONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
-            LONG nsdiff = GetFrameSize() - delta;
+            LONGLONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
+            LONGLONG nsdiff = GetFrameSize() - delta;
             
             if (nsdiff > 0) {
-                struct timespec tdelta;
-                tdelta.tv_sec = nsdiff / 1000000000L;
-                tdelta.tv_nsec = nsdiff % 1000000000L;
                 SetFrameTime(nsdiff + delta);
-                nanosleep(&tdelta, NULL);
+                LONGLONG elapsed, i = 1;
+
+                clock_gettime(CLOCK_MONOTONIC, &start);
+                do {
+                    clock_gettime(CLOCK_MONOTONIC, &end);
+                    elapsed = ((end.tv_sec - start.tv_sec) * 1000000000L + (end.tv_nsec - start.tv_nsec));
+
+                    if (elapsed > delta * i) {
+                        i = (elapsed / delta) + 1;
+                        Update();
+                    }
+                }
+                while (elapsed < nsdiff);
             }
             else {
                 SetFrameTime(delta);
             }
 
-            EndPaint(hwnd, &ps);
             return 0;
         }
         case WM_KILLFOCUS : {
@@ -105,17 +118,18 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             INT w = LOWORD(lParam);
             INT h = HIWORD(lParam);
             
-            winsize.right = w;
-            winsize.bottom = h;
-
             SetWindowSize(w, h);
-            UpdateBuffers();
-            ResetFrameTimes();
 
-            Width = ((FLOAT) w);
-            Height = ((FLOAT) h);
+            winsize.right = GetWindowWidth();
+            winsize.bottom = GetWindowHeight();
+            
+            Width = ((FLOAT) GetScaledWidth());
+            Height = ((FLOAT) GetScaledHeight());
 
             AR =  Width / Height;
+            
+            UpdateBuffers();
+            ResetFrameTimes();
 
             HDC hdc = GetDC(hwnd);
         
@@ -195,12 +209,11 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-void Update(HWND hwnd) {
-    Move();
+void Update() {
     update();
+    Move();
 }
 
 void Repaint(HWND hwnd) {
-    Update(hwnd);
     InvalidateRect(hwnd, NULL, FALSE);
 }

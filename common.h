@@ -8,6 +8,7 @@
     #include <stdint.h>
     #include <math.h>
     #include <time.h>
+    #include <pthread.h>
 
     static const LPCSTR             WIN_NAME    = "ASM3D";
 

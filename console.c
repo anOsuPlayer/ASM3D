@@ -91,7 +91,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
 
                 if (strlen(name) > 20) {
-                    sprintf(GetText(), "Point creation failed, GetConfirmedText()valid name \"%s\"\n", name);
+                    sprintf(GetText(), "Point creation failed, invalid name \"%s\"\n", name);
                     
                     SetWinState(3);
                     return;
@@ -111,7 +111,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
 
                 if (strlen(group) > 20) {
-                    sprintf(GetText(), "Point creation failed, GetConfirmedText()valid group \"%s\"\n", group);
+                    sprintf(GetText(), "Point creation failed, invalid group \"%s\"\n", group);
                     
                     SetWinState(3);
                     return;
@@ -169,7 +169,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
 
                 if (strlen(name) > 20) {
-                    sprintf(GetText(), "Line creation failed, GetConfirmedText()valid name \"%s\"\n", name);
+                    sprintf(GetText(), "Line creation failed, invalid name \"%s\"\n", name);
                     
                     SetWinState(3);
                     return;
@@ -191,7 +191,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
 
                 if (strlen(group) > 20) {
-                    sprintf(GetText(), "Line creation failed, GetConfirmedText()valid group \"%s\"\n", group);
+                    sprintf(GetText(), "Line creation failed, invalid group \"%s\"\n", group);
                     
                     SetWinState(3);
                     return;
@@ -390,7 +390,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     }
                 }
             }
-            else if (strcmp(word, "uncap") == 0) {
+            else if (strcmp(word, "uncap") == 0 || strcmp(word, "unlock") == 0) {
                 sprintf(GetText(), "FPS cap removed\n");
                 SetFPS(-1);
             }
@@ -420,6 +420,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
                 else {
                     SetEngineBG(color);
+                    SetFontBG(color);
                     sprintf(GetText(), "Background Color changed to \"%08x\"\n", color);
                 }
             }
@@ -470,12 +471,40 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 SetBufClearMode(NTH_AVX);
                 sprintf(GetText(), "Buffer clear mode set to NTH_AVX\n", GetConfirmedText());
             }
-            else if (strcmp(word, "dual") == 0) {
+            else if (strcmp(word, "dual_aligned") == 0) {
                 SetBufClearMode(DUAL_ALIGNED_AVX);
                 sprintf(GetText(), "Buffer clear mode set to DUAL_ALIGNED_AVX\n", GetConfirmedText());
             }
+            else if (strcmp(word, "dual_nth") == 0) {
+                SetBufClearMode(DUAL_NTH_AVX);
+                sprintf(GetText(), "Buffer clear mode set to DUAL_NTH_AVX\n", GetConfirmedText());
+            }
             else {
                 sprintf(GetText(), "Unknown Buffer command option \"%s\"\n", GetConfirmedText());
+            }
+        }
+        else if (strcmp(word, "scale") == 0) {
+            FLOAT res;
+
+            INT out = sscanf(cursor, "%f%n", &res, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Current Engine Resolution is set to x%.1f\n", GetResolution());
+            }
+            else {
+                if (out == 0) {
+                    sprintf(GetText(), "Expected a floating point Resolution value \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    if (res < 1.0f || res > 15.0f) {
+                        sprintf(GetText(), "Invalid resolution value \"x%.1f\"\n", res);
+                    }
+                    else {
+                        SetResolution(res);
+                        sprintf(GetText(), "Engine Resolution set to x%.1f\n", GetResolution());
+                    }
+                }
             }
         }
         else {

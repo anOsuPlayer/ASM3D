@@ -14,29 +14,38 @@
     extern void clear_bufs();
     extern void clear_bufs_nth();
     extern void clear_bufs_dual();
+    extern void clear_bufs_nthd();
 
     extern void put(FLOAT x, FLOAT y, COLORREF color, FLOAT z);
 
+    void MakeBuffers();
+    void FreeBuffers();
+    
     typedef enum BUFCLEAR {
 
         ALIGNED_AVX,
 
         DUAL_ALIGNED_AVX,
         
-        NTH_AVX
+        NTH_AVX,
+
+        DUAL_NTH_AVX
 
     } BUFCLEAR;
-
+    
     BUFCLEAR GetBufClearMode();
     void SetBufClearMode(BUFCLEAR mode);
-
-    void MakeBuffers();
-    void FreeBuffers();
 
     COLORREF GetEngineBG();
     void SetEngineBG(COLORREF col);
 
     BITMAPINFO* GetBMI();
     void UpdateBuffers();
+
+    FLOAT GetResolution();
+    void SetResolution(FLOAT res);
+
+    UINT GetScaledWidth();
+    UINT GetScaledHeight();
 
 #endif

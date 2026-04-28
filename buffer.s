@@ -17,10 +17,10 @@ ENGINE_BG:          .long 0x00000000
 .section .text
 .global clear_bufs
 clear_bufs:
-    movl $0x7f800000, %eax
+    movl $0xff800000, %eax
     vmovd %eax, %xmm0
-    vbroadcastss %xmm0, %zmm2
-    vpbroadcastd ENGINE_BG(%rip), %zmm1
+    vbroadcastss %xmm0, %ymm0
+    vpbroadcastd ENGINE_BG(%rip), %ymm1
     
     movq ZBUFFER(%rip), %rax
     movq CBUFFER(%rip), %rdx
@@ -28,7 +28,7 @@ clear_bufs:
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
     clear_bufs0:
-        vmovaps %zmm2, (%rax)
+        vmovaps %ymm0, (%rax)
         vmovdqa32 %zmm1, (%rdx)
     addq $64, %rax
     addq $64, %rdx
@@ -40,7 +40,7 @@ clear_bufs:
 
 .global clear_bufs_nth
 clear_bufs_nth:
-    movl $0x7f800000, %eax
+    movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -63,7 +63,7 @@ clear_bufs_nth:
 
 .global clear_bufs_dual
 clear_bufs_dual:
-    movl $0x7f800000, %eax
+    movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -89,6 +89,34 @@ clear_bufs_dual:
     vzeroupper
     ret
 
+.global clear_bufs_nthd
+clear_bufs_nthd:
+    movl $0xff800000, %eax
+    vmovd %eax, %xmm0
+    vbroadcastss %xmm0, %ymm0
+    vpbroadcastd ENGINE_BG(%rip), %ymm1
+    
+    movq ZBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    clear_bufs_nthd0:
+        vmovaps %ymm0, (%rax)
+    addq $32, %rax
+    cmpq %rcx, %rax
+    jb clear_bufs_nthd0
+
+    movq CBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    clear_bufs_nthd1:
+        vmovdqa %ymm1, (%rax)
+    addq $32, %rax
+    cmpq %rcx, %rax
+    jb clear_bufs_nthd1
+
+    vzeroupper
+    ret
+
 .global put
 put:
     cvtss2si Width(%rip), %eax
@@ -105,7 +133,7 @@ put:
     movq ZBUFFER(%rip), %rcx
     movss (%rcx, %rax, 4), %xmm2
     ucomiss %xmm3, %xmm2
-    jl put0
+    ja put0
         movq CBUFFER(%rip), %rdx
         movss %xmm3, (%rcx, %rax, 4)
         movl %r8d, (%rdx, %rax, 4)

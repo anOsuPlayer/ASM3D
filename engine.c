@@ -20,8 +20,8 @@ void SetupAxes() {
     X->A.x = 0; X->A.y = 0; X->A.z = 0;
     X->B.x = -100000; X->B.y = 0; X->B.z = 0;
     X->props->color = 0x00005555;
-    strcpy(X->props->name, "x_axis");
-    strcpy(X->props->group, "axes");
+    strcpy(X->props->name, "nx_axis");
+    strcpy(X->props->group, "naxes");
     
     Line Y = MakeLine();
     Y->A.x = 0; Y->A.y = 0; Y->A.z = 0;
@@ -33,8 +33,8 @@ void SetupAxes() {
     Y->A.x = 0; Y->A.y = 0; Y->A.z = 0;
     Y->B.x = 0; Y->B.y = -100000; Y->B.z = 0;
     Y->props->color = 0x00550055;
-    strcpy(Y->props->name, "y_axis");
-    strcpy(Y->props->group, "axes");
+    strcpy(Y->props->name, "ny_axis");
+    strcpy(Y->props->group, "naxes");
     
 
     Line Z = MakeLine();
@@ -48,7 +48,7 @@ void SetupAxes() {
     Z->B.x = 0; Z->B.y = 0; Z->B.z = -100000;
     Z->props->color = 0x00555500;
     strcpy(Z->props->name, "nz_axes");
-    strcpy(Z->props->group, "axes");
+    strcpy(Z->props->group, "naxes");
 
     Point O = MakePoint();
     O->P.x = 0; O->P.y = 0; O->P.z = 0;
@@ -307,10 +307,6 @@ void RenderPoints(HWND hwnd, HDC hdc) {
     
             if (confirm) {
                 put(screen.x, screen.y, ePOINTS[i]->props->color, screen.z);
-                // put(screen.x+1, screen.y, ePOINTS[i]->props->color, screen.z);
-                // put(screen.x-1, screen.y, ePOINTS[i]->props->color, screen.z);
-                // put(screen.x, screen.y+1, ePOINTS[i]->props->color, screen.z);
-                // put(screen.x, screen.y-1, ePOINTS[i]->props->color, screen.z);
             }
         }
     }
@@ -339,10 +335,6 @@ void RenderLines(HWND hwnd, HDC hdc) {
 
                 for (INT e = 0; e <= (INT) steps; e++) {
                     put(x, y, eLINES[i]->props->color, z);
-                    // put(x+1, y, eLINES[i]->props->color, z);
-                    // put(x-1, y, eLINES[i]->props->color, z);
-                    // put(x, y+1, eLINES[i]->props->color, z);
-                    // put(x, y-1, eLINES[i]->props->color, z);
                     x += xi; y += yi; z += zi;
                 }
             }
@@ -370,6 +362,10 @@ void Render(HWND hwnd, HDC hdc) {
             clear_bufs_dual();
             break;
         }
+        case DUAL_NTH_AVX : {
+            clear_bufs_nthd();
+            break;
+        }
     }
 
     // RenderSurfaces(hwnd, hdc);
@@ -379,7 +375,7 @@ void Render(HWND hwnd, HDC hdc) {
     StretchDIBits(
         hdc,
         0, 0, GetWindowWidth(), GetWindowHeight(),
-        0, 0, GetWindowWidth(), GetWindowHeight(),
+        0, 0, GetScaledWidth(), GetScaledHeight(),
         CBUFFER,
         GetBMI(),
         DIB_RGB_COLORS,
