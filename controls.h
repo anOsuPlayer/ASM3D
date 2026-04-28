@@ -10,7 +10,7 @@
     extern FLOAT            SPEED;
     extern FLOAT            SENS;
     
-    static const FLOAT      BOOST = 6.0f;
+    static const FLOAT      BOOST = 5.0f;
 
     BOOL HasMouse();
 

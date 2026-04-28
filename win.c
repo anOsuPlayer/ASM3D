@@ -7,7 +7,6 @@ HWND MakeWindow(HINSTANCE inst, int show) {
     wc.lpfnWndProc = HandleMSG;
     wc.hInstance = inst;
     wc.lpszClassName = CLASS_NAME;
-    wc.hbrBackground = CreateSolidBrush(0x00000000);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 
     RegisterClass(&wc);
@@ -33,7 +32,6 @@ HWND MakeWindow(HINSTANCE inst, int show) {
 void Loop(HWND hwnd) {
     MSG message;
     while (GetMessage(&message, NULL, 0, 0)) {
-        Update();
         TranslateMessage(&message);
         DispatchMessage(&message);
         Repaint(hwnd);
@@ -216,4 +214,5 @@ void Update() {
 
 void Repaint(HWND hwnd) {
     InvalidateRect(hwnd, NULL, FALSE);
+    Update();
 }
