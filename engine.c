@@ -11,44 +11,28 @@ static UINT         SCOUNT = 0;
 
 void SetupAxes() {
     Line X = MakeLine();
-    X->A.x = 0; X->A.y = 0; X->A.z = 0;
+    X->A.x = -100000; X->A.y = 0; X->A.z = 0;
     X->B.x = 100000; X->B.y = 0; X->B.z = 0;
-    X->props->color = 0x00550000;
+    X->props->color = 0x00550055;
+    X->lprops->end_color = 0x00550000;
     strcpy(X->props->name, "x_axis");
     strcpy(X->props->group, "axes");
-    X = MakeLine();
-    X->A.x = 0; X->A.y = 0; X->A.z = 0;
-    X->B.x = -100000; X->B.y = 0; X->B.z = 0;
-    X->props->color = 0x00005555;
-    strcpy(X->props->name, "nx_axis");
-    strcpy(X->props->group, "naxes");
     
     Line Y = MakeLine();
-    Y->A.x = 0; Y->A.y = 0; Y->A.z = 0;
+    Y->A.x = 0; Y->A.y = -100000; Y->A.z = 0;
     Y->B.x = 0; Y->B.y = 100000; Y->B.z = 0;
-    Y->props->color = 0x00005500;
+    Y->props->color = 0x00555500;
+    Y->lprops->end_color = 0x00005500;
     strcpy(Y->props->name, "y_axis");
     strcpy(Y->props->group, "axes");
-    Y = MakeLine();
-    Y->A.x = 0; Y->A.y = 0; Y->A.z = 0;
-    Y->B.x = 0; Y->B.y = -100000; Y->B.z = 0;
-    Y->props->color = 0x00550055;
-    strcpy(Y->props->name, "ny_axis");
-    strcpy(Y->props->group, "naxes");
-    
 
     Line Z = MakeLine();
-    Z->A.x = 0; Z->A.y = 0; Z->A.z = 0;
+    Z->A.x = 0; Z->A.y = 0; Z->A.z = -100000;
     Z->B.x = 0; Z->B.y = 0; Z->B.z = 100000;
-    Z->props->color = 0x00000055;
+    Z->props->color = 0x00005555;
+    Z->lprops->end_color = 0x00000055;
     strcpy(Z->props->name, "z_axes");
     strcpy(Z->props->group, "axes");
-    Z = MakeLine();
-    Z->A.x = 0; Z->A.y = 0; Z->A.z = 0;
-    Z->B.x = 0; Z->B.y = 0; Z->B.z = -100000;
-    Z->props->color = 0x00555500;
-    strcpy(Z->props->name, "nz_axes");
-    strcpy(Z->props->group, "naxes");
 
     Point O = MakePoint();
     O->P.x = 0; O->P.y = 0; O->P.z = 0;
@@ -161,10 +145,13 @@ void ShowPoint(const char* pname, BOOL show) {
 Line MakeLine() {
     Line l = (Line) malloc(sizeof(struct line_t));
     l->props = (Properties) malloc(sizeof(struct properties_t));
+    l->lprops = (LProperties) malloc(sizeof(struct line_properties_t));
+
     l->A.w = 1.0f;
     l->B.w = 1.0f;
 
     l->props->color = 0x00ffffff;
+    l->lprops->end_color = 0xffffffff;
     l->props->hidden = FALSE;
 
     eLINES = realloc(eLINES, (++LCOUNT) * sizeof(struct line_t));
@@ -175,6 +162,7 @@ Line MakeLine() {
 
 void FreeLine(Line l) {
     free(l->props);
+    free(l->lprops);
     free(l);
 }
 
@@ -323,6 +311,17 @@ void RenderLines(HWND hwnd, HDC hdc) {
                 FLOAT dy = screen2.y - screen1.y;
                 FLOAT dz = screen2.z - screen1.z;
 
+                FLOAT dr = 0, dg = 0, db = 0;
+
+                if (eLINES[i]->lprops->end_color != 0xffffffff) {
+                    dr = (FLOAT) ((INT)(eLINES[i]->lprops->end_color & 0x000000ff)
+                        - (INT)(eLINES[i]->props->color & 0x000000ff));
+                    dg = (FLOAT) ((INT)((eLINES[i]->lprops->end_color & 0x0000ff00) >> 8)
+                        - ((INT)(eLINES[i]->props->color & 0x0000ff00) >> 8));
+                    db = (FLOAT) ((INT)((eLINES[i]->lprops->end_color & 0x00ff0000) >> 16)
+                        - ((INT)(eLINES[i]->props->color & 0x00ff0000) >> 16));
+                }
+
                 FLOAT steps = (fabsf(dx) > fabsf(dy)) ? fabsf(dx) : fabsf(dy);
 
                 if (steps == 0) {
@@ -331,11 +330,18 @@ void RenderLines(HWND hwnd, HDC hdc) {
                 }
 
                 FLOAT xi = dx / steps, yi = dy / steps, zi = dz / steps;
+                FLOAT ri = dr / steps, gi = dg / steps, bi = db / steps;
+
                 FLOAT x = screen1.x, y = screen1.y, z = screen1.z;
 
+                FLOAT r = (FLOAT) (eLINES[i]->props->color & 0x000000ff);
+                FLOAT g = (FLOAT) ((eLINES[i]->props->color & 0x0000ff00) >> 8);
+                FLOAT b = (FLOAT) ((eLINES[i]->props->color & 0x00ff0000) >> 16);
+
                 for (INT e = 0; e <= (INT) steps; e++) {
-                    put(x, y, eLINES[i]->props->color, z);
+                    put(x, y, (UINT) RGB((UINT) r, (UINT) g, (UINT) b), z);
                     x += xi; y += yi; z += zi;
+                    r += ri; g += gi; b += bi;
                 }
             }
         }

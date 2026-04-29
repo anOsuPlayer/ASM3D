@@ -14,7 +14,7 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     rec.right -= 20;
 
     CHAR str1[200];
-    sprintf(str1, "x: %+.03f, y: %+.03f, z: %+.03f\nyaw: %+.03f, pitch: %+.03f, roll: %+.03f\nFOV: %.01f, AR: %.04f\nMovement: %s",
+    sprintf(str1, "x: %+.3f, y: %+.3f, z: %+.3f\nyaw: %+.3f, pitch: %+.3f, roll: %+.3f\nFOV: %.1f, AR: %.4f\nMovement: %s",
         Pos.x, Pos.y, Pos.z,
         Angle.x, Angle.y, Angle.z,
         FOV, AR,
@@ -23,9 +23,9 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     DrawText(hdc, str1, -1, &rec, DT_CENTER);
 
     CHAR str2[500];
-    sprintf(str2, "QUATERNION:\n%+.03f %+.03f %+.03f %+.03f\n" \
-        "VIEW :\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f\n" \
-        "PERSPECTIVE :\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f\n%+.02f %+.02f %+.02f %+.02f",
+    sprintf(str2, "QUATERNION:\n%+.3f %+.3f %+.3f %+.3f\n" \
+        "VIEW :\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f\n" \
+        "PERSPECTIVE :\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f\n%+.2f %+.2f %+.2f %+.2f",
         QUATERNION->x, QUATERNION->y, QUATERNION->z, QUATERNION->w,
         VIEW->r0.x, VIEW->r0.y, VIEW->r0.z, VIEW->r0.w, 
         VIEW->r1.x, VIEW->r1.y, VIEW->r1.z, VIEW->r1.w, 
@@ -40,7 +40,7 @@ void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {
     DrawText(hdc, str2, -1, &rec, DT_LEFT);
 
     CHAR str3[500];
-    sprintf(str3, "frametime: %9lluns\nFPS: %11.02f\n\nHighest: %11.2f\nLowest: %11.2f", GetFrameTime(), 1e9f / GetFrameTime(),
+    sprintf(str3, "frametime: %9lluns\nFPS: %11.2f\n\nHighest: %11.2f\nLowest: %11.2f", GetFrameTime(), 1e9f / GetFrameTime(),
         1e9f / GetLowestFrameTime(), 1e9f / GetHighestFrameTime());
 
     DrawText(hdc, str3, -1, &rec, DT_RIGHT);

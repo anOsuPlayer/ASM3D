@@ -29,9 +29,9 @@ clear_bufs:
     addq BUFSIZE(%rip), %rcx
     clear_bufs0:
         vmovaps %ymm0, (%rax)
-        vmovdqa32 %zmm1, (%rdx)
-    addq $64, %rax
-    addq $64, %rdx
+        vmovdqa %ymm1, (%rdx)
+    addq $32, %rax
+    addq $32, %rdx
     cmpq %rcx, %rax
     jb clear_bufs0
 
@@ -100,7 +100,7 @@ clear_bufs_nthd:
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
     clear_bufs_nthd0:
-        vmovaps %ymm0, (%rax)
+        vmovntps %ymm0, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
     jb clear_bufs_nthd0
@@ -109,7 +109,7 @@ clear_bufs_nthd:
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
     clear_bufs_nthd1:
-        vmovdqa %ymm1, (%rax)
+        vmovntdq %ymm1, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
     jb clear_bufs_nthd1

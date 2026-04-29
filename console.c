@@ -43,6 +43,24 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
         if (strcmp(word, "exit") == 0) {
             PostMessage(hwnd, WM_CLOSE, 0, 0);
         }
+        else if (strcmp(word, "tp") == 0 || strcmp(word, "warp") == 0) {
+            FLOAT x, y, z;
+            INT out = sscanf(cursor, "%f,%f,%f%n", &x, &y, &z, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Warping failed, no coordinates were specified \"%s\"\n", GetConfirmedText());
+            }
+            else if (out != 3) {
+                sprintf(GetText(), "Warping failed, malformed coordinates \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                Pos.x = x; Pos.y = y; Pos.z = z;
+                sprintf(GetText(), "Warped to (%.2f, %.2f, %.2f)\n", x, y, z);
+            }
+
+            SetWinState(3);
+        }
         else if (strcmp(word, "make") == 0) {
             INT out = sscanf(cursor, "%s%n", word, &off);
             cursor += off;
@@ -56,161 +74,93 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
             else if (strcmp(word, "point") == 0) {
                 FLOAT x, y, z;
                 UINT color = 0x00ffffff;
-                CHAR name[20], group[20];
+                CHAR name[20] = "", group[20] = "";
 
                 INT out = sscanf(cursor, "%f,%f,%f%n", &x, &y, &z, &off);
                 cursor += off;
 
                 if (out != 3) {
                     sprintf(GetText(), "Point creation failed, malformed coordinates \"%s\"\n", GetConfirmedText());
-                    
                     SetWinState(3);
-                    return;
                 }
-                
-                if (sscanf(cursor, "%x%n", &color, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Point created at (%.2f, %.2f, %.2f)\n", word, x, y, z);
+                else {
+                    out = sscanf(cursor, "%x %s %s%n", &color, name, group, &off);
+                    cursor += off;
+
+                    if (out == EOF) {
+                        sprintf(name, "point%d", rand());
+                        strcpy(group, "default");
+                    }
+                    else {
+                        if (strcmp(name, "-") == 0 || strlen(name) == 0) {
+                            sprintf(name, "point%d", rand());
+                        }
+                        if (strcmp(group, "-") == 0 || strlen(group) == 0) {
+                            strcpy(group, "default");
+                        }
+                    }
+                    
+                    sprintf(GetText(), "Point \"%s\" of color \"%08x\" was created at (%.2f, %.2f, %.2f) in group \"%s\"",
+                        name, color, x, y, z, group);
+
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
                     p->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                cursor += off;
-
-                if (sscanf(cursor, "%s%n", name, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Point of color \"%08x\" created at (%.2f, %.2f, %.2f)", color, x, y, z);
-                    Point p = MakePoint();
-                    p->P.x = x; p->P.y = y; p->P.z = z;
-                    p->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                if (strlen(name) > 20) {
-                    sprintf(GetText(), "Point creation failed, invalid name \"%s\"\n", name);
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                cursor += off;
-
-                if (sscanf(cursor, "%s%n", group, &off) <= 0) {
-                    sprintf(GetText(), "Point \"%s\" of color \"%08x\" created at (%.2f, %.2f, %.2f)\n", name, color, x, y, z);
-                    Point p = MakePoint();
-                    p->P.x = x; p->P.y = y; p->P.z = z;
                     strcpy(p->props->name, name);
-                    p->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
+                    strcpy(p->props->group, group);
                 }
-
-                if (strlen(group) > 20) {
-                    sprintf(GetText(), "Point creation failed, invalid group \"%s\"\n", group);
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                sprintf(GetText(), "Point \"%s\" of color \"%08x\" created at (%.2f, %.2f, %.2f) in group \"%s\"\n",
-                    name, color, x, y, z, group);
-                Point p = MakePoint();
-                p->P.x = x; p->P.y = y; p->P.z = z;
-                strcpy(p->props->name, word);
-                strcpy(p->props->group, group);
-                p->props->color = color;
                 
                 SetWinState(3);
-                return;
             }
             else if (strcmp(word, "line") == 0) {
                 FLOAT x1, y1, z1, x2, y2, z2;
-                UINT color = 0x00ffffff;
-                CHAR name[20], group[20];
+                UINT color = 0x00ffffff, end_color = 0xffffffff;
+                CHAR name[20] = "", group[20] = "";
 
                 INT out = sscanf(cursor, "%f,%f,%f;%f,%f,%f%n", &x1, &y1, &z1, &x2, &y2, &z2, &off);
                 cursor += off;
 
                 if (out != 6) {
                     sprintf(GetText(), "Line creation failed, malformed coordinates \"%s\"\n", GetConfirmedText());
-                    
                     SetWinState(3);
-                    return;
                 }
-                
-                if (sscanf(cursor, "%x%n", &color, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Line created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)\n", word, x1, y1, z1, x2, y2, z2);
+                else {
+                    out = sscanf(cursor, "%x %s %s %x%n", &color, name, group, &end_color, &off);
+                    cursor += off;
+
+                    if (out == EOF) {
+                        sprintf(name, "line%d", rand());
+                        strcpy(group, "default");
+                    }
+                    else {
+                        if (strcmp(name, "-") == 0 || strlen(name) == 0) {
+                            sprintf(name, "line%d", rand());
+                        }
+                        if (strcmp(group, "-") == 0 || strlen(group) == 0) {
+                            strcpy(group, "default");
+                        }
+                    }
+
+                    sprintf(GetText(), "Line \"%s\" of color \"%08x-%08x\" was created from (%.2f, %.2f, %.2f)"
+                        " to (%.2f, %.2f, %.2f) in group \"%s\"",
+                        name, color, end_color, x1, y1, z1, x2, y2, z2, group);
+
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
                     l->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
-                }
+                    l->lprops->end_color = end_color;
 
-                cursor += off;
-
-                if (sscanf(cursor, "%s%n", name, &off) <= 0) {
-                    sprintf(GetText(), "Unnamed Line of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)",
-                        color, x1, y1, z1, x2, y2, z2);
-                    Line l = MakeLine();
-                    l->A.x = x1; l->A.y = y1; l->A.z = z1;
-                    l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                    l->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                if (strlen(name) > 20) {
-                    sprintf(GetText(), "Line creation failed, invalid name \"%s\"\n", name);
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                cursor += off;
-
-                if (sscanf(cursor, "%s%n", group, &off) <= 0) {
-                    sprintf(GetText(), "Line \"%s\" of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f)\n", name,
-                        color, x1, y1, z1, x2, y2, z2);
-                    Line l = MakeLine();
-                    l->A.x = x1; l->A.y = y1; l->A.z = z1;
-                    l->B.x = x2; l->B.y = y2; l->B.z = z2;
                     strcpy(l->props->name, name);
-                    l->props->color = color;
-                    
-                    SetWinState(3);
-                    return;
+                    strcpy(l->props->group, group);
                 }
-
-                if (strlen(group) > 20) {
-                    sprintf(GetText(), "Line creation failed, invalid group \"%s\"\n", group);
-                    
-                    SetWinState(3);
-                    return;
-                }
-
-                sprintf(GetText(), "Line \"%s\" of color \"%08x\" created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) in group \"%s\"\n",
-                    name, color, x1, y1, z1, x2, y2, z2, group);
-                Line l = MakeLine();
-                l->A.x = x1; l->A.y = y1; l->A.z = z1;
-                l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                strcpy(l->props->name, name);
-                strcpy(l->props->group, group);
-                l->props->color = color;
 
                 SetWinState(3);
-                return;
             }
-
-            sprintf(GetText(), "Unknown Asset type \"%s\"\n", word);
+            else {
+                sprintf(GetText(), "Unknown Asset type \"%s\"\n", word);
+                SetWinState(3);
+            }
         }
         else if (strcmp(word, "delete") == 0) {
             INT out = sscanf(cursor, "%s%n", word, &off);
@@ -420,7 +370,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
                 else {
                     SetEngineBG(color);
-                    SetFontBG(color);
                     sprintf(GetText(), "Background Color changed to \"%08x\"\n", color);
                 }
             }

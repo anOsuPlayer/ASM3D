@@ -254,10 +254,10 @@ compute_line:
     jmp compute_line_end
 
     compute_line_quit:
-    movq -16(%rbp), %rax
+    movq -8(%rbp), %rax
     vmovups -48(%rbp), %xmm0
     vmovups %xmm0, (%rax)
-    movq -8(%rbp), %rax
+    movq -16(%rbp), %rax
     vmovups -64(%rbp), %xmm0
     vmovups %xmm0, (%rax)
 
