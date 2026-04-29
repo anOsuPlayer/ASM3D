@@ -122,16 +122,13 @@ void DeletePoint(const char* pname) {
     for (UINT i = 0; i < PCOUNT; i++) {
         if (strcmp(ePOINTS[i]->props->name, pname) == 0) {
             p = ePOINTS[i];
-            for (UINT e = i+1; e < PCOUNT; e++) {
-                ePOINTS[e-1] = ePOINTS[e];
-            }
-            
+            ePOINTS[i] = ePOINTS[--PCOUNT];
             break;
         }
     }
 
     FreePoint(p);
-    ePOINTS = realloc(ePOINTS, (--PCOUNT) * sizeof(struct point_t));
+    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT);
 }
 
 void ShowPoint(const char* pname, BOOL show) {
@@ -172,16 +169,13 @@ void DeleteLine(const char* lname) {
     for (UINT i = 0; i < LCOUNT; i++) {
         if (strcmp(eLINES[i]->props->name, lname) == 0) {
             l = eLINES[i];
-            for (UINT e = i+1; e < LCOUNT; e++) {
-                eLINES[e-1] = eLINES[e];
-            }
-            
+            eLINES[i] = eLINES[--LCOUNT];
             break;
         }
     }
 
     FreeLine(l);
-    eLINES = realloc(eLINES, (--LCOUNT) * sizeof(struct point_t));
+    eLINES = realloc(eLINES, (LCOUNT) * sizeof(struct line_t));
 }
 
 void ShowLine(const char* lname, BOOL show) {
@@ -219,16 +213,15 @@ void DeleteSurface(const char* pname) {
     for (UINT i = 0; i < SCOUNT; i++) {
         if (strcmp(eSURFACES[i]->props->name, pname) == 0) {
             s = eSURFACES[i];
-            for (UINT e = i+1; e < SCOUNT; e++) {
-                eSURFACES[e-1] = eSURFACES[e];
-            }
+            eSURFACES[i] = eSURFACES[--SCOUNT];
+            break;
             
             break;
         }
     }
 
     FreeSurface(s);
-    eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(struct point_t));
+    eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(struct surface_t));
 }
 
 void ShowSurface(const char* sname, BOOL show) {
