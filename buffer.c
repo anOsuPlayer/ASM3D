@@ -2,6 +2,29 @@
 
 static BUFCLEAR             CLEARMODE = NTH_AVX;
 
+void ClearBuffers() {
+    switch (GetEngineMode()) {
+        case AVX256 : {
+            switch (GetBufClearMode()) {
+                case ALIGNED_AVX :          return _256_clear_bufs();
+                case DUAL_ALIGNED_AVX :     return _256_clear_bufs_dual();
+                case NTH_AVX :              return _256_clear_bufs_nth();
+                case DUAL_NTH_AVX :         return _256_clear_bufs_nthd();
+            }
+            break;
+        }
+        case AVX512 : {
+            switch (GetBufClearMode()) {
+                case ALIGNED_AVX :          return _512_clear_bufs();
+                case DUAL_ALIGNED_AVX :     return _512_clear_bufs_dual();
+                case NTH_AVX :              return _512_clear_bufs_nth();
+                case DUAL_NTH_AVX :         return _512_clear_bufs_nthd();
+            }
+            break;
+        }
+    }
+}
+
 void MakeBuffers() {
     PIXELS = GetScaledWidth() * GetScaledHeight();
     BUFSIZE = PIXELS * 4;
@@ -74,6 +97,7 @@ void SetResolution(FLOAT res) {
     RESOLUTION = res;
 
     UpdateBuffers();
+    ResetFrameTimes();
 }
 
 UINT GetScaledWidth() {

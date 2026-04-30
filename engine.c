@@ -299,7 +299,7 @@ void RenderLines(HWND hwnd, HDC hdc) {
             struct vec_t screen1, screen2;
             BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
-            if (confirm) {
+            if (confirm == 1) {
                 FLOAT dx = screen2.x - screen1.x;
                 FLOAT dy = screen2.y - screen1.y;
                 FLOAT dz = screen2.z - screen1.z;
@@ -348,28 +348,11 @@ void RenderSurfaces(HWND hwnd, HDC hdc) {
 }
 
 void Render(HWND hwnd, HDC hdc) {
-    switch (GetBufClearMode()) {
-        case ALIGNED_AVX : {
-            clear_bufs();
-            break;
-        }
-        case NTH_AVX : {
-            clear_bufs_nth();
-            break;
-        }
-        case DUAL_ALIGNED_AVX : {
-            clear_bufs_dual();
-            break;
-        }
-        case DUAL_NTH_AVX : {
-            clear_bufs_nthd();
-            break;
-        }
-    }
+    ClearBuffers();
 
-    // RenderSurfaces(hwnd, hdc);
-    RenderLines(hwnd, hdc);
     RenderPoints(hwnd, hdc);
+    RenderLines(hwnd, hdc);
+    RenderSurfaces(hwnd, hdc);
 
     StretchDIBits(
         hdc,

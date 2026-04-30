@@ -318,7 +318,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Current FPS cap is unbound\n");
                 }
                 else {
-                    sprintf(GetText(), "Current FPS cap is set to \"%u\"\n", GetFPS());
+                    sprintf(GetText(), "Current FPS cap is set to %u\n", GetFPS());
                 }
             }
             else if (strcmp(word, "cap") == 0) {
@@ -332,10 +332,10 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 }
                 else {
                     if (CAP < 1 || CAP > 10000) {
-                        sprintf(GetText(), "Invalid FPS cap \"%d\"\n", CAP);
+                        sprintf(GetText(), "Invalid FPS cap %d\n", CAP);
                     }
                     else {
-                        sprintf(GetText(), "FPS cap set to \"%d\"\n", CAP);
+                        sprintf(GetText(), "FPS cap set to %d\n", CAP);
                         SetFPS(CAP);
                     }
                 }
@@ -345,8 +345,27 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 SetFPS(-1);
             }
             else if (strcmp(word, "reset") == 0) {
-                sprintf(GetText(), "FPS Highest and Lowest records reset");
+                sprintf(GetText(), "FPS Highest and Lowest records reset\n");
                 ResetFrameTimes();
+            }
+            else if (strcmp(word, "update") == 0) {
+                LONGLONG INTERVAL;
+
+                out = sscanf(cursor, "%lld%n", &INTERVAL, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "FPS Update Interval is set to once per %lld frames\n", INTERVAL);
+                }
+                else {
+                    if (INTERVAL < 0) {
+                        sprintf(GetText(), "Invalid FPS Update Interval \"%lld\"\n", INTERVAL);
+                    }
+                    else {
+                        SetFrameUpdateInterval(INTERVAL);
+                        sprintf(GetText(), "FPS Update Interval set to once per %lld frames \n", INTERVAL);
+                    }
+                }
             }
             else {
                 sprintf(GetText(), "Unknown FPS command option \"%s\"\n", GetConfirmedText());
@@ -405,31 +424,55 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 sprintf(GetText(), "Unknown Color command option \"%s\"\n", GetConfirmedText());
             }
         }
-        else if (strcmp(word, "buffer") == 0) {
+        else if (strcmp(word, "engine") == 0) {
             INT out = sscanf(cursor, "%s%n", word, &off);
             cursor += off;
 
             if (out == EOF) {
-                sprintf(GetText(), "No Buffer option specified \"%s\"\n", GetConfirmedText());
+                sprintf(GetText(), "No Engine option specified \"%s\"\n", GetConfirmedText());
             }
-            else if (strcmp(word, "default") == 0 || strcmp(word, "aligned") == 0) {
-                SetBufClearMode(ALIGNED_AVX);
-                sprintf(GetText(), "Buffer clear mode set to ALIGNED_AVX\n", GetConfirmedText());
+            else if (strcmp(word, "buffer") == 0) {
+                INT out = sscanf(cursor, "%s%n", word, &off);
+                cursor += off;
+
+                if (strcmp(word, "default") == 0 || strcmp(word, "aligned") == 0) {
+                    SetBufClearMode(ALIGNED_AVX);
+                    sprintf(GetText(), "Engine Buffer clear mode set to ALIGNED_AVX\n", GetConfirmedText());
+                }
+                else if (strcmp(word, "nth") == 0) {
+                    SetBufClearMode(NTH_AVX);
+                    sprintf(GetText(), "Engine Buffer clear mode set to NTH_AVX\n", GetConfirmedText());
+                }
+                else if (strcmp(word, "dual_aligned") == 0) {
+                    SetBufClearMode(DUAL_ALIGNED_AVX);
+                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_ALIGNED_AVX\n", GetConfirmedText());
+                }
+                else if (strcmp(word, "dual_nth") == 0) {
+                    SetBufClearMode(DUAL_NTH_AVX);
+                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_NTH_AVX\n", GetConfirmedText());
+                }
+                else {
+                    sprintf(GetText(), "Unknown Engine Buffer option \"%s\"\n", GetConfirmedText());
+                }
             }
-            else if (strcmp(word, "nth") == 0) {
-                SetBufClearMode(NTH_AVX);
-                sprintf(GetText(), "Buffer clear mode set to NTH_AVX\n", GetConfirmedText());
-            }
-            else if (strcmp(word, "dual_aligned") == 0) {
-                SetBufClearMode(DUAL_ALIGNED_AVX);
-                sprintf(GetText(), "Buffer clear mode set to DUAL_ALIGNED_AVX\n", GetConfirmedText());
-            }
-            else if (strcmp(word, "dual_nth") == 0) {
-                SetBufClearMode(DUAL_NTH_AVX);
-                sprintf(GetText(), "Buffer clear mode set to DUAL_NTH_AVX\n", GetConfirmedText());
+            else if (strcmp(word, "mode") == 0) {
+                INT out = sscanf(cursor, "%s%n", word, &off);
+                cursor += off;
+
+                if (strcmp(word, "default") == 0 || strcmp(word, "avx256") == 0) {
+                    SetEngineMode(AVX256);
+                    sprintf(GetText(), "Engine Mode set to (default) AVX256\n", GetConfirmedText());
+                }
+                else if (strcmp(word, "avx512") == 0) {
+                    SetEngineMode(AVX512);
+                    sprintf(GetText(), "Engine Mode set to Accelerated AVX512\n", GetConfirmedText());
+                }
+                else {
+                    sprintf(GetText(), "Unknown Engine Mode \"%s\"\n", GetConfirmedText());
+                }
             }
             else {
-                sprintf(GetText(), "Unknown Buffer command option \"%s\"\n", GetConfirmedText());
+                sprintf(GetText(), "Unknown Engine option \"%s\"\n", GetConfirmedText());
             }
         }
         else if (strcmp(word, "scale") == 0) {

@@ -76,9 +76,12 @@ void ResizeFont(UINT w) {
 }
 
 static UINT             FPS = 240;
-static ULONG            FRAME_TIME = 0;
+static ULONGLONG        FRAME_TIME = 0;
 
-static ULONG            MINFT = -1, MAXFT = 0;
+static ULONGLONG        MINFT = -1, MAXFT = 0;
+
+static ULONGLONG        INTERVAL_TIME = 10;
+static ULONGLONG        INTERVAL = 10;
 
 UINT GetFPS() {
     return FPS;
@@ -102,11 +105,23 @@ void ResetFrameTimes() {
     MAXFT = 0;
 }
 
-void SetFrameTime(ULONG lastft) {
-    MINFT = (lastft < MINFT) ? lastft : MINFT;
-    MAXFT = (lastft > MAXFT) ? lastft : MAXFT;
+void SetFrameTime(ULONGLONG lastft) {
+    if (INTERVAL-- == 0) {
+        MINFT = (lastft < MINFT) ? lastft : MINFT;
+        MAXFT = (lastft > MAXFT) ? lastft : MAXFT;
 
-    FRAME_TIME = lastft;
+        FRAME_TIME = lastft;
+
+        INTERVAL = INTERVAL_TIME;
+    }
+}
+
+ULONGLONG GetFrameUpdateInterval() {
+    return INTERVAL_TIME;
+}
+
+void SetFrameUpdateInterval(ULONGLONG iv) {
+    INTERVAL_TIME = iv;
 }
 
 ULONG GetLowestFrameTime() {
@@ -162,4 +177,15 @@ void ShowDebug() {
 
 void HideDebug() {
     SHOW_DEBUG = FALSE;
+}
+
+static ENGINEMODE       ENGMODE = AVX256;
+
+ENGINEMODE GetEngineMode() {
+    return ENGMODE;
+}
+
+void SetEngineMode(ENGINEMODE acc) {
+    ENGMODE = acc;
+    ResetFrameTimes();
 }

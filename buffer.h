@@ -11,12 +11,21 @@
 
     extern COLORREF             ENGINE_BG;
 
-    extern void clear_bufs();
-    extern void clear_bufs_nth();
-    extern void clear_bufs_dual();
-    extern void clear_bufs_nthd();
+    extern void _256_clear_bufs();
+    extern void _512_clear_bufs();
+
+    extern void _256_clear_bufs_nth();
+    extern void _512_clear_bufs_nth();
+
+    extern void _256_clear_bufs_dual();
+    extern void _512_clear_bufs_dual();
+    
+    extern void _256_clear_bufs_nthd();
+    extern void _512_clear_bufs_nthd();
 
     extern void put(FLOAT x, FLOAT y, COLORREF color, FLOAT z);
+
+    void ClearBuffers();
 
     void MakeBuffers();
     void FreeBuffers();

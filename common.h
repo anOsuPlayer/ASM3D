@@ -9,6 +9,7 @@
     #include <math.h>
     #include <time.h>
     #include <pthread.h>
+    #include <immintrin.h>
 
     static const LPCSTR             WIN_NAME    = "ASM3D";
 
@@ -33,7 +34,10 @@
     LONG GetFrameSize();
 
     ULONG GetFrameTime();
-    void SetFrameTime(ULONG fps);
+    void SetFrameTime(ULONGLONG fps);
+
+    ULONGLONG GetFrameUpdateInterval();
+    void SetFrameUpdateInterval(ULONGLONG iv);
 
     ULONG GetLowestFrameTime();
     ULONG GetHighestFrameTime();
@@ -63,5 +67,16 @@
 
     void ShowDebug();
     void HideDebug();
+
+    typedef enum ENGINEMODE {
+
+        AVX256,
+
+        AVX512
+
+    } ENGINEMODE;
+
+    ENGINEMODE GetEngineMode();
+    void SetEngineMode(ENGINEMODE acc);
 
 #endif

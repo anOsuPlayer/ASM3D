@@ -15,8 +15,8 @@ PIXELS:             .long 0
 ENGINE_BG:          .long 0x00000000
 
 .section .text
-.global clear_bufs
-clear_bufs:
+.global _256_clear_bufs
+_256_clear_bufs:
     movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
@@ -27,19 +27,38 @@ clear_bufs:
 
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs0:
+    _256_clear_bufs0:
         vmovaps %ymm0, (%rax)
         vmovdqa %ymm1, (%rdx)
     addq $32, %rax
     addq $32, %rdx
     cmpq %rcx, %rax
-    jb clear_bufs0
-
-    vzeroupper
+    jb _256_clear_bufs0
     ret
 
-.global clear_bufs_nth
-clear_bufs_nth:
+.global _512_clear_bufs
+_512_clear_bufs:
+    movl $0xff800000, %eax
+    vmovd %eax, %xmm0
+    vbroadcastss %xmm0, %zmm1
+    vpbroadcastd ENGINE_BG(%rip), %zmm2
+    
+    movq ZBUFFER(%rip), %rax
+    movq CBUFFER(%rip), %rdx
+
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs0:
+        vmovdqa64 %zmm1, (%rax)
+        vmovdqa64 %zmm2, (%rdx)
+    addq $64, %rax
+    addq $64, %rdx
+    cmpq %rcx, %rax
+    jb _512_clear_bufs0
+    ret
+
+.global _256_clear_bufs_nth
+_256_clear_bufs_nth:
     movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
@@ -50,19 +69,38 @@ clear_bufs_nth:
 
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs_nth0:
+    _256_clear_bufs_nth0:
         vmovntps %ymm0, (%rax)
         vmovntdq %ymm1, (%rdx)
     addq $32, %rax
     addq $32, %rdx
     cmpq %rcx, %rax
-    jb clear_bufs_nth0
-
-    vzeroupper
+    jb _256_clear_bufs_nth0
     ret
 
-.global clear_bufs_dual
-clear_bufs_dual:
+.global _512_clear_bufs_nth
+_512_clear_bufs_nth:
+    movl $0xff800000, %eax
+    vmovd %eax, %xmm0
+    vbroadcastss %xmm0, %zmm1
+    vpbroadcastd ENGINE_BG(%rip), %zmm2
+    
+    movq ZBUFFER(%rip), %rax
+    movq CBUFFER(%rip), %rdx
+
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs_nth0:
+        vmovntps %zmm1, (%rax)
+        vmovntdq %zmm2, (%rdx)
+    addq $64, %rax
+    addq $64, %rdx
+    cmpq %rcx, %rax
+    jb _512_clear_bufs_nth0
+    ret
+
+.global _256_clear_bufs_dual
+_256_clear_bufs_dual:
     movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
@@ -71,26 +109,50 @@ clear_bufs_dual:
     movq ZBUFFER(%rip), %rax
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs_dual0:
+    _256_clear_bufs_dual0:
         vmovaps %ymm0, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
-    jb clear_bufs_dual0
+    jb _256_clear_bufs_dual0
 
     movq CBUFFER(%rip), %rax
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs_dual1:
+    _256_clear_bufs_dual1:
         vmovdqa %ymm1, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
-    jb clear_bufs_dual1
-
-    vzeroupper
+    jb _256_clear_bufs_dual1
     ret
 
-.global clear_bufs_nthd
-clear_bufs_nthd:
+.global _512_clear_bufs_dual
+_512_clear_bufs_dual:
+    movl $0xff800000, %eax
+    vmovd %eax, %xmm0
+    vbroadcastss %xmm0, %zmm1
+    vpbroadcastd ENGINE_BG(%rip), %zmm2
+    
+    movq ZBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs_dual0:
+        vmovaps %zmm1, (%rax)
+    addq $64, %rax
+    cmpq %rcx, %rax
+    jb _512_clear_bufs_dual0
+
+    movq CBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs_dual1:
+        vmovdqa32 %zmm2, (%rax)
+    addq $64, %rax
+    cmpq %rcx, %rax
+    jb _512_clear_bufs_dual1
+    ret
+
+.global _256_clear_bufs_nthd
+_256_clear_bufs_nthd:
     movl $0xff800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
@@ -99,22 +161,46 @@ clear_bufs_nthd:
     movq ZBUFFER(%rip), %rax
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs_nthd0:
+    _256_clear_bufs_nthd0:
         vmovntps %ymm0, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
-    jb clear_bufs_nthd0
+    jb _256_clear_bufs_nthd0
 
     movq CBUFFER(%rip), %rax
     movq %rax, %rcx
     addq BUFSIZE(%rip), %rcx
-    clear_bufs_nthd1:
+    _256_clear_bufs_nthd1:
         vmovntdq %ymm1, (%rax)
     addq $32, %rax
     cmpq %rcx, %rax
-    jb clear_bufs_nthd1
+    jb _256_clear_bufs_nthd1
+    ret
 
-    vzeroupper
+.global _512_clear_bufs_nthd
+_512_clear_bufs_nthd:
+    movl $0xff800000, %eax
+    vmovd %eax, %xmm0
+    vbroadcastss %xmm0, %zmm1
+    vpbroadcastd ENGINE_BG(%rip), %zmm2
+    
+    movq ZBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs_nthd0:
+        vmovntps %zmm1, (%rax)
+    addq $64, %rax
+    cmpq %rcx, %rax
+    jb _512_clear_bufs_nthd0
+
+    movq CBUFFER(%rip), %rax
+    movq %rax, %rcx
+    addq BUFSIZE(%rip), %rcx
+    _512_clear_bufs_nthd1:
+        vmovntdq %zmm2, (%rax)
+    addq $64, %rax
+    cmpq %rcx, %rax
+    jb _512_clear_bufs_nthd1
     ret
 
 .global put

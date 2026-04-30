@@ -57,6 +57,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             clock_gettime(CLOCK_MONOTONIC, &start);
             
             {
+                Update();
+
                 PAINTSTRUCT ps;
                 HDC hdc = BeginPaint(hwnd, &ps);
 
@@ -214,5 +216,4 @@ void Update() {
 
 void Repaint(HWND hwnd) {
     InvalidateRect(hwnd, NULL, FALSE);
-    Update();
 }
