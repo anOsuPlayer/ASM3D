@@ -2,6 +2,7 @@
     #define BUFFER_H
 
     #include "common.h"
+    #include "assets.h"
 
     extern FLOAT*               ZBUFFER;
     extern UINT*                CBUFFER;
@@ -24,6 +25,11 @@
     extern void _512_clear_bufs_nthd();
 
     extern void put(FLOAT x, FLOAT y, COLORREF color, FLOAT z);
+
+    extern void _256_put_line(Vec p1, Vec p2, COLORREF c1, COLORREF c2);
+    extern void _512_put_line(Vec p1, Vec p2, COLORREF c1, COLORREF c2);
+
+    void put_line(Vec p1, Vec p2, COLORREF c1, COLORREF c2);
 
     void ClearBuffers();
 

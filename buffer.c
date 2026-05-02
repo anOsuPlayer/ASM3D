@@ -1,24 +1,31 @@
 #include "buffer.h"
 
+void put_line(Vec p1, Vec p2, COLORREF c1, COLORREF c2) {
+    switch (GetEngineMode()) {
+        case AVX256 : { _256_put_line(p1, p2, c1, c2); break; }
+        case AVX512 : { _512_put_line(p1, p2, c1, c2); break; }
+    }
+}
+
 static BUFCLEAR             CLEARMODE = NTH_AVX;
 
 void ClearBuffers() {
     switch (GetEngineMode()) {
         case AVX256 : {
             switch (GetBufClearMode()) {
-                case ALIGNED_AVX :          return _256_clear_bufs();
-                case DUAL_ALIGNED_AVX :     return _256_clear_bufs_dual();
-                case NTH_AVX :              return _256_clear_bufs_nth();
-                case DUAL_NTH_AVX :         return _256_clear_bufs_nthd();
+                case ALIGNED_AVX : { _256_clear_bufs(); break; }
+                case DUAL_ALIGNED_AVX : { _256_clear_bufs_dual(); break; }
+                case NTH_AVX : { _256_clear_bufs_nth(); break; }
+                case DUAL_NTH_AVX : {_256_clear_bufs_nthd(); break; }
             }
             break;
         }
         case AVX512 : {
             switch (GetBufClearMode()) {
-                case ALIGNED_AVX :          return _512_clear_bufs();
-                case DUAL_ALIGNED_AVX :     return _512_clear_bufs_dual();
-                case NTH_AVX :              return _512_clear_bufs_nth();
-                case DUAL_NTH_AVX :         return _512_clear_bufs_nthd();
+                case ALIGNED_AVX : { _512_clear_bufs(); break; }
+                case DUAL_ALIGNED_AVX : { _512_clear_bufs_dual(); break; }
+                case NTH_AVX : { _512_clear_bufs_nth(); break; }
+                case DUAL_NTH_AVX : { _512_clear_bufs_nthd(); break; }
             }
             break;
         }

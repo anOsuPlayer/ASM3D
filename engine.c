@@ -299,43 +299,8 @@ void RenderLines(HWND hwnd, HDC hdc) {
             struct vec_t screen1, screen2;
             BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
-            if (confirm == 1) {
-                FLOAT dx = screen2.x - screen1.x;
-                FLOAT dy = screen2.y - screen1.y;
-                FLOAT dz = screen2.z - screen1.z;
-
-                FLOAT dr = 0, dg = 0, db = 0;
-
-                if (eLINES[i]->lprops->end_color != 0xffffffff) {
-                    dr = (FLOAT) ((INT)(eLINES[i]->lprops->end_color & 0x000000ff)
-                        - (INT)(eLINES[i]->props->color & 0x000000ff));
-                    dg = (FLOAT) ((INT)((eLINES[i]->lprops->end_color & 0x0000ff00) >> 8)
-                        - ((INT)(eLINES[i]->props->color & 0x0000ff00) >> 8));
-                    db = (FLOAT) ((INT)((eLINES[i]->lprops->end_color & 0x00ff0000) >> 16)
-                        - ((INT)(eLINES[i]->props->color & 0x00ff0000) >> 16));
-                }
-
-                FLOAT steps = (fabsf(dx) > fabsf(dy)) ? fabsf(dx) : fabsf(dy);
-
-                if (steps == 0) {
-                    put(screen1.x, screen1.y, eLINES[i]->props->color, screen1.z);
-                    return;
-                }
-
-                FLOAT xi = dx / steps, yi = dy / steps, zi = dz / steps;
-                FLOAT ri = dr / steps, gi = dg / steps, bi = db / steps;
-
-                FLOAT x = screen1.x, y = screen1.y, z = screen1.z;
-
-                FLOAT r = (FLOAT) (eLINES[i]->props->color & 0x000000ff);
-                FLOAT g = (FLOAT) ((eLINES[i]->props->color & 0x0000ff00) >> 8);
-                FLOAT b = (FLOAT) ((eLINES[i]->props->color & 0x00ff0000) >> 16);
-
-                for (INT e = 0; e <= (INT) steps; e++) {
-                    put(x, y, (UINT) RGB((UINT) r, (UINT) g, (UINT) b), z);
-                    x += xi; y += yi; z += zi;
-                    r += ri; g += gi; b += bi;
-                }
+            if (confirm) {
+                put_line(&screen1, &screen2, eLINES[i]->props->color, eLINES[i]->lprops->end_color);
             }
         }
     }
