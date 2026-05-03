@@ -297,7 +297,7 @@ update_perspective:
     divss %xmm1, %xmm0
     movss %xmm0, 40(%r15)
 
-    movq $2, %rax
+    movq $-2, %rax
     cvtsi2ss %rax, %xmm2
     movss Far(%rip), %xmm0
     mulss Near(%rip), %xmm0

@@ -128,7 +128,7 @@ void DeletePoint(const char* pname) {
     }
 
     FreePoint(p);
-    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT);
+    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(struct point_t));
 }
 
 void ShowPoint(const char* pname, BOOL show) {
@@ -215,8 +215,6 @@ void DeleteSurface(const char* pname) {
             s = eSURFACES[i];
             eSURFACES[i] = eSURFACES[--SCOUNT];
             break;
-            
-            break;
         }
     }
 
@@ -247,19 +245,30 @@ void ShowAsset(const char* name, BOOL show) {
 void DeleteGroup(const char* gname) {
     for (UINT i = 0; i < PCOUNT; i++) {
         if (strcmp(ePOINTS[i]->props->group, gname) == 0) {
-            DeletePoint(ePOINTS[i--]->props->name);
+            Point p = ePOINTS[i];
+            ePOINTS[i--] = ePOINTS[--PCOUNT];
+            FreePoint(p);
         }
     }
+    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(struct point_t));
+
     for (UINT i = 0; i < LCOUNT; i++) {
         if (strcmp(eLINES[i]->props->group, gname) == 0) {
-            DeleteLine(eLINES[i--]->props->name);
+            Line l = eLINES[i];
+            eLINES[i--] = eLINES[--LCOUNT];
+            FreeLine(l);
         }
     }
+    eLINES = (Line*) realloc(eLINES, LCOUNT * sizeof(struct line_t));
+
     for (UINT i = 0; i < SCOUNT; i++) {
         if (strcmp(eSURFACES[i]->props->group, gname) == 0) {
-            DeleteSurface(eSURFACES[i--]->props->name);
+            Surface s = eSURFACES[i];
+            eSURFACES[i--] = eSURFACES[--SCOUNT];
+            FreeSurface(s);
         }
     }
+    eSURFACES = (Surface*) realloc(eSURFACES, SCOUNT * sizeof(struct surface_t));
 }
 
 void ShowGroup(const char* gname, BOOL show) {

@@ -1,7 +1,7 @@
 .section .data
 
 .align 32
-    plane_mask: .long 0, 3, 1, 4, 2, 5, 6, 7
+    plane_mask: .long 0, 4, 1, 5, 2, 6, 0, 0
 
 .section .text
 .global compute_point
