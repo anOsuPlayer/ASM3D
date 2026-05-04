@@ -3,6 +3,8 @@
 
     #include "common.h"
 
+    extern FLOAT ePI;
+
     typedef struct vec_t {
         FLOAT x, y, z, w;
     } *Vec;
@@ -16,6 +18,9 @@
     
     extern Matrix make_matrix();
     extern void free_matrix(Matrix m);
+
+    extern FLOAT qsin(FLOAT f);
+    extern FLOAT qcos(FLOAT f);
 
     extern FLOAT vmod(Vec v);
 

@@ -170,7 +170,20 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
                 FLOAT dpitch = (FLOAT) 100-y;
                 
                 Angle.x += dyaw * DROT;
+                if (Angle.x > ePI) {
+                    Angle.x -= 2*ePI;
+                }
+                else if (Angle.x < -ePI) {
+                    Angle.x += 2*ePI;
+                }
+
                 Angle.y -= dpitch * DROT;
+                if (Angle.y > ePI) {
+                    Angle.y -= 2*ePI;
+                }
+                else if (Angle.y < -ePI) {
+                    Angle.y += 2*ePI;
+                }
             }
             
             CenterMouse(hwnd);

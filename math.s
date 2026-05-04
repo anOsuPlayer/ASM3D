@@ -1,5 +1,16 @@
 .section .data
 
+.global ePI
+ePI:                .float 3.14159265359
+
+fsc0:               .float .99940307
+fsc1:               .float -.16582324
+fsc2:               .float .00760291
+
+fcc0:               .float .9996949
+fcc1:               .float -.49558072
+fcc2:               .float .03679168
+
 negate_mask:        .float -1.0, -1.0, -1.0, -1.0
 
 .section .text
@@ -58,6 +69,32 @@ free_matrix:
 
     addq $32, %rsp
     popq %rbp
+    ret
+
+.global qsin
+qsin:
+    vmulss %xmm0, %xmm0, %xmm1
+    movss %xmm1, %xmm5
+    movss fsc0(%rip), %xmm2
+    movss fsc1(%rip), %xmm3
+    movss fsc2(%rip), %xmm4
+    vfmadd132ss %xmm4, %xmm3, %xmm5
+    vfmadd132ss %xmm1, %xmm2, %xmm5
+    vmulss %xmm0, %xmm5, %xmm0
+    
+    ret
+
+.global qcos
+qcos:
+    vmulss %xmm0, %xmm0, %xmm1
+    movss %xmm1, %xmm5
+    movss fcc0(%rip), %xmm2
+    movss fcc1(%rip), %xmm3
+    movss fcc2(%rip), %xmm4
+    vfmadd132ss %xmm4, %xmm3, %xmm5
+    vfmadd132ss %xmm1, %xmm2, %xmm5
+    movss %xmm5, %xmm0
+
     ret
 
 .global vmod

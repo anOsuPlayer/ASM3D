@@ -114,26 +114,34 @@ update_quaternion:
     vmovups %xmm0, -48(%rbp)
     vmovups %xmm0, -64(%rbp)
 
-    flds -16(%rbp)
-    fsincos
-    fstps -20(%rbp)
-    fstps -24(%rbp)
+    movss -16(%rbp), %xmm0
+    call qcos
+    movss %xmm0, -20(%rbp)
+    movss -16(%rbp), %xmm0
+    call qsin
+    movss %xmm0, -24(%rbp)
 
-    flds -12(%rbp)
-    fsincos
-    fstps -36(%rbp)
-    fstps -44(%rbp)
+    movss -12(%rbp), %xmm0
+    call qcos
+    movss %xmm0, -36(%rbp)
+    movss -12(%rbp), %xmm0
+    call qsin
+    movss %xmm0, -44(%rbp)
 
     leaq -32(%rbp), %rcx
     leaq -48(%rbp), %rdx
     leaq -64(%rbp), %r8
     call mulqq
 
+    vpxor %xmm0, %xmm0, %xmm0
     vmovups %xmm0, -48(%rbp)
-    flds -8(%rbp)
-    fsincos
-    fstps -36(%rbp)
-    fstps -48(%rbp)
+
+    movss -8(%rbp), %xmm0
+    call qcos
+    movss %xmm0, -36(%rbp)
+    movss -8(%rbp), %xmm0
+    call qsin
+    movss %xmm0, -48(%rbp)
 
     leaq -64(%rbp), %rcx
     leaq -48(%rbp), %rdx
