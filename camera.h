@@ -2,25 +2,38 @@
     #define CAMERA_H
 
     #include "math.h"
+    #include "phisics.h"
 
-    extern Vec              QUATERNION;
-    extern Matrix           VIEW;
-    extern Matrix           PERSPECTIVE;
+    typedef struct camera_t {
+        Vec         QUATERNION;
+        Matrix      VIEW;
+        Matrix      PERSPECTIVE;
 
-    extern struct vec_t     Angle;
-    extern struct vec_t     Pos;
+        Transform   TRANSFORM;
 
-    extern FLOAT            FOV;
-    extern FLOAT            AR;
+        FLOAT       FOV;
+        FLOAT       Near, Far;
+
+        CHAR        name[20];
+    } *Camera;
+
+    extern volatile Camera  CCURRENT;
 
     extern FLOAT            Width;
     extern FLOAT            Height;
+    
+    extern FLOAT            AR;
 
-    extern FLOAT            Near;
-    extern FLOAT            Far;
+    void InitializeCameras();
+    void TerminateCameras();
 
-    extern void setup_camera();
-    extern void free_camera();
+    Camera MakeCamera();
+    void FreeCamera(Camera c);
+
+    void SwitchCamera(const char* to);
+    void ConfirmCameraSwitch();
+
+    void DeleteCamera(const char* c);
 
     extern void update();
 

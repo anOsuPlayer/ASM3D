@@ -78,6 +78,8 @@ void InitializeAssets() {
 
     SetupGrid();
     SetupAxes();
+    
+    InitializeCameras();
 }
 
 void TerminateAssets() {
@@ -95,6 +97,8 @@ void TerminateAssets() {
         FreeSurface(eSURFACES[i]);
     }
     free(eSURFACES);
+
+    TerminateCameras();
 }
 
 Point MakePoint() {
@@ -105,7 +109,7 @@ Point MakePoint() {
     p->props->color = 0x00ffffff;
     p->props->hidden = FALSE;
     
-    ePOINTS = realloc(ePOINTS, (++PCOUNT) * sizeof(struct point_t));
+    ePOINTS = realloc(ePOINTS, (++PCOUNT) * sizeof(Point));
     ePOINTS[PCOUNT-1] = p;
 
     return p;
@@ -127,8 +131,10 @@ void DeletePoint(const char* pname) {
         }
     }
 
-    FreePoint(p);
-    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(struct point_t));
+    if (p != NULL) {
+        FreePoint(p);
+        ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(Point));
+    }
 }
 
 void ShowPoint(const char* pname, BOOL show) {
@@ -151,7 +157,7 @@ Line MakeLine() {
     l->lprops->end_color = 0xffffffff;
     l->props->hidden = FALSE;
 
-    eLINES = realloc(eLINES, (++LCOUNT) * sizeof(struct line_t));
+    eLINES = realloc(eLINES, (++LCOUNT) * sizeof(Line));
     eLINES[LCOUNT-1] = l;
 
     return l;
@@ -174,8 +180,10 @@ void DeleteLine(const char* lname) {
         }
     }
 
-    FreeLine(l);
-    eLINES = realloc(eLINES, (LCOUNT) * sizeof(struct line_t));
+    if (l != NULL) {
+        FreeLine(l);
+        eLINES = realloc(eLINES, (LCOUNT) * sizeof(Line));
+    }
 }
 
 void ShowLine(const char* lname, BOOL show) {
@@ -196,7 +204,7 @@ Surface MakeSurface() {
     s->props->color = 0x00ffffff;
     s->props->hidden = FALSE;
 
-    eSURFACES = realloc(eSURFACES, (++SCOUNT) * sizeof(struct surface_t));
+    eSURFACES = realloc(eSURFACES, (++SCOUNT) * sizeof(Surface));
     eSURFACES[SCOUNT-1] = s;
 
     return s;
@@ -218,8 +226,10 @@ void DeleteSurface(const char* pname) {
         }
     }
 
-    FreeSurface(s);
-    eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(struct surface_t));
+    if (s != NULL) {
+        FreeSurface(s);
+        eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(Surface));
+    }
 }
 
 void ShowSurface(const char* sname, BOOL show) {
@@ -250,7 +260,7 @@ void DeleteGroup(const char* gname) {
             FreePoint(p);
         }
     }
-    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(struct point_t));
+    ePOINTS = (Point*) realloc(ePOINTS, PCOUNT * sizeof(Point));
 
     for (UINT i = 0; i < LCOUNT; i++) {
         if (strcmp(eLINES[i]->props->group, gname) == 0) {
@@ -259,7 +269,7 @@ void DeleteGroup(const char* gname) {
             FreeLine(l);
         }
     }
-    eLINES = (Line*) realloc(eLINES, LCOUNT * sizeof(struct line_t));
+    eLINES = (Line*) realloc(eLINES, LCOUNT * sizeof(Line));
 
     for (UINT i = 0; i < SCOUNT; i++) {
         if (strcmp(eSURFACES[i]->props->group, gname) == 0) {
@@ -268,7 +278,7 @@ void DeleteGroup(const char* gname) {
             FreeSurface(s);
         }
     }
-    eSURFACES = (Surface*) realloc(eSURFACES, SCOUNT * sizeof(struct surface_t));
+    eSURFACES = (Surface*) realloc(eSURFACES, SCOUNT * sizeof(Surface));
 }
 
 void ShowGroup(const char* gname, BOOL show) {
@@ -324,9 +334,11 @@ void RenderSurfaces(HWND hwnd, HDC hdc) {
 void Render(HWND hwnd, HDC hdc) {
     ClearBuffers();
 
-    RenderPoints(hwnd, hdc);
-    RenderLines(hwnd, hdc);
-    RenderSurfaces(hwnd, hdc);
+    if (CCURRENT != NULL) {
+        RenderPoints(hwnd, hdc);
+        RenderLines(hwnd, hdc);
+        RenderSurfaces(hwnd, hdc);
+    }
 
     StretchDIBits(
         hdc,

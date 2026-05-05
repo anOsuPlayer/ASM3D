@@ -10,23 +10,25 @@ compute_point:
     movq %rsp, %rbp
     subq $64, %rsp
 
+    movq CCURRENT(%rip), %r14
+
     movq %rdx, -8(%rbp)
     movq %rcx, %rdx
-    movq VIEW(%rip), %rcx
+    movq 8(%r14), %rcx
     leaq -24(%rbp), %r8
     call mulmv
 
-    movq PERSPECTIVE(%rip), %rcx
+    movq 16(%r14), %rcx
     leaq -24(%rbp), %rdx
     leaq -40(%rbp), %r8
     call mulmv
 
     movss -28(%rbp), %xmm0
-    ucomiss Near(%rip), %xmm0
+    ucomiss 36(%r14), %xmm0
     jbe compute_point_Cquit
 
     movss -28(%rbp), %xmm0
-    ucomiss Far(%rip), %xmm0
+    ucomiss 40(%r14), %xmm0
     jae compute_point_Cquit
 
     leaq -40(%rbp), %rcx
@@ -94,27 +96,29 @@ compute_line:
     movq %rsp, %rbp
     subq $256, %rsp
 
+    movq CCURRENT(%rip), %r14
+
     movq %r8, -8(%rbp)
     movq %r9, -16(%rbp)
     movq %rdx, -24(%rbp)
 
     movq %rcx, %rdx
-    movq VIEW(%rip), %rcx
+    movq 8(%r14), %rcx
     leaq -48(%rbp), %r8
     call mulmv
     leaq -48(%rbp), %rdx
-    movq PERSPECTIVE(%rip), %rcx
+    movq 16(%r14), %rcx
     leaq -64(%rbp), %r8
     call mulmv
     vmovups -64(%rbp), %xmm0
     vmovups %xmm0, -48(%rbp)
 
     movq -24(%rbp), %rdx
-    movq VIEW(%rip), %rcx
+    movq 8(%r14), %rcx
     leaq -64(%rbp), %r8
     call mulmv
     leaq -64(%rbp), %rdx
-    movq PERSPECTIVE(%rip), %rcx
+    movq 16(%r14), %rcx
     leaq -80(%rbp), %r8
     call mulmv
     vmovups -80(%rbp), %xmm0

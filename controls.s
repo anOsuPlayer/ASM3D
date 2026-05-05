@@ -13,7 +13,9 @@ SENS:           .float 1.0
 .section .text
 .global directional_move
 directional_move:
-    movq VIEW(%rip), %r15
+    movq CCURRENT(%rip), %r14
+
+    movq 8(%r14), %r15
     addq %rcx, %r15
     vbroadcastss %xmm1, %xmm2
 
@@ -22,10 +24,12 @@ directional_move:
     vmulps %xmm0, %xmm1, %xmm0
     vmulps %xmm0, %xmm2, %xmm3
 
-    vmovups Pos(%rip), %xmm1
+    movq 24(%r14), %rax
+
+    vmovups (%rax), %xmm1
     vaddps %xmm3, %xmm1, %xmm0
-    vmovups %xmm0, Pos(%rip)
+    vmovups %xmm0, (%rax)
     
-    leaq Pos(%rip), %rax
+    leaq (%rax), %rax
     movl $0, 12(%rax)
     ret

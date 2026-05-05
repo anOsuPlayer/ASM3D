@@ -27,76 +27,81 @@ void GetKeyUp(HWND hwnd, WPARAM wParam, LPARAM lParam) {
 }
 
 void Move() {
-    if (KEYS['W']) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_FRONT, (GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f);
+    if (CCURRENT != NULL) {
+        if (KEYS['W']) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_FRONT, (GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f);
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.x += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-        else {
-            Pos.x += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+        else if (KEYS['S']) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0));
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.x -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-    }
-    else if (KEYS['S']) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_FRONT, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0));
-        }
-        else {
-            Pos.x -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
-        }
-    }
 
-    if (KEYS['D']) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f));
+        if (KEYS['D']) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f));
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.y += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-        else {
-            Pos.y += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+        else if (KEYS['A']) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0f));
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.y -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-    }
-    else if (KEYS['A']) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_RIGHT, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0f));
-        }
-        else {
-            Pos.y -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
-        }
-    }
 
-    if (KEYS[' ']) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f));
+        if (KEYS[' ']) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? BOOST : 1.0f));
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.z += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-        else {
-            Pos.z += ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+        else if (KEYS[VK_CONTROL]) {
+            if (DIRECTIONAL_MOVE) {
+                directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0f));
+            }
+            else {
+                CCURRENT->TRANSFORM->pos.z -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
+            }
         }
-    }
-    else if (KEYS[VK_CONTROL]) {
-        if (DIRECTIONAL_MOVE) {
-            directional_move(DMOV_UP, ((GetKeyState(VK_SHIFT) < 0) ? -BOOST : -1.0f));
-        }
-        else {
-            Pos.z -= ((GetKeyState(VK_SHIFT) < 0) ? BOOST*DPOS : DPOS);
-        }
-    }
 
-    if (KEYS[VK_TAB]) {
-        DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
-        KEYS[VK_TAB] = FALSE;
-    }
-
-    if (KEYS['R']) {
-        if (GetKeyState(VK_SHIFT) < 0) {
-            FLOAT dx = (1-Pos.x)/100, dy = (1-Pos.y)/100, dz = (1-Pos.z)/100;
-            FLOAT dyaw = (-Angle.x)/100, dpitch = (-Angle.y)/100, droll = (-Angle.z)/100;
-            FLOAT df = (65.0f-FOV)/100;
-
-            Pos.x += dx; Pos.y += dy; Pos.z += dz;
-            Angle.x += dyaw; Angle.y += dpitch; Angle.z += droll;
-            FOV += df;
+        if (KEYS[VK_TAB]) {
+            DIRECTIONAL_MOVE = (DIRECTIONAL_MOVE) ? FALSE : TRUE;
+            KEYS[VK_TAB] = FALSE;
         }
-        else {
-            Pos.x = Pos.y = Pos.z = 1.0f;
-            Angle.x = Angle.y = Angle.z = 0.0f;
-            FOV = 65.0f;
+
+        if (KEYS['R']) {
+            Vec Pos = &CCURRENT->TRANSFORM->pos;
+            Vec Angle = &CCURRENT->TRANSFORM->angle;
+            if (GetKeyState(VK_SHIFT) < 0) {
+
+                FLOAT dx = (1-Pos->x)/100, dy = (1-Pos->y)/100, dz = (1-Pos->z)/100;
+                FLOAT dyaw = (-Angle->x)/100, dpitch = (-Angle->y)/100, droll = (-Angle->z)/100;
+                FLOAT df = (65.0f-CCURRENT->FOV)/100;
+
+                Pos->x += dx; Pos->y += dy; Pos->z += dz;
+                Angle->x += dyaw; Angle->y += dpitch; Angle->z += droll;
+                CCURRENT->FOV += df;
+            }
+            else {
+                Pos->x = Pos->y = Pos->z = 1.0f;
+                Angle->x = Angle->y = Angle->z = 0.0f;
+                CCURRENT->FOV = 65.0f;
+            }
         }
     }
 
@@ -156,48 +161,54 @@ BOOL IsDirectional() {
 static LPARAM           PREV_MOUSE_LOCATION;
 
 void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-    if (HAS_MOUSE) {
-        if (lParam != PREV_MOUSE_LOCATION && lParam != ((100) | (100 << 16))) {
-            INT x = LOWORD(lParam);
-            INT y = HIWORD(lParam);
-            
-            if (GetKeyState(VK_LMENU) < 0) {
-                FLOAT droll = (FLOAT) x-100;
-                Angle.z -= droll * DROT;
-            }
-            else {
-                FLOAT dyaw = (FLOAT) x-100;
-                FLOAT dpitch = (FLOAT) 100-y;
-                
-                Angle.x += dyaw * DROT;
-                if (Angle.x > ePI) {
-                    Angle.x -= 2*ePI;
-                }
-                else if (Angle.x < -ePI) {
-                    Angle.x += 2*ePI;
-                }
+    if (lParam != PREV_MOUSE_LOCATION && lParam != ((100) | (100 << 16)) && CCURRENT != NULL) {
+        INT x = LOWORD(lParam);
+        INT y = HIWORD(lParam);
 
-                Angle.y -= dpitch * DROT;
-                if (Angle.y > ePI) {
-                    Angle.y -= 2*ePI;
-                }
-                else if (Angle.y < -ePI) {
-                    Angle.y += 2*ePI;
-                }
-            }
-            
-            CenterMouse(hwnd);
-        }
+        Vec Angle = &CCURRENT->TRANSFORM->angle;
         
-        PREV_MOUSE_LOCATION = lParam;
+        if (KEYS['Q']) {
+            FLOAT droll = (FLOAT) x-100;
+            
+            Angle->z -= droll * DROT;
+            if (Angle->z > ePI) {
+                Angle->z -= 2*ePI;
+            }
+            else if (Angle->z < -ePI) {
+                Angle->z += 2*ePI;
+            }
+        }
+        else {
+            FLOAT dyaw = (FLOAT) x-100;
+            FLOAT dpitch = (FLOAT) 100-y;
+            
+            Angle->x += dyaw * DROT;
+            if (Angle->x > ePI) {
+                Angle->x -= 2*ePI;
+            }
+            else if (Angle->x < -ePI) {
+                Angle->x += 2*ePI;
+            }
+
+            Angle->y -= dpitch * DROT;
+            if (Angle->y > ePI) {
+                Angle->y -= 2*ePI;
+            }
+            else if (Angle->y < -ePI) {
+                Angle->y += 2*ePI;
+            }
+        }    
     }
+
+    PREV_MOUSE_LOCATION = lParam;
+    CenterMouse(hwnd);
 }
 
 void Scroll(HWND hwnd, WPARAM wParam, LPARAM lParam) {
     INT scroll = -GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 
-    if (FOV + scroll <= 150.0f && FOV + scroll >= 30.0f) {
-        FOV += (FLOAT) scroll;
+    if (CCURRENT->FOV + scroll <= 150.0f && CCURRENT->FOV + scroll >= 30.0f) {
+        CCURRENT->FOV += (FLOAT) scroll;
     }
 }
 

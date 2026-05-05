@@ -55,7 +55,10 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 sprintf(GetText(), "Warping failed, malformed coordinates \"%s\"\n", GetConfirmedText());
             }
             else {
-                Pos.x = x; Pos.y = y; Pos.z = z;
+                CCURRENT->TRANSFORM->pos.x = x;
+                CCURRENT->TRANSFORM->pos.y = y;
+                CCURRENT->TRANSFORM->pos.z = z;
+                
                 sprintf(GetText(), "Warped to (%.2f, %.2f, %.2f)\n", x, y, z);
             }
 
@@ -157,6 +160,71 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
 
                 SetWinState(3);
             }
+            else if (strcmp(word, "camera") == 0) {
+                FLOAT x, y, z, yaw = 0.01f, pitch = 500.0f, roll = 65.0f;
+                FLOAT Near = .1f, Far = 500.0f, FOV = 65.0f;
+                CHAR name[20] = "";
+
+                INT out = sscanf(cursor, "%f,%f,%f;%f,%f,%f%n", &x, &y, &z, &yaw, &pitch, &roll, &off);
+                cursor += off;
+
+                if (out != 6) {
+                    sprintf(GetText(), "Camera creation failed, malformed coordinates or orientation \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    while (yaw > ePI) { yaw -= ePI; }
+                    while (yaw < -ePI) { yaw += ePI; }
+
+                    while (pitch > ePI) { pitch -= ePI; }
+                    while (pitch < -ePI) { pitch += ePI; }
+
+                    while (roll > ePI) { roll -= ePI; }
+                    while (roll < -ePI) { roll += ePI; }
+
+                    out = sscanf(cursor, "%s %f %f %f%n", name, &Near, &Far, &FOV, &off);
+                    cursor += off;
+
+                    if (out == EOF) {
+                        sprintf(name, "camera%d", rand());
+                    }
+                    else {
+                        if (Far < 0 || Near > Far) {
+                            sprintf(GetText(), "Camera creation failed, malformed Near-Far planes \"%s\"\n", GetConfirmedText());
+                        }
+                        else if (FOV < 30.0f || FOV > 150.0f) {
+                            sprintf(GetText(), "Camera creation failed, invalid FOV value \"%s\"\n", GetConfirmedText());
+                        }
+                        else {
+                            if (strcmp(name, "-") == 0 || strlen(name) == 0) {
+                                sprintf(name, "camera%d", rand());
+                            }
+
+                            sprintf(GetText(), "Camera \"%s\" was created at (%.2f, %.2f, %.2f) oriented to"
+                                " (yaw:%.2f, pitch:%.2f, roll:%.2f) of planes [%.2f-%.2f] and FOV %.1f",
+                                name, x, y, z, yaw, pitch, roll, Near, Far, FOV);
+
+                            Camera c = MakeCamera();
+
+                            c->TRANSFORM->pos.x = x;
+                            c->TRANSFORM->pos.y = y;
+                            c->TRANSFORM->pos.z = z;
+                            
+                            c->TRANSFORM->angle.x = yaw;
+                            c->TRANSFORM->angle.y = pitch;
+                            c->TRANSFORM->angle.z = roll;
+
+                            c->Near = Near;
+                            c->Far = Far;
+
+                            c->FOV = FOV;
+
+                            strcpy(c->name, name);
+                        }
+                    }
+                }
+                
+                SetWinState(3);
+            }
             else {
                 sprintf(GetText(), "Unknown Asset type \"%s\"\n", word);
                 SetWinState(3);
@@ -192,7 +260,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     DeletePoint(word);
                     sprintf(GetText(), "Deleting Point \"%s\"\n", word);
                 }
-
             }
             else if (strcmp(word, "line") == 0) {
                 INT out = sscanf(cursor, "%s%n", word, &off);
@@ -204,6 +271,18 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else {
                     DeleteLine(word);
                     sprintf(GetText(), "Deleting Line \"%s\"\n", word);
+                }
+            }
+            else if (strcmp(word, "camera") == 0) {
+                INT out = sscanf(cursor, "%s%n", word, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Asset deletion failed, no Camera was specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    DeleteCamera(word);
+                    sprintf(GetText(), "Deleting Camera \"%s\"\n", word);
                 }
             }
             else {
@@ -437,19 +516,19 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
 
                 if (strcmp(word, "default") == 0 || strcmp(word, "aligned") == 0) {
                     SetBufClearMode(ALIGNED_AVX);
-                    sprintf(GetText(), "Engine Buffer clear mode set to ALIGNED_AVX\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Buffer clear mode set to ALIGNED_AVX\n");
                 }
                 else if (strcmp(word, "nth") == 0) {
                     SetBufClearMode(NTH_AVX);
-                    sprintf(GetText(), "Engine Buffer clear mode set to NTH_AVX\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Buffer clear mode set to NTH_AVX\n");
                 }
                 else if (strcmp(word, "dual_aligned") == 0) {
                     SetBufClearMode(DUAL_ALIGNED_AVX);
-                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_ALIGNED_AVX\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_ALIGNED_AVX\n");
                 }
                 else if (strcmp(word, "dual_nth") == 0) {
                     SetBufClearMode(DUAL_NTH_AVX);
-                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_NTH_AVX\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Buffer clear mode set to DUAL_NTH_AVX\n");
                 }
                 else {
                     sprintf(GetText(), "Unknown Engine Buffer option \"%s\"\n", GetConfirmedText());
@@ -461,14 +540,35 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
 
                 if (strcmp(word, "default") == 0 || strcmp(word, "avx256") == 0) {
                     SetEngineMode(AVX256);
-                    sprintf(GetText(), "Engine Mode set to (default) AVX256\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Mode set to (default) AVX256\n");
                 }
                 else if (strcmp(word, "avx512") == 0) {
                     SetEngineMode(AVX512);
-                    sprintf(GetText(), "Engine Mode set to Accelerated AVX512\n", GetConfirmedText());
+                    sprintf(GetText(), "Engine Mode set to Accelerated AVX512\n");
                 }
                 else {
                     sprintf(GetText(), "Unknown Engine Mode \"%s\"\n", GetConfirmedText());
+                }
+            }
+            else if (strcmp(word, "camera") == 0) {
+                INT out = sscanf(cursor, "%s%n", word, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Engine Camera is set to \"%s\"\n", CCURRENT == NULL ? "None" : CCURRENT->name);
+                }
+                else {
+                    out = sscanf(cursor, "%s%n", word, &off);
+                    cursor += off;
+
+                    if (strcmp(word, "None") == 0) {
+                        CCURRENT = NULL;
+                    }
+                    else {
+                        SwitchCamera(word);
+                    }
+
+                    sprintf(GetText(), "Engine Camera set to \"%s\"\n", word);
                 }
             }
             else {

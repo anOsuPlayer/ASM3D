@@ -186,7 +186,9 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         }
         case WM_MOUSEWHEEL : {
-            Scroll(hwnd, wParam, lParam);
+            if (CCURRENT != NULL) {
+                Scroll(hwnd, wParam, lParam);
+            }
             return 0;
         }
         case WM_DESTROY : {
@@ -210,7 +212,11 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 void Update() {
-    update();
+    ConfirmCameraSwitch();
+    if (CCURRENT != NULL) {
+        update();
+    }
+
     Move();
 }
 

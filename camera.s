@@ -1,84 +1,17 @@
 .section .data
 
-.global QUATERNION
-QUATERNION:     .quad   0
-.global VIEW
-VIEW:           .quad   0
-.global PERSPECTIVE
-PERSPECTIVE:    .quad   0
+.global CCURRENT
+CCURRENT:       .quad   0
 
-.align 16
-.global Angle
-Angle:
-    yaw:    .float  0
-    pitch:  .float  0
-    roll:   .float  0
-    .float          0
-
-.align 16
-.global Pos
-Pos:
-    x:      .float  1
-    y:      .float  1
-    z:      .float  1
-    .float          0
-
-.global FOV    
-FOV:        .float  65.0
 .global AR
-AR:         .float  0
+AR:             .float  0
 
 .global Width
-Width:  .float  0
+Width:          .float  0
 .global Height    
-Height: .float  0
-
-.global Near
-Near:       .float  .01
-.global Far
-Far:        .float  500.0
+Height:         .float  0
 
 .section .text
-.global setup_camera
-setup_camera:
-    pushq %rbp
-    movq %rsp, %rbp
-    subq $32, %rsp
-
-    call make_vec
-    movq %rax, QUATERNION(%rip)
-
-    call make_matrix
-    movq %rax, VIEW(%rip)
-
-    call make_matrix
-    movq %rax, PERSPECTIVE(%rip)
-
-    call update
-
-    addq $32, %rsp
-    popq %rbp
-    ret
-
-.global free_camera
-free_camera:
-    pushq %rbp
-    movq %rsp, %rbp
-    subq $32, %rsp
-
-    movq QUATERNION(%rip), %rcx
-    call free_vec
-
-    movq VIEW(%rip), %rcx
-    call free_matrix
-
-    movq PERSPECTIVE(%rip), %rcx
-    call free_matrix
-
-    addq $32, %rsp
-    popq %rbp
-    ret
-
 .global update
 update:
     pushq %rbp
@@ -99,7 +32,10 @@ update_quaternion:
     movq %rsp, %rbp
     subq $96, %rsp
 
-    vmovups Angle(%rip), %xmm0
+    movq CCURRENT(%rip), %r14
+
+    movq 24(%r14), %rax
+    vmovups 16(%rax), %xmm0
 
     movq $2, %rax
     cvtsi2ss %rax, %xmm2
@@ -145,7 +81,7 @@ update_quaternion:
 
     leaq -64(%rbp), %rcx
     leaq -48(%rbp), %rdx
-    movq QUATERNION(%rip), %r8
+    movq (%r14), %r8
     call mulqq
 
     addq $96, %rsp
@@ -158,7 +94,9 @@ update_view:
     movq %rsp, %rbp
     subq $64, %rsp
 
-    movq VIEW(%rip), %r15
+    movq CCURRENT(%rip), %r14
+
+    movq 8(%r14), %r15
 
     movq $1, %rax
     cvtsi2ss %rax, %xmm0
@@ -167,7 +105,7 @@ update_view:
     movss %xmm0, 32(%r15)
     movss %xmm0, 60(%r15)
 
-    movq QUATERNION(%rip), %rax
+    movq (%r14), %rax
     vmovups (%rax), %xmm0
     vmovups %xmm0, -32(%rbp)
     
@@ -245,7 +183,9 @@ update_view:
     mulss %xmm2, %xmm0
     movss %xmm0, 40(%r15)
 
-    leaq Pos(%rip), %rcx
+    movq 24(%r14), %rax
+    
+    leaq (%rax), %rcx
     leaq -48(%rbp), %rdx
     call vneg
 
@@ -280,14 +220,16 @@ update_perspective:
     movq %rsp, %rbp
     subq $64, %rsp
 
-    movq PERSPECTIVE(%rip), %r15
+    movq CCURRENT(%rip), %r14
+
+    movq 16(%r14), %r15
 
     fldpi
     movl $360, %eax
     cvtsi2ss %eax, %xmm0
     movss %xmm0, -4(%rbp)
     fdivs -4(%rbp)
-    fmuls FOV(%rip)
+    fmuls 32(%r14)
     fptan
     fdiv %st(1), %st(0)
     fsts 20(%r15)
@@ -298,17 +240,17 @@ update_perspective:
     fld1
     fstps 56(%r15)
 
-    movss Far(%rip), %xmm0
-    addss Near(%rip), %xmm0
-    movss Far(%rip), %xmm1
-    subss Near(%rip), %xmm1
+    movss 40(%r14), %xmm0
+    addss 36(%r14), %xmm0
+    movss 40(%r14), %xmm1
+    subss 36(%r14), %xmm1
     divss %xmm1, %xmm0
     movss %xmm0, 40(%r15)
 
     movq $-2, %rax
     cvtsi2ss %rax, %xmm2
-    movss Far(%rip), %xmm0
-    mulss Near(%rip), %xmm0
+    movss 40(%r14), %xmm0
+    mulss 36(%r14), %xmm0
     mulss %xmm2, %xmm0
     divss %xmm1, %xmm0
     movss %xmm0, 44(%r15)
