@@ -284,6 +284,7 @@ _256_put_line:
         mull %edx
         movd %xmm0, %edx
         addl %edx, %eax
+        decl %eax
 
         cmpl $0, %eax
         jl l256put0
@@ -373,6 +374,7 @@ _512_put_line:
         mull %edx
         movd %xmm0, %edx
         addl %edx, %eax
+        decl %eax
 
         cmpl $0, %eax
         jl l512put0

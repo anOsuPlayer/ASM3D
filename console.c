@@ -161,8 +161,8 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 SetWinState(3);
             }
             else if (strcmp(word, "camera") == 0) {
-                FLOAT x, y, z, yaw = 0.01f, pitch = 500.0f, roll = 65.0f;
-                FLOAT Near = .1f, Far = 500.0f, FOV = 65.0f;
+                FLOAT x, y, z, yaw, pitch, roll;
+                FLOAT Near = .01f, Far = 500.0f, FOV = 65.0f;
                 CHAR name[20] = "";
 
                 INT out = sscanf(cursor, "%f,%f,%f;%f,%f,%f%n", &x, &y, &z, &yaw, &pitch, &roll, &off);

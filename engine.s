@@ -160,7 +160,7 @@ compute_line:
         movss (%rcx), %xmm1
 
         ucomiss %xmm15, %xmm1
-        jae compute_line_loop0
+        ja compute_line_loop0
 
             ucomiss %xmm15, %xmm0
             jb compute_line_Cquit
@@ -169,7 +169,7 @@ compute_line:
 
         compute_line_loop0:
         ucomiss %xmm15, %xmm0
-        jae compute_line_loop_cont
+        ja compute_line_loop_cont
         
         jmp compute_line_loop2
 

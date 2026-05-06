@@ -4,6 +4,9 @@
 static Camera*          CAMERAS;
 static UINT             CCOUNT;
 
+static Camera           CUPDATED;
+static BOOL             CUPDATE_TRIGGER = FALSE;
+
 void InitializeCameras() {
     CAMERAS = (Camera*) malloc(sizeof(Camera));
 
@@ -41,6 +44,13 @@ Camera MakeCamera() {
     c->Near = 0.01f;
     c->Far = 500.0f;
 
+    c->resolution = 1.0f;
+
+    if (CCOUNT == 0) {
+        CUPDATED = c;
+        CUPDATE_TRIGGER = TRUE;
+    }
+    
     CAMERAS = (Camera*) realloc(CAMERAS, (++CCOUNT) * sizeof(Camera));
     CAMERAS[CCOUNT-1] = c;
 }
@@ -55,9 +65,6 @@ void FreeCamera(Camera c) {
     free(c);
 }
 
-static Camera           CUPDATED;
-static BOOL             CUPDATE_TRIGGER = FALSE;
-
 void SwitchCamera(const char* to) {
     for (UINT i = 0; i < CCOUNT; i++) {
         if (strcmp(to, CAMERAS[i]->name) == 0) {
@@ -70,8 +77,14 @@ void SwitchCamera(const char* to) {
 
 void ConfirmCameraSwitch() {
     if (CUPDATE_TRIGGER) {
+        if (CCURRENT != NULL) {
+            CCURRENT->resolution = GetResolution();
+        }
+
         CCURRENT = CUPDATED;
         CUPDATE_TRIGGER = FALSE;
+
+        SetResolution(CCURRENT->resolution);
     }
 }
 

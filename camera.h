@@ -14,6 +14,8 @@
         FLOAT       FOV;
         FLOAT       Near, Far;
 
+        FLOAT       resolution;
+
         CHAR        name[20];
     } *Camera;
 
