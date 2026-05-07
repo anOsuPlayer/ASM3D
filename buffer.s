@@ -210,6 +210,7 @@ put:
     imull %ecx, %eax
     cvtss2si %xmm0, %ecx
     addl %ecx, %eax
+    decl %eax
 
     cmpl $0, %eax
     jl put0
@@ -217,11 +218,11 @@ put:
     jg put0
 
     movq ZBUFFER(%rip), %rcx
-    movss (%rcx, %rax, 4), %xmm2
-    ucomiss %xmm3, %xmm2
+    movss (%rcx, %rax, 4), %xmm5
+    ucomiss %xmm2, %xmm5
     ja put0
         movq CBUFFER(%rip), %rdx
-        movss %xmm3, (%rcx, %rax, 4)
+        movss %xmm2, (%rcx, %rax, 4)
         movl %r8d, (%rdx, %rax, 4)
     put0:
     ret

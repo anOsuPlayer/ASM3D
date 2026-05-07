@@ -13,11 +13,11 @@
 
     static const LPCSTR             WIN_NAME    = "ASM3D";
 
-    UINT GetWindowWidth();
-    UINT GetWindowHeight();
+    LONG GetWindowWidth();
+    LONG GetWindowHeight();
 
     RECT GetWindowSize();
-    void SetWindowSize(UINT width, UINT height);
+    void SetWindowSize(LONG width, LONG height);
 
     COLORREF GetFontFG();
     void SetFontFG(COLORREF c);

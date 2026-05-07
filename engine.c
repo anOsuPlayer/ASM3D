@@ -109,7 +109,7 @@ Point MakePoint() {
     p->props->color = 0x00ffffff;
     p->props->hidden = FALSE;
     
-    ePOINTS = realloc(ePOINTS, (++PCOUNT) * sizeof(Point));
+    ePOINTS = (Point*) realloc(ePOINTS, (++PCOUNT) * sizeof(Point));
     ePOINTS[PCOUNT-1] = p;
 
     return p;
@@ -157,7 +157,7 @@ Line MakeLine() {
     l->lprops->end_color = 0xffffffff;
     l->props->hidden = FALSE;
 
-    eLINES = realloc(eLINES, (++LCOUNT) * sizeof(Line));
+    eLINES = (Line*) realloc(eLINES, (++LCOUNT) * sizeof(Line));
     eLINES[LCOUNT-1] = l;
 
     return l;
@@ -182,7 +182,7 @@ void DeleteLine(const char* lname) {
 
     if (l != NULL) {
         FreeLine(l);
-        eLINES = realloc(eLINES, (LCOUNT) * sizeof(Line));
+        eLINES = (Line*) realloc(eLINES, (LCOUNT) * sizeof(Line));
     }
 }
 
@@ -204,7 +204,7 @@ Surface MakeSurface() {
     s->props->color = 0x00ffffff;
     s->props->hidden = FALSE;
 
-    eSURFACES = realloc(eSURFACES, (++SCOUNT) * sizeof(Surface));
+    eSURFACES = (Surface*) realloc(eSURFACES, (++SCOUNT) * sizeof(Surface));
     eSURFACES[SCOUNT-1] = s;
 
     return s;
@@ -228,7 +228,7 @@ void DeleteSurface(const char* pname) {
 
     if (s != NULL) {
         FreeSurface(s);
-        eSURFACES = realloc(eSURFACES, (--SCOUNT) * sizeof(Surface));
+        eSURFACES = (Surface*) realloc(eSURFACES, (--SCOUNT) * sizeof(Surface));
     }
 }
 

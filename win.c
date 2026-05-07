@@ -114,6 +114,14 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             FreeMouse();
             return 0;
         }
+
+        case WM_GETMINMAXINFO: {
+            LPMINMAXINFO info = (LPMINMAXINFO) lParam;
+            info->ptMinTrackSize.x = 650;
+            info->ptMinTrackSize.y = 450;
+
+            return 0;
+        }
         case WM_SIZE : {
             INT w = LOWORD(lParam);
             INT h = HIWORD(lParam);

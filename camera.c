@@ -53,6 +53,8 @@ Camera MakeCamera() {
     
     CAMERAS = (Camera*) realloc(CAMERAS, (++CCOUNT) * sizeof(Camera));
     CAMERAS[CCOUNT-1] = c;
+
+    return c;
 }
 
 void FreeCamera(Camera c) {
@@ -104,7 +106,7 @@ void DeleteCamera(const char* c) {
             CCURRENT = (CCOUNT == 0) ? NULL : CAMERAS[0];
         }
         FreeCamera(d);
-        CAMERAS = realloc(CAMERAS, CCOUNT * sizeof(Camera));
+        CAMERAS = (Camera*) realloc(CAMERAS, CCOUNT * sizeof(Camera));
     }
 }
 

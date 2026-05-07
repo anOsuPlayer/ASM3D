@@ -1,13 +1,13 @@
 #include "common.h"
 
-static UINT             WIN_WIDTH   = 1200;
-static UINT             WIN_HEIGHT  = 800;
+static LONG             WIN_WIDTH   = 1200;
+static LONG             WIN_HEIGHT  = 800;
 
-UINT GetWindowWidth() {
+LONG GetWindowWidth() {
     return WIN_WIDTH;
 }
 
-UINT GetWindowHeight() {
+LONG GetWindowHeight() {
     return WIN_HEIGHT;
 }
 
@@ -15,7 +15,7 @@ RECT GetWindowSize() {
     return (RECT) { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 }
 
-void SetWindowSize(UINT width, UINT height) {
+void SetWindowSize(LONG width, LONG height) {
     WIN_WIDTH = width;
     WIN_HEIGHT = height;
 
