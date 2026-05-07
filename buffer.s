@@ -17,7 +17,7 @@ ENGINE_BG:          .long 0x00000000
 .section .text
 .global _256_clear_bufs
 _256_clear_bufs:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -38,7 +38,7 @@ _256_clear_bufs:
 
 .global _512_clear_bufs
 _512_clear_bufs:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %zmm1
     vpbroadcastd ENGINE_BG(%rip), %zmm2
@@ -59,7 +59,7 @@ _512_clear_bufs:
 
 .global _256_clear_bufs_nth
 _256_clear_bufs_nth:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -80,7 +80,7 @@ _256_clear_bufs_nth:
 
 .global _512_clear_bufs_nth
 _512_clear_bufs_nth:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %zmm1
     vpbroadcastd ENGINE_BG(%rip), %zmm2
@@ -101,7 +101,7 @@ _512_clear_bufs_nth:
 
 .global _256_clear_bufs_dual
 _256_clear_bufs_dual:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -127,7 +127,7 @@ _256_clear_bufs_dual:
 
 .global _512_clear_bufs_dual
 _512_clear_bufs_dual:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %zmm1
     vpbroadcastd ENGINE_BG(%rip), %zmm2
@@ -153,7 +153,7 @@ _512_clear_bufs_dual:
 
 .global _256_clear_bufs_nthd
 _256_clear_bufs_nthd:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %ymm0
     vpbroadcastd ENGINE_BG(%rip), %ymm1
@@ -179,7 +179,7 @@ _256_clear_bufs_nthd:
 
 .global _512_clear_bufs_nthd
 _512_clear_bufs_nthd:
-    movl $0xff800000, %eax
+    movl $0x7f800000, %eax
     vmovd %eax, %xmm0
     vbroadcastss %xmm0, %zmm1
     vpbroadcastd ENGINE_BG(%rip), %zmm2
@@ -219,10 +219,10 @@ put:
 
     movq ZBUFFER(%rip), %rcx
     movss (%rcx, %rax, 4), %xmm5
-    ucomiss %xmm2, %xmm5
-    ja put0
+    ucomiss %xmm3, %xmm5
+    jb put0
         movq CBUFFER(%rip), %rdx
-        movss %xmm2, (%rcx, %rax, 4)
+        movss %xmm3, (%rcx, %rax, 4)
         movl %r8d, (%rdx, %rax, 4)
     put0:
     ret
@@ -234,7 +234,8 @@ _256_put_line:
     vmovups %xmm0, %xmm1
     
     movl $0x7fffffff, %eax
-    vpbroadcastd %eax, %xmm2
+    movd %eax, %xmm0
+    vbroadcastss %xmm0, %xmm2
     vandps %xmm1, %xmm2, %xmm3
     vpextrd $1, %xmm3, %eax
     movd %eax, %xmm2
@@ -255,7 +256,7 @@ _256_put_line:
         ret
     _256_put_line0:
 
-    vmovd %r8d, %xmm0
+    movd %r8d, %xmm0
     vpmovzxbd %xmm0, %xmm4
     vcvtdq2ps %xmm4, %xmm4
 
@@ -294,10 +295,10 @@ _256_put_line:
 
         movq ZBUFFER(%rip), %rbx
         movss (%rbx, %rax, 4), %xmm6
-        vpextrd $2, %xmm0, %r15d
+        vpextrd $2, %xmm5, %r15d
         movd %r15d, %xmm0
         ucomiss %xmm0, %xmm6
-        ja l256put0
+        jb l256put0
             movq CBUFFER(%rip), %rdx
             movss %xmm0, (%rbx, %rax, 4)
 
@@ -384,10 +385,10 @@ _512_put_line:
 
         movq ZBUFFER(%rip), %rbx
         movss (%rbx, %rax, 4), %xmm6
-        vpextrd $2, %xmm0, %r15d
+        vpextrd $2, %xmm5, %r15d
         movd %r15d, %xmm0
         ucomiss %xmm0, %xmm6
-        ja l512put0
+        jb l512put0
             movq CBUFFER(%rip), %rdx
             movss %xmm0, (%rbx, %rax, 4)
 

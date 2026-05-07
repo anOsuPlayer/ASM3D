@@ -33,7 +33,7 @@ void ClearBuffers() {
 }
 
 void MakeBuffers() {
-    PIXELS = GetScaledWidth() * GetScaledHeight();
+    PIXELS = (GetScaledWidth() + 1) * GetScaledHeight();
     BUFSIZE = PIXELS * 4;
     FreeBuffers();
 
@@ -76,7 +76,7 @@ static FLOAT                RESOLUTION = 1.0f;
 extern FLOAT                Width, Height;
 
 void UpdateBuffers() {
-    PIXELS = GetScaledWidth() * GetScaledHeight();
+    PIXELS = (GetScaledWidth() + 1) * GetScaledHeight();
     BUFSIZE = PIXELS * 4;
 
     Width = ((FLOAT) GetScaledWidth());

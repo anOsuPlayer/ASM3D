@@ -3,6 +3,7 @@
 
     #include "engine.h"
     #include "text.h"
+    #include "mhandler.h"
 
     void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam);
 
