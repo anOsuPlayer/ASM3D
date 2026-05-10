@@ -32,10 +32,10 @@
     Camera MakeCamera();
     void FreeCamera(Camera c);
 
-    void SwitchCamera(const char* to);
+    BOOL SwitchCamera(const char* to);
     void ConfirmCameraSwitch();
 
-    void DeleteCamera(const char* c);
+    BOOL DeleteCamera(const char* c);
 
     extern void update();
 

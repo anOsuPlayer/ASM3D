@@ -67,14 +67,16 @@ void FreeCamera(Camera c) {
     free(c);
 }
 
-void SwitchCamera(const char* to) {
+BOOL SwitchCamera(const char* to) {
     for (UINT i = 0; i < CCOUNT; i++) {
         if (strcmp(to, CAMERAS[i]->name) == 0) {
             CUPDATED = CAMERAS[i];
             CUPDATE_TRIGGER = TRUE;
-            break;
+            return TRUE;
         }
     }
+
+    return FALSE;
 }
 
 void ConfirmCameraSwitch() {
@@ -90,8 +92,8 @@ void ConfirmCameraSwitch() {
     }
 }
 
-void DeleteCamera(const char* c) {
-    Camera d;
+BOOL DeleteCamera(const char* c) {
+    Camera d = NULL;
 
     for (UINT i = 0; i < CCOUNT; i++) {
         if (strcmp(c, CAMERAS[i]->name) == 0) {
@@ -100,14 +102,18 @@ void DeleteCamera(const char* c) {
             break;
         }
     }
-
+    
     if (d != NULL) {
         if (CCURRENT == d) {
             CCURRENT = (CCOUNT == 0) ? NULL : CAMERAS[0];
         }
         FreeCamera(d);
         CAMERAS = (Camera*) realloc(CAMERAS, CCOUNT * sizeof(Camera));
+
+        return TRUE;
     }
+
+    return FALSE;
 }
 
 void DisplayData(HWND hwnd, HDC hdc, UINT msg, WPARAM wParam, LPARAM lParam) {

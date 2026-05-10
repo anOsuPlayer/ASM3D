@@ -14,30 +14,30 @@
     Point MakePoint();
     void FreePoint(Point p);
     
-    void DeletePoint(const char* pname);
-    void ShowPoint(const char* pname, BOOL show);
+    BOOL DeletePoint(const char* pname);
+    UINT ShowPoint(const char* pname, BOOL show);
 
     Line MakeLine();
     void FreeLine(Line l);
     
-    void DeleteLine(const char* lname);
-    void ShowLine(const char* lname, BOOL show);
+    BOOL DeleteLine(const char* lname);
+    UINT ShowLine(const char* lname, BOOL show);
 
     Surface MakeSurface();
     void FreeSurface(Surface s);
     
-    void DeleteSurface(const char* sname);
-    void ShowSurface(const char* sname, BOOL show);
+    BOOL DeleteSurface(const char* sname);
+    UINT ShowSurface(const char* sname, BOOL show);
 
-    void DeleteAsset(const char* name);
-    void ShowAsset(const char* name, BOOL show);
+    BOOL DeleteAsset(const char* name);
+    UINT ShowAsset(const char* name, BOOL show);
     
-    void DeleteGroup(const char* gname);
-    void ShowGroup(const char* gname, BOOL show);
+    UINT DeleteGroup(const char* gname);
+    UINT ShowGroup(const char* gname, BOOL show);
 
-    void RenderPoints(HWND hwnd, HDC hdc);
-    void RenderLines(HWND hwnd, HDC hdc);
-    void RenderSurfaces(HWND hwnd, HDC hdc);
+    void RenderPoints();
+    void RenderLines();
+    void RenderSurfaces();
 
     void Render(HWND hwnd, HDC hdc);
 

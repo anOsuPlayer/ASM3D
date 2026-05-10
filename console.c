@@ -245,8 +245,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset deletion failed, no Group was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    DeleteGroup(word);
-                    sprintf(GetText(), "Deleting Group \"%s\"\n", word);
+                    UINT deleted = DeleteGroup(word);
+                    if (deleted == 0) {
+                        sprintf(GetText(), "No Assets deleted for Group \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Deleting %d Assets for Group \"%s\"\n", deleted, word);
+                    }
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -257,8 +262,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset deletion failed, no Point was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    DeletePoint(word);
-                    sprintf(GetText(), "Deleting Point \"%s\"\n", word);
+                    BOOL deleted = DeletePoint(word);
+                    if (!deleted) {
+                        sprintf(GetText(), "No such Point exists \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Deleting Point \"%s\"\n", word);
+                    }
                 }
             }
             else if (strcmp(word, "line") == 0) {
@@ -269,8 +279,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset deletion failed, no Line was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    DeleteLine(word);
-                    sprintf(GetText(), "Deleting Line \"%s\"\n", word);
+                    BOOL deleted = DeleteLine(word);
+                    if (!deleted) {
+                        sprintf(GetText(), "No such Line exists \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Deleting Line \"%s\"\n", word);
+                    }
                 }
             }
             else if (strcmp(word, "camera") == 0) {
@@ -281,13 +296,23 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset deletion failed, no Camera was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    DeleteCamera(word);
-                    sprintf(GetText(), "Deleting Camera \"%s\"\n", word);
+                    BOOL deleted = DeleteCamera(word);
+                    if (!deleted) {
+                        sprintf(GetText(), "No such Camera exists \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Deleting Camera \"%s\"\n", word);
+                    }
                 }
             }
             else {
-                DeleteAsset(word);
-                sprintf(GetText(), "Deleting Asset \"%s\"\n", word);
+                BOOL deleted = DeleteAsset(word);
+                if (!deleted) {
+                    sprintf(GetText(), "No such Asset exists \"%s\"\n", word);
+                }
+                else {
+                    sprintf(GetText(), "Deleting Asset \"%s\"\n", word);
+                }
             }
         }
         else if (strcmp(word, "show") == 0) {
@@ -305,8 +330,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Group was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowGroup(word, TRUE);
-                    sprintf(GetText(), "Group \"%s\" is now visible\n", word);
+                    UINT showed = ShowGroup(word, TRUE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No elements were made visible in Group \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Made %d element(s) visible in Group \"%s\"\n", showed, word);
+                    }
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -317,8 +347,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Point was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowPoint(word, TRUE);
-                    sprintf(GetText(), "Point \"%s\" is now visible\n", word);
+                    UINT showed = ShowPoint(word, TRUE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No Points were made visible from name \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Made %d Point(s) visible from name \"%s\"\n", showed, word);
+                    }
                 }
 
             }
@@ -330,13 +365,23 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Line was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowLine(word, TRUE);
-                    sprintf(GetText(), "Line \"%s\" is now visible\n", word);
+                    UINT showed = ShowLine(word, TRUE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No Lines were made visible from name \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Made %d Line(s) visible from name \"%s\"\n", showed, word);
+                    }
                 }
             }
             else {
-                ShowAsset(word, TRUE);
-                sprintf(GetText(), "Asset \"%s\" is now visible\n", word);
+                UINT showed = ShowAsset(word, TRUE);
+                if (showed == 0) {
+                    sprintf(GetText(), "No Assets were made visible from name \"%s\"\n", word);
+                }
+                else {
+                    sprintf(GetText(), "Made %d Asset(s) visible from name \"%s\"\n", showed, word);
+                }
             }
         }
         else if (strcmp(word, "hide") == 0) {
@@ -354,8 +399,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Group was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowGroup(word, FALSE);
-                    sprintf(GetText(), "Group \"%s\" is now hidden\n", word);
+                    UINT showed = ShowGroup(word, FALSE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No elements were hidden in Group \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Hidden %d element(s) in Group \"%s\"\n", showed, word);
+                    }
                 }
             }
             else if (strcmp(word, "point") == 0) {
@@ -366,8 +416,13 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Point was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowPoint(word, FALSE);
-                    sprintf(GetText(), "Point \"%s\" is now hidden\n", word);
+                    UINT showed = ShowPoint(word, FALSE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No Points were hidden from name \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Hidden %d Point(s) from name \"%s\"\n", showed, word);
+                    }
                 }
 
             }
@@ -379,13 +434,23 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Asset manipulation failed, no Line was specified \"%s\"\n", GetConfirmedText());
                 }
                 else {
-                    ShowLine(word, FALSE);
-                    sprintf(GetText(), "Line \"%s\" is now hidden\n", word);
+                    UINT showed = ShowLine(word, FALSE);
+                    if (showed == 0) {
+                        sprintf(GetText(), "No Lines were hidden from name \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "Hidden %d Line(s) from name \"%s\"\n", showed, word);
+                    }
                 }
             }
             else {
-                ShowAsset(word, FALSE);
-                sprintf(GetText(), "Asset \"%s\" is now hidden\n", word);
+                UINT showed = ShowAsset(word, FALSE);
+                if (showed == 0) {
+                    sprintf(GetText(), "No Assets were hidden from name \"%s\"\n", word);
+                }
+                else {
+                    sprintf(GetText(), "Hidden %d Asset(s) from name \"%s\"\n", showed, word);
+                }
             }
         }
         else if (strcmp(word, "fps") == 0) {
@@ -561,14 +626,21 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     out = sscanf(cursor, "%s%n", word, &off);
                     cursor += off;
 
+                    BOOL switched;
                     if (strcmp(word, "None") == 0) {
                         CCURRENT = NULL;
+                        switched = TRUE;
                     }
                     else {
-                        SwitchCamera(word);
+                        switched = SwitchCamera(word);
                     }
 
-                    sprintf(GetText(), "Engine Camera set to \"%s\"\n", word);
+                    if (switched) {
+                        sprintf(GetText(), "Engine Camera set to \"%s\"\n", word);
+                    }
+                    else {
+                        sprintf(GetText(), "No Engine Camera was found for name \"%s\"\n", word);
+                    }
                 }
             }
             else {

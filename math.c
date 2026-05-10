@@ -13,3 +13,14 @@ void mulqq(Vec q1, Vec q2, Vec qdst) {
         case AVX512 : { _512_mulqq(q1, q2, qdst); break; };
     }
 }
+
+ULONG hash(const CHAR* str) {
+    ULONG hash = 5381;
+    UINT c;
+
+    while (c = *str++) {
+        hash = ((hash << 5) + hash) + c;
+    }
+
+    return hash;
+}

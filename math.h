@@ -40,4 +40,6 @@
     void mulmv(Matrix m, Vec v, Vec dst);
     void mulqq(Vec q1, Vec q2, Vec qdst);
 
+    ULONG hash(const CHAR* str);
+
 #endif

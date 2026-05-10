@@ -1,82 +1,79 @@
 #include "mhandler.h"
 
-static HMODULE*         MODULES;
-static CHAR**           MNAMES;
-
+static Module*          MODULES;
 static UINT             MCOUNT;
 
-static HANDLE*          HANDLES;
-static UINT*            HMREF;
-static CHAR**           HNAMES;
-
+static Handle*          HANDLES;
 static UINT             HCOUNT;
 
 void InitializeHandler() {
-    MODULES = (HMODULE*) malloc(sizeof(HMODULE));
-    MNAMES = (CHAR**) malloc(sizeof(CHAR*));
-
-    HANDLES = (HANDLE*) malloc(sizeof(HANDLE));
-    HNAMES = (CHAR**) malloc(sizeof(CHAR*));
-    HMREF = (UINT*) malloc(sizeof(UINT));
+    MODULES = (Module*) malloc(sizeof(struct module_t));
+    HANDLES = (Handle*) malloc(sizeof(struct handle_t));
 }
 
 void TerminateHandler() {
     for (UINT i = 0; i < MCOUNT; i++) {
-        FreeLibrary(MODULES[i]);
-        free(MNAMES[i]);
+        free(MODULES[i]);
     }
-
     free(MODULES);
-    free(MNAMES);
 
     for (UINT i = 0; i < HCOUNT; i++) {
-        free(HNAMES[i]);
+        free(HANDLES[i]);
     }
-
     free(HANDLES);
-    free(HNAMES);
-    free(HMREF);
 }
 
-BOOL OpenModule(const CHAR* m) {
-    HMODULE mod = LoadLibraryA(m);
+BOOL OpenModule(const CHAR* mname) {
+    HMODULE mod = LoadLibraryA(mname);
     
     if (mod == NULL) {
-        return 0;
+        return FALSE;
     }
     
-    MODULES = (HMODULE*) malloc((++MCOUNT) * sizeof(HMODULE));
-    MNAMES = (CHAR**) malloc((MCOUNT) * sizeof(CHAR*));
+    MODULES = (Module*) malloc((++MCOUNT) * sizeof(Module));
     
-    MODULES[MCOUNT-1] = mod;
+    Module m = malloc(sizeof(struct module_t));
+    m->MOD = mod;
+    strcpy(m->name, mname);
 
-    CHAR* name = (CHAR*) malloc(30 * sizeof(CHAR));
-    strcpy(name, m);
-    MNAMES[MCOUNT-1] = name;
+    MODULES[MCOUNT-1] = m;
+    ULONG mhash = hash(mname);
 
-    return 1;
+    for (UINT i = 0; i < HCOUNT; i++) {
+        if (HANDLES[i]->mhash == mhash) {
+            HANDLES[i]->H = (HMODULE) GetProcAddress(m->MOD, HANDLES[i]->name);
+        }
+    }
+
+    return TRUE;
 }
 
 BOOL CloseModule(const CHAR* m) {
     for (UINT i = 0; i < MCOUNT; i++) {
-        if (strcmp(m, MNAMES[i]) == 0) {
-            HMODULE mod = MODULES[i];
+        if (strcmp(m, MODULES[i]->name) == 0) {
+            Module mod = MODULES[i];
             MODULES[i] = MODULES[MCOUNT-1];
-            MNAMES[i] = MNAMES[MCOUNT-1];
+            ULONG dmhash = hash(mod->name);
 
             for (UINT e = 0; e < HCOUNT; e++) {
-                HANDLES[e] = (HMREF[e] == i) ? NULL : HANDLES[e];
+                HANDLES[e]->H = (HANDLES[e]->mhash == dmhash) ? NULL : HANDLES[e]->H;
             }
 
-            FreeLibrary(mod);
-            return 1;
+            FreeLibrary(mod->MOD);
+            return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
-BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* hname) {
+BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
+    for (UINT i = 0; i < MCOUNT; i++) {
+        if (strcmp(MODULES[i]->name, mname) == 0) {
+            return FALSE;
+        }
+    }
+
     CHAR cmd[200] = "gcc -shared ";
     UINT delta = strlen(cmd);
     
@@ -85,32 +82,77 @@ BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* hname) {
         delta += strlen(src[i])+1;
     }
 
-    sprintf(cmd + delta, "-o %s.dll", hname);
+    sprintf(cmd + delta, "-o %s.dll", mname);
 
     INT out = system(cmd);
     return (out == 0);
 }
 
-HANDLE* Fetch(const CHAR* from, const CHAR* hname) {
+BOOL RecompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
+    Module target = NULL;
+    for (UINT i = 0; i < MCOUNT && target == NULL; i++) {
+        if (strcmp(MODULES[i]->name, mname) == 0) {
+            target = MODULES[i];
+        }
+    }
+
+    if (target == NULL) {
+        return FALSE;
+    }
+
+    FreeLibrary(target->MOD);
+
+    CHAR cmd[200] = "gcc -shared ";
+    UINT delta = strlen(cmd);
+    
+    for (UINT i = 0; i < srcc; i++) {
+        sprintf(cmd + delta, "%s ", src[i]);
+        delta += strlen(src[i])+1;
+    }
+
+    sprintf(cmd + delta, "-o %s.dll", mname);
+
+    INT out = system(cmd);
+    if (out != 0) {
+        return FALSE;
+    }
+
+    target->MOD = LoadLibrary(mname);
+    ULONG mhash = hash(mname);
+
+    for (UINT i = 0; i < HCOUNT; i++) {
+        if (HANDLES[i]->mhash == mhash) {
+            HANDLES[i]->H = (HANDLE) GetProcAddress(target->MOD, HANDLES[i]->name);
+        }
+    }
+
+    return TRUE;
+}
+
+Handle* FetchHandle(const CHAR* mname, const CHAR* hname) {
+    ULONG mhash = hash(mname);
+    for (UINT i = 0; i < HCOUNT; i++) {
+        if (HANDLES[i]->mhash == mhash && strcmp(HANDLES[i]->name, hname) == 0) {
+            return &HANDLES[i];
+        }
+    }
+
     for (UINT i = 0; i < MCOUNT; i++) {
-        if (strcmp(from, MNAMES[i]) == 0) {
-            HANDLE h = (HANDLE) GetProcAddress(MODULES[i], hname);
-            
-            if (h == NULL) {
+        if (strcmp(MODULES[i]->name, mname) == 0) {
+            HANDLE proc = (HANDLE) GetProcAddress(MODULES[i]->MOD, hname);
+
+            if (proc == NULL) {
                 return NULL;
             }
+
+            HANDLES = (Handle*) malloc((++HCOUNT) * sizeof(Handle));
             
-            HANDLES = (HANDLE*) malloc((++HCOUNT) * sizeof(HANDLE));
-            HNAMES = (CHAR**) malloc((HCOUNT) * sizeof(CHAR*));
-            HMREF = (UINT*) malloc((HCOUNT) * sizeof(UINT));
-            
+            Handle h = (Handle) malloc(sizeof(struct handle_t));
+            h->H = proc;
+            h->mhash = hash(mname);
+            strcpy(h->name, hname);
+
             HANDLES[HCOUNT-1] = h;
-
-            CHAR* name = (CHAR*) malloc(30 * sizeof(CHAR));
-            strcpy(name, hname);
-            HNAMES[HCOUNT-1] = name;
-
-            HMREF[HCOUNT-1] = i;
 
             return &HANDLES[HCOUNT-1];
         }
