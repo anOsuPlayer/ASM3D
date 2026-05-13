@@ -150,8 +150,7 @@ vdot:
     vhaddps %xmm0, %xmm0, %xmm2
     vhaddps %xmm2, %xmm2, %xmm0
 
-    movss %xmm0, -4(%rbp)
-    movl -4(%rbp), %eax
+    vmovd %xmm0, %eax
 
     ret
 
@@ -297,64 +296,22 @@ _256_mulqq:
 
 .global _512_mulqq
 _512_mulqq:
-    movss 12(%rcx), %xmm0
-    mulss (%rdx), %xmm0
-    movss %xmm0, %xmm1
-    movss (%rcx), %xmm0
-    mulss 12(%rdx), %xmm0
-    addss %xmm0, %xmm1
-    movss 4(%rcx), %xmm0
-    mulss 8(%rdx), %xmm0
-    addss %xmm0, %xmm1
-    movss 8(%rcx), %xmm0
-    mulss 4(%rdx), %xmm0
-    subss %xmm0, %xmm1
+    call vcross
+    vmovups (%r8), %xmm2
+    vbroadcastss 12(%rcx), %xmm0
+    vmulps (%rdx), %xmm0, %xmm0
+    vbroadcastss 12(%rdx), %xmm1
+    vmulps (%rcx), %xmm1, %xmm1
+    vaddps %xmm1, %xmm0, %xmm0
+    vaddps %xmm2, %xmm0, %xmm3
 
-    movss %xmm1, (%r8)
+    call vdot
+    vmovd %eax, %xmm2
+    movss 12(%rdx), %xmm1
+    vmulss 12(%rcx), %xmm1, %xmm1
+    subss %xmm2, %xmm1
 
-    movss 12(%rcx), %xmm0
-    mulss 4(%rdx), %xmm0
-    movss %xmm0, %xmm1
-    movss (%rcx), %xmm0
-    mulss 8(%rdx), %xmm0
-    subss %xmm0, %xmm1
-    movss 4(%rcx), %xmm0
-    mulss 12(%rdx), %xmm0
-    addss %xmm0, %xmm1
-    movss 8(%rcx), %xmm0
-    mulss (%rdx), %xmm0
-    addss %xmm0, %xmm1
-
-    movss %xmm1, 4(%r8)
-
-    movss 12(%rcx), %xmm0
-    mulss 8(%rdx), %xmm0
-    movss %xmm0, %xmm1
-    movss (%rcx), %xmm0
-    mulss 4(%rdx), %xmm0
-    addss %xmm0, %xmm1
-    movss 4(%rcx), %xmm0
-    mulss (%rdx), %xmm0
-    subss %xmm0, %xmm1
-    movss 8(%rcx), %xmm0
-    mulss 12(%rdx), %xmm0
-    addss %xmm0, %xmm1
-
-    movss %xmm1, 8(%r8)
-
-    movss 12(%rcx), %xmm0
-    mulss 12(%rdx), %xmm0
-    movss %xmm0, %xmm1
-    movss (%rcx), %xmm0
-    mulss (%rdx), %xmm0
-    subss %xmm0, %xmm1
-    movss 4(%rcx), %xmm0
-    mulss 4(%rdx), %xmm0
-    subss %xmm0, %xmm1
-    movss 8(%rcx), %xmm0
-    mulss 8(%rdx), %xmm0
-    subss %xmm0, %xmm1
-
-    movss %xmm1, 12(%r8)
+    vmovups %xmm3, (%r8)
+    movss %xmm2, 12(%r8)
 
     ret
