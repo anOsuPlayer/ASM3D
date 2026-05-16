@@ -3,13 +3,16 @@
 
     #include "common.h"
     #include "math.h"
+    #include "mhandler.h"
+
+    typedef COLORREF(*Shader)(FLOAT, FLOAT, ULONGLONG);
 
     typedef struct properties_t {
         CHAR name[20];
         CHAR group[20];
         
         BOOL hidden;
-        COLORREF color;
+        Handle* shader;
     } *Properties;
 
     typedef struct point_t {
@@ -17,14 +20,9 @@
         Properties props;
     } *Point;
 
-    typedef struct line_properties_t {
-        COLORREF end_color;
-    } *LProperties;
-
     typedef struct line_t {
         struct vec_t A, B;
         Properties props;
-        LProperties lprops;
     } *Line;
 
     typedef struct surface_t {

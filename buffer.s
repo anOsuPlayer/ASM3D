@@ -205,6 +205,10 @@ _512_clear_bufs_nthd:
 
 .global put
 put:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $64, %rsp
+
     cvtss2si Width(%rip), %eax
     cvtss2si %xmm1, %ecx
     imull %ecx, %eax
@@ -221,10 +225,33 @@ put:
     movss (%rcx, %rax, 4), %xmm5
     ucomiss %xmm3, %xmm5
     jb put0
+        cmpq $0, %r8
+        je put1
+            movq (%r8), %r8
+            cmpq $0, %r8
+            je put1
+                vpxor %xmm0, %xmm0, %xmm0
+                vpxor %xmm1, %xmm1, %xmm1
+                movq %rax, %r14
+                movq ENGINE_TIME(%rip), %r9
+                xchgq %r8, %r9
+                call *%r9
+                movq %rax, %r8
+                movq %r14, %rax
+
+                jmp put2
+        put1:
+            movl $0x00ffffff, %r8d
+        put2:
+
+        movq ZBUFFER(%rip), %rcx
         movq CBUFFER(%rip), %rdx
         movss %xmm3, (%rcx, %rax, 4)
         movl %r8d, (%rdx, %rax, 4)
     put0:
+
+    addq $64, %rsp
+    popq %rbp
     ret
 
 .global _256_put_line
@@ -251,6 +278,7 @@ _256_put_line:
         vmovd %eax, %xmm1
         vpextrd $2, %xmm0, %eax
         vmovd %eax, %xmm3
+        movq $0, %r8
         call put
 
         ret
@@ -341,6 +369,7 @@ _512_put_line:
         vmovd %eax, %xmm1
         vpextrd $2, %xmm0, %eax
         vmovd %eax, %xmm3
+        movq $0, %r8
         call put
 
         ret

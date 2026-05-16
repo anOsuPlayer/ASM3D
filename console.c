@@ -76,7 +76,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
             }
             else if (strcmp(word, "point") == 0) {
                 FLOAT x, y, z;
-                UINT color = 0x00ffffff;
                 CHAR name[20] = "", group[20] = "";
 
                 INT out = sscanf(cursor, "%f,%f,%f%n", &x, &y, &z, &off);
@@ -87,7 +86,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     SetWinState(3);
                 }
                 else {
-                    out = sscanf(cursor, "%x %s %s%n", &color, name, group, &off);
+                    out = sscanf(cursor, "%s %s%n", name, group, &off);
                     cursor += off;
 
                     if (out == EOF) {
@@ -103,12 +102,15 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                         }
                     }
                     
-                    sprintf(GetText(), "Point \"%s\" of color \"%08x\" was created at (%.2f, %.2f, %.2f) in group \"%s\"",
-                        name, color, x, y, z, group);
+                    sprintf(GetText(), "Point \"%s\" was created at (%.2f, %.2f, %.2f) in group \"%s\"",
+                        name, x, y, z, group);
+
+                    OpenModule("CULO");
+                    Handle* h = FetchHandle("CULO", "gridshader");
 
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
-                    p->props->color = color;
+                    p->props->shader = h;
                     strcpy(p->props->name, name);
                     strcpy(p->props->group, group);
                 }
@@ -117,7 +119,6 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
             }
             else if (strcmp(word, "line") == 0) {
                 FLOAT x1, y1, z1, x2, y2, z2;
-                UINT color = 0x00ffffff, end_color = 0xffffffff;
                 CHAR name[20] = "", group[20] = "";
 
                 INT out = sscanf(cursor, "%f,%f,%f;%f,%f,%f%n", &x1, &y1, &z1, &x2, &y2, &z2, &off);
@@ -128,7 +129,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     SetWinState(3);
                 }
                 else {
-                    out = sscanf(cursor, "%x %s %s %x%n", &color, name, group, &end_color, &off);
+                    out = sscanf(cursor, "%s %s%n", name, group, &off);
                     cursor += off;
 
                     if (out == EOF) {
@@ -144,15 +145,12 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                         }
                     }
 
-                    sprintf(GetText(), "Line \"%s\" of color \"%08x-%08x\" was created from (%.2f, %.2f, %.2f)"
-                        " to (%.2f, %.2f, %.2f) in group \"%s\"",
-                        name, color, end_color, x1, y1, z1, x2, y2, z2, group);
+                    sprintf(GetText(), "Line \"%s\" was created from (%.2f, %.2f, %.2f) to (%.2f, %.2f, %.2f) in group \"%s\"",
+                        name, x1, y1, z1, x2, y2, z2, group);
 
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
-                    l->props->color = color;
-                    l->lprops->end_color = end_color;
 
                     strcpy(l->props->name, name);
                     strcpy(l->props->group, group);
@@ -667,6 +665,151 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     else {
                         SetResolution(res);
                         sprintf(GetText(), "Engine Resolution set to x%.1f\n", GetResolution());
+                    }
+                }
+            }
+        }
+        else if (strcmp(word, "open") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Module opening failed, no Module specified \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                if (!OpenModule(word)) {
+                    sprintf(GetText(), "No such Module was found \"%s\"\n", word);
+                }
+                else {
+                    sprintf(GetText(), "Opened Module \"%s\"\n", word);
+                }
+            }
+        }
+        else if (strcmp(word, "close") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Module closing failed, no Module specified \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                if (!CloseModule(word)) {
+                    sprintf(GetText(), "No such Module was opened \"%s\"\n", word);
+                }
+                else {
+                    sprintf(GetText(), "Closed Module \"%s\"\n", word);
+                }
+            }
+        }
+        else if (strcmp(word, "compile") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Module compiling failed, no Module name specified \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                CHAR mname[30];
+                strcpy(mname, word);
+
+                CHAR (*buf)[30] = NULL;
+
+                UINT size = 0;
+                while (TRUE) {
+                    INT out = sscanf(cursor, "%s%n", word, &off);
+                    cursor += off;
+
+                    if (out == EOF) {
+                        break;
+                    }
+
+                    buf = realloc(buf, (++size) * 30);
+                    strcpy(buf[size-1], word);
+                }
+
+                if (buf != NULL) {
+                    free(buf);
+                }
+
+                if (size == 0) {
+                    sprintf(GetText(), "Module compiling failed, no files specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    if (!CompileModule(buf, size, mname)) {
+                        sprintf(GetText(), "Module compiling failed, an error occurred \"%s\"\n", GetConfirmedText());
+                    }
+                    else {
+                        sprintf(GetText(), "Compiled Module \"%s\"\n", mname);
+                    }
+                }
+            }
+        }
+        else if (strcmp(word, "recompile") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Module recompiling failed, no Module name specified \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                CHAR mname[30];
+                strcpy(mname, word);
+
+                CHAR (*buf)[30] = NULL;
+
+                UINT size = 0;
+                while (TRUE) {
+                    INT out = sscanf(cursor, "%s%n", word, &off);
+                    cursor += off;
+
+                    if (out == EOF) {
+                        break;
+                    }
+
+                    buf = realloc(buf, (++size) * 30);
+                    strcpy(buf[size-1], word);
+                }
+
+                if (buf != NULL) {
+                    free(buf);
+                }
+
+                if (size == 0) {
+                    sprintf(GetText(), "Module recompiling failed, no files specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    if (!RecompileModule(buf, size, mname)) {
+                        sprintf(GetText(), "Module recompiling failed, an error occurred \"%s\"\n", GetConfirmedText());
+                    }
+                    else {
+                        sprintf(GetText(), "Recompiled Module \"%s\"\n", mname);
+                    }
+                }
+            }
+        }
+        else if (strcmp(word, "fetch") == 0) {
+            INT out = sscanf(cursor, "%s%n", word, &off);
+            cursor += off;
+
+            if (out == EOF) {
+                sprintf(GetText(), "Handle Fetch failed, no Module specified \"%s\"\n", GetConfirmedText());
+            }
+            else {
+                CHAR mname[30];
+                strcpy(mname, word);
+
+                INT out = sscanf(cursor, "%s%n", word, &off);
+                cursor += off;
+
+                if (out == EOF) {
+                    sprintf(GetText(), "Handle Fetch failed, no target specified \"%s\"\n", GetConfirmedText());
+                }
+                else {
+                    if (FetchHandle(mname, word) == VoidHandle()) {
+                        sprintf(GetText(), "Handle Fetch failed, invalid Handle or Module \"%s\"\n", GetConfirmedText());
+                    }
+                    else {
+                        sprintf(GetText(), "Fetched Handle \"%s\" from Module \"%s\"\n", word, mname);
                     }
                 }
             }

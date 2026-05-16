@@ -169,6 +169,7 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
         
         if (KEYS['Q']) {
             FLOAT droll = (FLOAT) x-100;
+            FLOAT dpitch = (FLOAT) 100-y;
             
             Angle->z -= droll * DROT;
             if (Angle->z > ePI) {
@@ -176,6 +177,14 @@ void Look(HWND hwnd, WPARAM wParam, LPARAM lParam) {
             }
             else if (Angle->z < -ePI) {
                 Angle->z += 2*ePI;
+            }
+
+            Angle->y -= dpitch * DROT;
+            if (Angle->y > ePI) {
+                Angle->y -= 2*ePI;
+            }
+            else if (Angle->y < -ePI) {
+                Angle->y += 2*ePI;
             }
         }
         else {

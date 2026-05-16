@@ -13,30 +13,23 @@ void SetupAxes() {
     Line X = MakeLine();
     X->A.x = -100000; X->A.y = 0; X->A.z = 0;
     X->B.x = 100000; X->B.y = 0; X->B.z = 0;
-    X->props->color = 0x00550055;
-    X->lprops->end_color = 0x00550000;
     strcpy(X->props->name, "x_axis");
     strcpy(X->props->group, "axes");
     
     Line Y = MakeLine();
     Y->A.x = 0; Y->A.y = -100000; Y->A.z = 0;
     Y->B.x = 0; Y->B.y = 100000; Y->B.z = 0;
-    Y->props->color = 0x00555500;
-    Y->lprops->end_color = 0x00005500;
     strcpy(Y->props->name, "y_axis");
     strcpy(Y->props->group, "axes");
 
     Line Z = MakeLine();
     Z->A.x = 0; Z->A.y = 0; Z->A.z = -100000;
     Z->B.x = 0; Z->B.y = 0; Z->B.z = 100000;
-    Z->props->color = 0x00005555;
-    Z->lprops->end_color = 0x00000055;
     strcpy(Z->props->name, "z_axes");
     strcpy(Z->props->group, "axes");
 
     Point O = MakePoint();
     O->P.x = 0; O->P.y = 0; O->P.z = 0;
-    O->props->color = 0x00555555;
     strcpy(O->props->name, "origin");
     strcpy(O->props->group, "axes");
 }
@@ -46,26 +39,22 @@ void SetupGrid() {
         Line G1 = MakeLine();
         G1->A.x = 2*i; G1->A.y = 200; G1->A.z = 0;
         G1->B.x = 2*i; G1->B.y = -200; G1->B.z = 0;
-        G1->props->color = 0x00333333;
         strcpy(G1->props->name, "grid");
         strcpy(G1->props->group, "grid");
         Line G2 = MakeLine();
         G2->A.x = -2*i; G2->A.y = 200; G2->A.z = 0;
         G2->B.x = -2*i; G2->B.y = -200; G2->B.z = 0;
-        G2->props->color = 0x00333333;
         strcpy(G2->props->name, "grid");
         strcpy(G2->props->group, "grid");
 
         Line G3 = MakeLine();
         G3->A.x = 200; G3->A.y = 2*i; G3->A.z = 0;
         G3->B.x = -200; G3->B.y = 2*i; G3->B.z = 0;
-        G3->props->color = 0x00333333;
         strcpy(G3->props->name, "grid");
         strcpy(G3->props->group, "grid");
         Line G4 = MakeLine();
         G4->A.x = 200; G4->A.y = -2*i; G4->A.z = 0;
         G4->B.x = -200; G4->B.y = -2*i; G4->B.z = 0;
-        G4->props->color = 0x00333333;
         strcpy(G4->props->name, "grid");
         strcpy(G4->props->group, "grid");
     }
@@ -106,8 +95,8 @@ Point MakePoint() {
     p->props = (Properties) malloc(sizeof(struct properties_t));
     p->P.w = 1.0f;
 
-    p->props->color = 0x00ffffff;
     p->props->hidden = FALSE;
+    p->props->shader = VoidHandle();
     
     ePOINTS = (Point*) realloc(ePOINTS, (++PCOUNT) * sizeof(Point));
     ePOINTS[PCOUNT-1] = p;
@@ -157,14 +146,12 @@ UINT ShowPoint(const char* pname, BOOL show) {
 Line MakeLine() {
     Line l = (Line) malloc(sizeof(struct line_t));
     l->props = (Properties) malloc(sizeof(struct properties_t));
-    l->lprops = (LProperties) malloc(sizeof(struct line_properties_t));
 
     l->A.w = 1.0f;
     l->B.w = 1.0f;
 
-    l->props->color = 0x00ffffff;
-    l->lprops->end_color = 0xffffffff;
     l->props->hidden = FALSE;
+    l->props->shader = VoidHandle();
 
     eLINES = (Line*) realloc(eLINES, (++LCOUNT) * sizeof(Line));
     eLINES[LCOUNT-1] = l;
@@ -174,7 +161,6 @@ Line MakeLine() {
 
 void FreeLine(Line l) {
     free(l->props);
-    free(l->lprops);
     free(l);
 }
 
@@ -219,8 +205,8 @@ Surface MakeSurface() {
     s->B.w = 1.0f;
     s->C.w = 1.0f;
 
-    s->props->color = 0x00ffffff;
     s->props->hidden = FALSE;
+    s->props->shader = VoidHandle();
 
     eSURFACES = (Surface*) realloc(eSURFACES, (++SCOUNT) * sizeof(Surface));
     eSURFACES[SCOUNT-1] = s;
@@ -361,7 +347,7 @@ void RenderPoints() {
             BOOL confirm = compute_point((Vec) &ePOINTS[i]->P, &screen);
     
             if (confirm) {
-                put(screen.x, screen.y, ePOINTS[i]->props->color, screen.z);
+                put(screen.x, screen.y, *ePOINTS[i]->props->shader, screen.z);
             }
         }
     }
@@ -374,7 +360,7 @@ void RenderLines() {
             BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
             if (confirm) {
-                put_line(&screen1, &screen2, eLINES[i]->props->color, eLINES[i]->lprops->end_color);
+                put_line(&screen1, &screen2, 0x00ffffff, 0x00ffffff);
             }
         }
     }

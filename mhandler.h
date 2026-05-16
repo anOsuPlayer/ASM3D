@@ -21,9 +21,10 @@
     BOOL OpenModule(const CHAR* mname);
     BOOL CloseModule(const CHAR* mname);
 
-    BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* mname);
-    BOOL RecompileModule(CHAR** src, UINT srcc, const CHAR* mname);
+    BOOL CompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname);
+    BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname);
 
     Handle* FetchHandle(const CHAR* from, const CHAR* hname);
+    Handle* VoidHandle();
 
 #endif

@@ -6,13 +6,20 @@ static UINT             MCOUNT;
 static Handle*          HANDLES;
 static UINT             HCOUNT;
 
+static Handle           VOID_HANDLE;
+
 void InitializeHandler() {
     MODULES = (Module*) malloc(sizeof(struct module_t));
     HANDLES = (Handle*) malloc(sizeof(struct handle_t));
+
+    VOID_HANDLE = (Handle) malloc(sizeof(struct handle_t));
+    VOID_HANDLE->H = NULL;
+    strcpy(VOID_HANDLE->name, "");
 }
 
 void TerminateHandler() {
     for (UINT i = 0; i < MCOUNT; i++) {
+        FreeLibrary(MODULES[i]->MOD);
         free(MODULES[i]);
     }
     free(MODULES);
@@ -21,22 +28,35 @@ void TerminateHandler() {
         free(HANDLES[i]);
     }
     free(HANDLES);
+
+    free(VOID_HANDLE);
 }
 
 BOOL OpenModule(const CHAR* mname) {
+    Module m = NULL;
+
+    for (UINT i = 0; i < MCOUNT; i++) {
+        if (strcmp(MODULES[i]->name, mname) == 0 && MODULES[i]->MOD == NULL) {
+            m = MODULES[i];
+            break;
+        }
+    }
+
     HMODULE mod = LoadLibraryA(mname);
     
     if (mod == NULL) {
         return FALSE;
     }
     
-    MODULES = (Module*) malloc((++MCOUNT) * sizeof(Module));
-    
-    Module m = malloc(sizeof(struct module_t));
+    if (m == NULL) {
+        MODULES = (Module*) malloc((++MCOUNT) * sizeof(Module));
+        m = malloc(sizeof(struct module_t));
+        MODULES[MCOUNT-1] = m;
+    }
+
     m->MOD = mod;
     strcpy(m->name, mname);
 
-    MODULES[MCOUNT-1] = m;
     ULONG mhash = hash(mname);
 
     for (UINT i = 0; i < HCOUNT; i++) {
@@ -48,9 +68,9 @@ BOOL OpenModule(const CHAR* mname) {
     return TRUE;
 }
 
-BOOL CloseModule(const CHAR* m) {
+BOOL CloseModule(const CHAR* mname) {
     for (UINT i = 0; i < MCOUNT; i++) {
-        if (strcmp(m, MODULES[i]->name) == 0) {
+        if (strcmp(mname, MODULES[i]->name) == 0) {
             Module mod = MODULES[i];
             MODULES[i] = MODULES[MCOUNT-1];
             ULONG dmhash = hash(mod->name);
@@ -60,6 +80,7 @@ BOOL CloseModule(const CHAR* m) {
             }
 
             FreeLibrary(mod->MOD);
+            mod->MOD = NULL;
             return TRUE;
         }
     }
@@ -67,9 +88,9 @@ BOOL CloseModule(const CHAR* m) {
     return FALSE;
 }
 
-BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
+BOOL CompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
     for (UINT i = 0; i < MCOUNT; i++) {
-        if (strcmp(MODULES[i]->name, mname) == 0) {
+        if (strcmp(MODULES[i]->name, mname) == 0 && MODULES[i]->MOD != NULL) {
             return FALSE;
         }
     }
@@ -78,6 +99,12 @@ BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
     UINT delta = strlen(cmd);
     
     for (UINT i = 0; i < srcc; i++) {
+        FILE* f = fopen(src[i], "r");
+        if (f == NULL) {
+            return FALSE;
+        }
+        fclose(f);
+
         sprintf(cmd + delta, "%s ", src[i]);
         delta += strlen(src[i])+1;
     }
@@ -88,7 +115,7 @@ BOOL CompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
     return (out == 0);
 }
 
-BOOL RecompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
+BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
     Module target = NULL;
     for (UINT i = 0; i < MCOUNT && target == NULL; i++) {
         if (strcmp(MODULES[i]->name, mname) == 0) {
@@ -106,6 +133,12 @@ BOOL RecompileModule(CHAR** src, UINT srcc, const CHAR* mname) {
     UINT delta = strlen(cmd);
     
     for (UINT i = 0; i < srcc; i++) {
+        FILE* f = fopen(src[i], "r");
+        if (f == NULL) {
+            return FALSE;
+        }
+        fclose(f);
+        
         sprintf(cmd + delta, "%s ", src[i]);
         delta += strlen(src[i])+1;
     }
@@ -142,7 +175,7 @@ Handle* FetchHandle(const CHAR* mname, const CHAR* hname) {
             HANDLE proc = (HANDLE) GetProcAddress(MODULES[i]->MOD, hname);
 
             if (proc == NULL) {
-                return NULL;
+                return &VOID_HANDLE;
             }
 
             HANDLES = (Handle*) malloc((++HCOUNT) * sizeof(Handle));
@@ -158,5 +191,9 @@ Handle* FetchHandle(const CHAR* mname, const CHAR* hname) {
         }
     }
 
-    return NULL;
+    return &VOID_HANDLE;
+}
+
+Handle* VoidHandle() {
+    return &VOID_HANDLE;
 }

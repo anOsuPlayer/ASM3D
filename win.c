@@ -86,6 +86,8 @@ LRESULT HandleMSG(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             
             clock_gettime(CLOCK_MONOTONIC, &end);
             LONGLONG delta = ((end.tv_sec * 1000000000L + end.tv_nsec) - (start.tv_sec * 1000000000L + start.tv_nsec));
+            ENGINE_TIME += delta;
+
             LONGLONG nsdiff = GetFrameSize() - delta;
             
             if (nsdiff > 0) {

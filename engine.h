@@ -4,6 +4,8 @@
     #include "assets.h"
     #include "camera.h"
     #include "buffer.h"
+
+    extern ULONGLONG        ENGINE_TIME;
     
     extern BOOL compute_point(Vec pos, Vec screen);
     extern BOOL compute_line(Vec pos1, Vec pos2, Vec screen1, Vec screen2);

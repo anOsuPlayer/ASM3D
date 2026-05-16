@@ -1,7 +1,10 @@
 .section .data
 
+.global ENGINE_TIME
+ENGINE_TIME:        .quad 0
+
 .align 32
-    plane_mask: .long 0, 4, 1, 5, 2, 6, 0, 0
+plane_mask:         .long 0, 4, 1, 5, 2, 6, 0, 0
 
 .section .text
 .global compute_point
