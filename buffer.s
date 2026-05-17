@@ -256,6 +256,10 @@ put:
 
 .global _256_put_line
 _256_put_line:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $64, %rsp
+
     vmovups (%rdx), %xmm0
     vsubps (%rcx), %xmm0, %xmm0
     vmovups %xmm0, %xmm1
@@ -269,7 +273,6 @@ _256_put_line:
     vmaxss %xmm3, %xmm2, %xmm3
     vbroadcastss %xmm3, %xmm3
 
-    vpxor %xmm4, %xmm4, %xmm4
     cvtss2si %xmm3, %r15d
     cmpl $0, %r15d
     jnz _256_put_line0
@@ -281,86 +284,140 @@ _256_put_line:
         movq $0, %r8
         call put
 
+        addq $64, %rsp
+        popq %rbp
         ret
     _256_put_line0:
 
-    movd %r8d, %xmm0
-    vpmovzxbd %xmm0, %xmm4
-    vcvtdq2ps %xmm4, %xmm4
-
-    vpxor %xmm2, %xmm2, %xmm2
-    cmpl $-1, %r9d
-    je _256_put_line1
-        vmovd %r9d, %xmm0
-        vpmovzxbd %xmm0, %xmm5
-        vcvtdq2ps %xmm5, %xmm5
-
-        vsubps %xmm4, %xmm5, %xmm2
-    _256_put_line1:
+    movl $1, %eax
+    cvtsi2ss %eax, %xmm2
 
     vmovups (%rcx), %xmm5
+    vpxor %xmm4, %xmm4, %xmm4
 
-    vdivps %xmm3, %xmm1, %xmm1
+    vdivps %xmm3, %xmm1, %xmm7
     vdivps %xmm3, %xmm2, %xmm2
 
     cvtss2si %xmm3, %ecx
     cvtss2si Width(%rip), %esi
+    
+    cmpq $0, %r8
+    je _256_put_line1
+        movq (%r8), %r8
+    _256_put_line1:
+    movq %r8, -8(%rbp)
+    cmpq $0, %r8
+    je _256_put_line_loop_fixed
 
-    _256_put_line_loop:
-        movl %esi, %eax
-        vmovups %xmm5, %xmm0
-        vcvtps2dq %xmm0, %xmm0
-        vpextrd $1, %xmm0, %edx
-        mull %edx
-        movd %xmm0, %edx
-        addl %edx, %eax
-        decl %eax
+        _256_put_line_loop:
+            movl %esi, %eax
+            vmovups %xmm5, %xmm0
+            vcvtps2dq %xmm0, %xmm0
+            vpextrd $1, %xmm0, %edx
+            mull %edx
+            movd %xmm0, %edx
+            addl %edx, %eax
+            decl %eax
 
-        cmpl $0, %eax
-        jl l256put0
-        cmpl PIXELS(%rip), %eax
-        jg l256put0
+            cmpl $0, %eax
+            jl l256put0
+            cmpl PIXELS(%rip), %eax
+            jg l256put0
 
-        movq ZBUFFER(%rip), %rbx
-        movss (%rbx, %rax, 4), %xmm6
-        vpextrd $2, %xmm5, %r15d
-        movd %r15d, %xmm0
-        ucomiss %xmm0, %xmm6
-        jb l256put0
-            movq CBUFFER(%rip), %rdx
-            movss %xmm0, (%rbx, %rax, 4)
+            movq ZBUFFER(%rip), %rdx
+            movss (%rdx, %rax, 4), %xmm6
+            vpextrd $2, %xmm5, %r15d
+            movd %r15d, %xmm0
+            ucomiss %xmm0, %xmm6
+            jb l256put0
+                movss %xmm0, -28(%rbp)
+                movq -8(%rbp), %r8
 
-            vcvtps2dq %xmm4, %xmm0
-            vpackusdw %xmm0, %xmm0, %xmm0
-            vpackuswb %xmm0, %xmm0, %xmm0
-            vmovd %xmm0, %r15d
+                movss %xmm4, %xmm0
+                vpxor %xmm1, %xmm1, %xmm1
+                movq %rax, -16(%rbp)
+                movq %rcx, -24(%rbp)
+                movq ENGINE_TIME(%rip), %r9
+                xchgq %r8, %r9
+                call *%r9
+                movq %rax, %r15
+                movq -16(%rbp), %rax
+                movq -24(%rbp), %rcx
 
-            movl %r15d, (%rdx, %rax, 4)
-        l256put0:
+                movq ZBUFFER(%rip), %rdx
+                movss -28(%rbp), %xmm0
+                movss %xmm0, (%rdx, %rax, 4)
+                movq CBUFFER(%rip), %rdx
+                movl %r15d, (%rdx, %rax, 4)
+            l256put0:
 
-        vaddps %xmm4, %xmm2, %xmm4
-        vaddps %xmm5, %xmm1, %xmm5
-    decl %ecx
-    cmpl $0, %ecx
-    jnz _256_put_line_loop
+            vaddps %xmm4, %xmm2, %xmm4
+            vaddps %xmm5, %xmm7, %xmm5
+        decl %ecx
+        cmpl $0, %ecx
+        jnz _256_put_line_loop
 
+    jmp _256_put_line_end
+
+        _256_put_line_loop_fixed:
+            movl %esi, %eax
+            vmovups %xmm5, %xmm0
+            vcvtps2dq %xmm0, %xmm0
+            vpextrd $1, %xmm0, %edx
+            mull %edx
+            movd %xmm0, %edx
+            addl %edx, %eax
+            decl %eax
+
+            cmpl $0, %eax
+            jl l256put1
+            cmpl PIXELS(%rip), %eax
+            jg l256put1
+
+            movq ZBUFFER(%rip), %rdx
+            movss (%rdx, %rax, 4), %xmm6
+            vpextrd $2, %xmm5, %r15d
+            movd %r15d, %xmm0
+            ucomiss %xmm0, %xmm6
+            jb l256put1
+                movq ZBUFFER(%rip), %rdx
+                movss -28(%rbp), %xmm0
+                movss %xmm0, (%rdx, %rax, 4)
+                movq CBUFFER(%rip), %rdx
+                movl $0x00ffffff, (%rdx, %rax, 4)
+            l256put1:
+
+            vaddps %xmm4, %xmm2, %xmm4
+            vaddps %xmm5, %xmm7, %xmm5
+        decl %ecx
+        cmpl $0, %ecx
+        jnz _256_put_line_loop_fixed
+
+    _256_put_line_end:
+
+    addq $64, %rsp
+    popq %rbp
     ret
 
 .global _512_put_line
 _512_put_line:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $64, %rsp
+
     vmovups (%rdx), %xmm0
     vsubps (%rcx), %xmm0, %xmm0
     vmovups %xmm0, %xmm1
     
     movl $0x7fffffff, %eax
-    vpbroadcastd %eax, %xmm2
+    movd %eax, %xmm0
+    vbroadcastss %xmm0, %xmm2
     vandps %xmm1, %xmm2, %xmm3
     vpextrd $1, %xmm3, %eax
     movd %eax, %xmm2
     vmaxss %xmm3, %xmm2, %xmm3
     vbroadcastss %xmm3, %xmm3
 
-    vpxor %xmm4, %xmm4, %xmm4
     cvtss2si %xmm3, %r15d
     cmpl $0, %r15d
     jnz _512_put_line0
@@ -372,68 +429,118 @@ _512_put_line:
         movq $0, %r8
         call put
 
+        addq $64, %rsp
+        popq %rbp
         ret
     _512_put_line0:
 
-    vmovd %r8d, %xmm0
-    vpmovzxbd %xmm0, %xmm4
-    vcvtdq2ps %xmm4, %xmm4
-
-    vpxor %xmm2, %xmm2, %xmm2
-    cmpl $-1, %r9d
-    je _512_put_line1
-        vmovd %r9d, %xmm0
-        vpmovzxbd %xmm0, %xmm5
-        vcvtdq2ps %xmm5, %xmm5
-
-        vsubps %xmm4, %xmm5, %xmm2
-    _512_put_line1:
+    movl $1, %eax
+    cvtsi2ss %eax, %xmm2
 
     vmovups (%rcx), %xmm5
+    vpxor %xmm4, %xmm4, %xmm4
 
-    vdivps %xmm3, %xmm1, %xmm1
+    vdivps %xmm3, %xmm1, %xmm7
     vdivps %xmm3, %xmm2, %xmm2
 
     cvtss2si %xmm3, %ecx
     cvtss2si Width(%rip), %esi
+    
+    cmpq $0, %r8
+    je _512_put_line1
+        movq (%r8), %r8
+    _512_put_line1:
+    movq %r8, -8(%rbp)
+    cmpq $0, %r8
+    je _512_put_line_loop_fixed
 
-    _512_put_line_loop:
-        movl %esi, %eax
-        vmovups %xmm5, %xmm0
-        vcvtps2dq %xmm0, %xmm0
-        vpextrd $1, %xmm0, %edx
-        mull %edx
-        movd %xmm0, %edx
-        addl %edx, %eax
-        decl %eax
+        _512_put_line_loop:
+            movl %esi, %eax
+            vmovups %xmm5, %xmm0
+            vcvtps2dq %xmm0, %xmm0
+            vpextrd $1, %xmm0, %edx
+            mull %edx
+            movd %xmm0, %edx
+            addl %edx, %eax
+            decl %eax
 
-        cmpl $0, %eax
-        jl l512put0
-        cmpl PIXELS(%rip), %eax
-        jg l512put0
+            cmpl $0, %eax
+            jl l512put0
+            cmpl PIXELS(%rip), %eax
+            jg l512put0
 
-        movq ZBUFFER(%rip), %rbx
-        movss (%rbx, %rax, 4), %xmm6
-        vpextrd $2, %xmm5, %r15d
-        movd %r15d, %xmm0
-        ucomiss %xmm0, %xmm6
-        jb l512put0
-            movq CBUFFER(%rip), %rdx
-            movss %xmm0, (%rbx, %rax, 4)
+            movq ZBUFFER(%rip), %rdx
+            movss (%rdx, %rax, 4), %xmm6
+            vpextrd $2, %xmm5, %r15d
+            movd %r15d, %xmm0
+            ucomiss %xmm0, %xmm6
+            jb l512put0
+                movss %xmm0, -28(%rbp)
+                movq -8(%rbp), %r8
 
-            vcvtps2dq %xmm4, %xmm0
-            vpackusdw %xmm0, %xmm0, %xmm0
-            vpackuswb %xmm0, %xmm0, %xmm0
-            vmovd %xmm0, %r15d
+                movss %xmm4, %xmm0
+                vpxor %xmm1, %xmm1, %xmm1
+                movq %rax, -16(%rbp)
+                movq %rcx, -24(%rbp)
+                movq ENGINE_TIME(%rip), %r9
+                xchgq %r8, %r9
+                call *%r9
+                movq %rax, %r15
+                movq -16(%rbp), %rax
+                movq -24(%rbp), %rcx
 
-            movl %r15d, (%rdx, %rax, 4)
-        l512put0:
+                movq ZBUFFER(%rip), %rdx
+                movss -28(%rbp), %xmm0
+                movss %xmm0, (%rdx, %rax, 4)
+                movq CBUFFER(%rip), %rdx
+                movl %r15d, (%rdx, %rax, 4)
+            l512put0:
 
-        vaddps %xmm4, %xmm2, %xmm4
-        vaddps %xmm5, %xmm1, %xmm5
-    decl %ecx
-    cmpl $0, %ecx
-    jnz _512_put_line_loop
+            vaddps %xmm4, %xmm2, %xmm4
+            vaddps %xmm5, %xmm7, %xmm5
+        decl %ecx
+        cmpl $0, %ecx
+        jnz _512_put_line_loop
 
+    jmp _512_put_line_end
+
+        _512_put_line_loop_fixed:
+            movl %esi, %eax
+            vmovups %xmm5, %xmm0
+            vcvtps2dq %xmm0, %xmm0
+            vpextrd $1, %xmm0, %edx
+            mull %edx
+            movd %xmm0, %edx
+            addl %edx, %eax
+            decl %eax
+
+            cmpl $0, %eax
+            jl l512put1
+            cmpl PIXELS(%rip), %eax
+            jg l512put1
+
+            movq ZBUFFER(%rip), %rdx
+            movss (%rdx, %rax, 4), %xmm6
+            vpextrd $2, %xmm5, %r15d
+            movd %r15d, %xmm0
+            ucomiss %xmm0, %xmm6
+            jb l512put1
+                movq ZBUFFER(%rip), %rdx
+                movss -28(%rbp), %xmm0
+                movss %xmm0, (%rdx, %rax, 4)
+                movq CBUFFER(%rip), %rdx
+                movl $0x00ffffff, (%rdx, %rax, 4)
+            l512put1:
+
+            vaddps %xmm4, %xmm2, %xmm4
+            vaddps %xmm5, %xmm7, %xmm5
+        decl %ecx
+        cmpl $0, %ecx
+        jnz _512_put_line_loop_fixed
+
+    _512_put_line_end:
+
+    addq $64, %rsp
+    popq %rbp
     ret
     

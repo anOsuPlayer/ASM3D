@@ -5,14 +5,16 @@
     #include "math.h"
     #include "mhandler.h"
 
-    typedef COLORREF(*Shader)(FLOAT, FLOAT, ULONGLONG);
+    typedef COLORREF(*shader_t)(FLOAT, FLOAT, ULONGLONG);
+    
+    typedef Handle Shader;
 
     typedef struct properties_t {
         CHAR name[20];
         CHAR group[20];
         
         BOOL hidden;
-        Handle* shader;
+        Shader* shader;
     } *Properties;
 
     typedef struct point_t {

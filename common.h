@@ -8,10 +8,10 @@
     #include <stdint.h>
     #include <math.h>
     #include <time.h>
-    #include <pthread.h>
-    #include <immintrin.h>
 
     static const LPCSTR             WIN_NAME    = "ASM3D";
+
+    static const LPCSTR             ENGINE_SHADERS_HANDLE = "base";
 
     LONG GetWindowWidth();
     LONG GetWindowHeight();

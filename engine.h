@@ -4,6 +4,7 @@
     #include "assets.h"
     #include "camera.h"
     #include "buffer.h"
+    #include "mhandler.h"
 
     extern ULONGLONG        ENGINE_TIME;
     

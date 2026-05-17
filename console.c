@@ -105,12 +105,9 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     sprintf(GetText(), "Point \"%s\" was created at (%.2f, %.2f, %.2f) in group \"%s\"",
                         name, x, y, z, group);
 
-                    OpenModule("CULO");
-                    Handle* h = FetchHandle("CULO", "gridshader");
-
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
-                    p->props->shader = h;
+                    
                     strcpy(p->props->name, name);
                     strcpy(p->props->group, group);
                 }

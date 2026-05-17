@@ -3,14 +3,14 @@
 
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show) {
 
-    InitializeAssets();
     InitializeHandler();
+    InitializeAssets();
 
     HWND hwnd = MakeWindow(inst, show);
     Loop(hwnd);
 
-    TerminateHandler();
     TerminateAssets();
+    TerminateHandler();
 
     return 0;
 }

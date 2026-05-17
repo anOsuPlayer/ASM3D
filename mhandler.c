@@ -9,8 +9,8 @@ static UINT             HCOUNT;
 static Handle           VOID_HANDLE;
 
 void InitializeHandler() {
-    MODULES = (Module*) malloc(sizeof(struct module_t));
-    HANDLES = (Handle*) malloc(sizeof(struct handle_t));
+    MODULES = NULL;
+    HANDLES = malloc(256 * sizeof(Handle));
 
     VOID_HANDLE = (Handle) malloc(sizeof(struct handle_t));
     VOID_HANDLE->H = NULL;
@@ -44,12 +44,8 @@ BOOL OpenModule(const CHAR* mname) {
 
     HMODULE mod = LoadLibraryA(mname);
     
-    if (mod == NULL) {
-        return FALSE;
-    }
-    
     if (m == NULL) {
-        MODULES = (Module*) malloc((++MCOUNT) * sizeof(Module));
+        MODULES = (Module*) realloc(MODULES, (++MCOUNT) * sizeof(Module));
         m = malloc(sizeof(struct module_t));
         MODULES[MCOUNT-1] = m;
     }
@@ -72,7 +68,6 @@ BOOL CloseModule(const CHAR* mname) {
     for (UINT i = 0; i < MCOUNT; i++) {
         if (strcmp(mname, MODULES[i]->name) == 0) {
             Module mod = MODULES[i];
-            MODULES[i] = MODULES[MCOUNT-1];
             ULONG dmhash = hash(mod->name);
 
             for (UINT e = 0; e < HCOUNT; e++) {
@@ -128,6 +123,7 @@ BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
     }
 
     FreeLibrary(target->MOD);
+    target->MOD = NULL;
 
     CHAR cmd[200] = "gcc -shared ";
     UINT delta = strlen(cmd);
@@ -150,7 +146,7 @@ BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
         return FALSE;
     }
 
-    target->MOD = LoadLibrary(mname);
+    target->MOD = LoadLibraryA(mname);
     ULONG mhash = hash(mname);
 
     for (UINT i = 0; i < HCOUNT; i++) {
@@ -172,22 +168,20 @@ Handle* FetchHandle(const CHAR* mname, const CHAR* hname) {
 
     for (UINT i = 0; i < MCOUNT; i++) {
         if (strcmp(MODULES[i]->name, mname) == 0) {
-            HANDLE proc = (HANDLE) GetProcAddress(MODULES[i]->MOD, hname);
-
-            if (proc == NULL) {
-                return &VOID_HANDLE;
+            HANDLE proc = NULL;
+            
+            if (MODULES[i]->MOD != NULL) {
+                proc = (HANDLE) GetProcAddress(MODULES[i]->MOD, hname);
             }
 
-            HANDLES = (Handle*) malloc((++HCOUNT) * sizeof(Handle));
-            
             Handle h = (Handle) malloc(sizeof(struct handle_t));
             h->H = proc;
             h->mhash = hash(mname);
             strcpy(h->name, hname);
+            
+            HANDLES[HCOUNT] = h;
 
-            HANDLES[HCOUNT-1] = h;
-
-            return &HANDLES[HCOUNT-1];
+            return &HANDLES[HCOUNT++];
         }
     }
 

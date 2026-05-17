@@ -1,9 +1,9 @@
 #include "buffer.h"
 
-void put_line(Vec p1, Vec p2, COLORREF c1, COLORREF c2) {
+void put_line(Vec p1, Vec p2, Shader shader) {
     switch (GetEngineMode()) {
-        case AVX256 : { _256_put_line(p1, p2, c1, c2); break; }
-        case AVX512 : { _512_put_line(p1, p2, c1, c2); break; }
+        case AVX256 : { _256_put_line(p1, p2, shader); break; }
+        case AVX512 : { _512_put_line(p1, p2, shader); break; }
     }
 }
 
