@@ -1,8 +1,5 @@
 .section .data
 
-.global ENGINE_TIME
-ENGINE_TIME:        .quad 0
-
 .align 32
 plane_mask:         .long 0, 4, 1, 5, 2, 6, 0, 0
 
@@ -273,5 +270,20 @@ compute_line:
     compute_line_end:
 
     addq $256, %rsp
+    popq %rbp
+    ret
+
+.global compute_surface
+compute_surface:
+    pushq %rbp
+    movq %rsp, %rbp
+    subq $160, %rsp
+
+    movq CCURRENT(%rip), %r14
+    movq %r9, 48(%rsp)
+
+    
+
+    addq $160, %rsp
     popq %rbp
     ret

@@ -70,6 +70,8 @@
 
     typedef enum ENGINEMODE {
 
+        PLAINC,
+
         AVX256,
 
         AVX512

@@ -2,7 +2,7 @@
     #define PHISICS_H
 
     #include "common.h"
-    #include "math.h"
+    #include "elements/math.h"
 
     typedef struct transform_t {
         struct vec_t pos;

@@ -31,9 +31,11 @@
     extern FLOAT vdot(Vec v1, Vec v2);
     extern void vcross(Vec v1, Vec v2, Vec dst);
 
+    void _c_mulmv(Matrix m, Vec v, Vec dst);
     extern void _256_mulmv(Matrix m, Vec v, Vec dst);
     extern void _512_mulmv(Matrix m, Vec v, Vec dst);
 
+    void _c_mulqq(Vec q1, Vec q2, Vec qdst);
     extern void _256_mulqq(Vec q1, Vec q2, Vec qdst);
     extern void _512_mulqq(Vec q1, Vec q2, Vec qdst);
 

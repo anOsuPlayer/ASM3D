@@ -1,10 +1,10 @@
 #ifndef WIN_H
     #define WIN_H
 
-    #include "camera.h"
-    #include "controls.h"
-    #include "engine.h"
-    #include "console.h"
+    #include "assets/controls.h"
+    #include "console/console.h"
+    #include "elements/camera.h"
+    #include "render/engine.h"
 
     HWND MakeWindow(HINSTANCE inst, int show);
 

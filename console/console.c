@@ -107,6 +107,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
 
                     Point p = MakePoint();
                     p->P.x = x; p->P.y = y; p->P.z = z;
+                    p->props->shader = NULL;
                     
                     strcpy(p->props->name, name);
                     strcpy(p->props->group, group);
@@ -148,6 +149,7 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                     Line l = MakeLine();
                     l->A.x = x1; l->A.y = y1; l->A.z = z1;
                     l->B.x = x2; l->B.y = y2; l->B.z = z2;
+                    l->props->shader = NULL;
 
                     strcpy(l->props->name, name);
                     strcpy(l->props->group, group);
@@ -605,6 +607,10 @@ void DisplayConsole(HWND hwnd, HDC hdc, WPARAM wParam, LPARAM lParam) {
                 else if (strcmp(word, "avx512") == 0) {
                     SetEngineMode(AVX512);
                     sprintf(GetText(), "Engine Mode set to Accelerated AVX512\n");
+                }
+                else if (strcmp(word, "C") == 0 || strcmp(word, "c") == 0 || strcmp(word, "plain") == 0) {
+                    SetEngineMode(PLAINC);
+                    sprintf(GetText(), "Engine Mode set to Plain C\n");
                 }
                 else {
                     sprintf(GetText(), "Unknown Engine Mode \"%s\"\n", GetConfirmedText());

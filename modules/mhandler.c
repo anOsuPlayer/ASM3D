@@ -122,9 +122,6 @@ BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
         return FALSE;
     }
 
-    FreeLibrary(target->MOD);
-    target->MOD = NULL;
-
     CHAR cmd[200] = "gcc -shared ";
     UINT delta = strlen(cmd);
     
@@ -140,6 +137,9 @@ BOOL RecompileModule(CHAR (*src)[30], UINT srcc, const CHAR* mname) {
     }
 
     sprintf(cmd + delta, "-o %s.dll", mname);
+    
+    FreeLibrary(target->MOD);
+    target->MOD = NULL;
 
     INT out = system(cmd);
     if (out != 0) {

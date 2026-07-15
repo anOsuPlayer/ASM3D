@@ -1,8 +1,8 @@
 #ifndef CONTROLS_H
     #define CONTROLS_H
 
-    #include "engine.h"
-    #include "text.h"
+    #include "assets/text.h"
+    #include "render/engine.h"
 
     extern FLOAT            DPOS;
     extern FLOAT            DROT;

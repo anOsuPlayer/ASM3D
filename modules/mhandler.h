@@ -2,7 +2,7 @@
     #define MHANDLER_H
 
     #include "common.h"
-    #include "math.h"
+    #include "elements/math.h"
 
     typedef struct module_t {
         HMODULE MOD;

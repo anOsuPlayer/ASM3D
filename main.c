@@ -1,5 +1,5 @@
-#include "win.h"
-#include "console.h"
+#include "assets/win.h"
+#include "console/console.h"
 
 int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmd, int show) {
 

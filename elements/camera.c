@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "controls.h"
+#include "assets/controls.h"
 
 static Camera*          CAMERAS;
 static UINT             CCOUNT;

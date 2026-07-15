@@ -2,7 +2,7 @@
     #define BUFFER_H
 
     #include "common.h"
-    #include "assets.h"
+    #include "elements/basic.h"
 
     extern FLOAT*               ZBUFFER;
     extern UINT*                CBUFFER;
@@ -11,6 +11,10 @@
     extern LONG                 PIXELS;
 
     extern COLORREF             ENGINE_BG;
+
+    extern ULONGLONG            ENGINE_TIME;
+
+    void _c_clear_bufs();
 
     extern void _256_clear_bufs();
     extern void _512_clear_bufs();
@@ -24,12 +28,15 @@
     extern void _256_clear_bufs_nthd();
     extern void _512_clear_bufs_nthd();
 
-    extern void put(FLOAT x, FLOAT y, Shader shader, FLOAT z);
+    void _c_put(FLOAT x, FLOAT y, Shader* shader, FLOAT z);
+    extern void _256_put(FLOAT x, FLOAT y, Shader* shader, FLOAT z);
 
-    extern void _256_put_line(Vec p1, Vec p2, Shader shader);
-    extern void _512_put_line(Vec p1, Vec p2, Shader shader);
+    void put(FLOAT x, FLOAT y, Shader* shader, FLOAT z);
 
-    void put_line(Vec p1, Vec p2, Handle shader);
+    void _c_put_line(Vec p1, Vec p2, Shader* shader);
+    extern void _256_put_line(Vec p1, Vec p2, Shader* shader);
+
+    void put_line(Vec p1, Vec p2, Shader* shader);
 
     void ClearBuffers();
 

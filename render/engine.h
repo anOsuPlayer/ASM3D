@@ -1,15 +1,14 @@
 #ifndef ENGINE_H
     #define ENGINE_H
 
-    #include "assets.h"
-    #include "camera.h"
-    #include "buffer.h"
-    #include "mhandler.h"
-
-    extern ULONGLONG        ENGINE_TIME;
+    #include "elements/basic.h"
+    #include "elements/camera.h"
+    #include "modules/mhandler.h"
+    #include "render/buffer.h"
     
     extern BOOL compute_point(Vec pos, Vec screen);
     extern BOOL compute_line(Vec pos1, Vec pos2, Vec screen1, Vec screen2);
+    extern BOOL compute_surface(Vec pos1, Vec pos2, Vec pos3, Vec screen1, Vec screen2, Vec screen3);
     
     void InitializeAssets();
     void TerminateAssets();

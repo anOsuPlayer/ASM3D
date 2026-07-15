@@ -2,8 +2,8 @@
     #define BASIC_ASSETS_H
 
     #include "common.h"
-    #include "math.h"
-    #include "mhandler.h"
+    #include "elements/math.h"
+    #include "modules/mhandler.h"
 
     typedef COLORREF(*shader_t)(FLOAT, FLOAT, ULONGLONG);
     

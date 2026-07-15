@@ -357,7 +357,7 @@ void RenderPoints() {
             BOOL confirm = compute_point((Vec) &ePOINTS[i]->P, &screen);
     
             if (confirm) {
-                put(screen.x, screen.y, *ePOINTS[i]->props->shader, screen.z);
+                put(screen.x, screen.y, ePOINTS[i]->props->shader, screen.z);
             }
         }
     }
@@ -370,7 +370,7 @@ void RenderLines() {
             BOOL confirm = compute_line((Vec) &eLINES[i]->A, (Vec) &eLINES[i]->B, &screen1, &screen2);
 
             if (confirm) {
-                put_line(&screen1, &screen2, *eLINES[i]->props->shader);
+                put_line(&screen1, &screen2, eLINES[i]->props->shader);
             }
         }
     }

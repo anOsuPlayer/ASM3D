@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
     #define CAMERA_H
 
-    #include "math.h"
-    #include "phisics.h"
+    #include "elements/math.h"
+    #include "elements/phisics.h"
 
     typedef struct camera_t {
         Vec         QUATERNION;
